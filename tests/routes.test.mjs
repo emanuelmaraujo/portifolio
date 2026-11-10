@@ -55,6 +55,8 @@ for (const [route, locale, ogLocale] of [["/", "en", "en_US"], ["/pt", "pt-BR", 
     for (const name of ["Prumo", "Torvya", "Marcos Krep’s", "ISO/IEC 27001 Foundation"]) assert.ok(html.includes(name), name);
     assert.ok(html.includes('src="/aperture/core-poster.svg"'));
     assert.ok(html.includes('href="#main"'));
+    assert.ok(html.includes('portrait-frame'));
+    for (const section of ['experience', 'security', 'infrastructure', 'management']) assert.ok(html.includes(`id="${section}"`), section);
   });
 }
 

@@ -2,10 +2,16 @@ import Link from "next/link";
 import { ArrowUpRight, Github, Globe2, Linkedin, Mail } from "lucide-react";
 import { copy, links, type Locale } from "./content";
 import ProjectExhibits from "./ProjectExhibits";
-import Hero from "./Hero";
+import Hero, { sceneLabels } from "./Hero";
+import ChapterBridge from "./ChapterBridge";
+import ChapterMotion from "./ChapterMotion";
+import ProfessionalRecord from "./ProfessionalRecord";
+import SceneStage from "./SceneStage";
+import TechnicalAreas from "./TechnicalAreas";
 import Workflow from "./Workflow";
 
 const sections = ["work", "workflow", "about", "contact"];
+const navigation = [2, 0, 1, 3];
 
 export default function Portfolio({ locale }: { locale: Locale }) {
   const t = copy[locale];
@@ -16,11 +22,11 @@ export default function Portfolio({ locale }: { locale: Locale }) {
       <div className="wrap masthead-inner">
         <a href="#top" className="wordmark" aria-label={`Emanuel Araújo — ${t.home}`}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/aperture/mark-animated.svg" alt="" width={42} height={35} />
+          <img src="/aperture/mark.svg" alt="" width={42} height={35} />
           <span>Emanuel Araújo</span>
         </a>
         <nav aria-label={english ? "Main navigation" : "Navegação principal"}>
-          {sections.map((id, index) => <a href={`#${id}`} key={id}>{t.nav[index]}</a>)}
+          {navigation.map(index => <a href={`#${sections[index]}`} key={index}>{t.nav[index]}</a>)}
         </nav>
         <div className="language mono">
           <Globe2 size={14} aria-hidden="true" />
@@ -30,10 +36,23 @@ export default function Portfolio({ locale }: { locale: Locale }) {
       </div>
     </header>
     <main id="main" tabIndex={-1}>
+      <ChapterMotion />
       <Hero locale={locale} />
-      <div className="pillars"><ul className="wrap mono">
-        {t.pillars.map(pillar => <li key={pillar}>{pillar}</li>)}
-      </ul></div>
+      <ChapterBridge index={1} title={t.nav[2]} />
+      <section className="wrap section" id="about" aria-labelledby="about-title">
+        <div className="section-heading">
+          <p className="eyebrow mono">{t.aboutLabel}</p>
+          <h2 id="about-title">{t.aboutTitle}</h2>
+          <p>{t.aboutIntro}</p>
+        </div>
+        <TechnicalAreas locale={locale} />
+        <ProfessionalRecord locale={locale} />
+        <div className="about-foot">
+          <div id="certifications"><h3>{t.credentials}</h3><ul>{t.credentialItems.map(item => <li key={item}>{item}</li>)}<li><a href="https://www.credly.com/badges/a692655c-e6e6-4f24-90cf-905ea99793b9/public_url">Fortinet Certified Fundamentals in Cybersecurity ↗</a></li><li><a href="https://www.credly.com/badges/e4039c04-39c5-47dd-a1fb-47d77e7961ec/public_url">Cisco Networking Academy · Endpoint Security ↗</a></li></ul></div>
+          <div><h3>{t.archive}</h3><ul>{["/blog", "/projetos"].map((path, i) => <li key={path}><a href={path}>{t.archiveLinks[i]} ↗</a></li>)}</ul></div>
+        </div>
+      </section>
+      <ChapterBridge index={2} title={t.nav[0]} />
       <div className="work-band">
         <section className="wrap section" id="work" aria-labelledby="work-title">
           <div className="section-heading">
@@ -51,6 +70,7 @@ export default function Portfolio({ locale }: { locale: Locale }) {
           </div>
         </section>
       </div>
+      <ChapterBridge index={3} title={t.nav[1]} />
       <div className="workflow-band">
         <section className="wrap section workflow-layout" id="workflow" aria-labelledby="workflow-title">
           <div className="section-heading">
@@ -62,22 +82,11 @@ export default function Portfolio({ locale }: { locale: Locale }) {
           <Workflow steps={t.steps} output={t.output} label={t.workflowTitle} />
         </section>
       </div>
-      <section className="wrap section" id="about" aria-labelledby="about-title">
-        <div className="section-heading">
-          <p className="eyebrow mono">{t.aboutLabel}</p>
-          <h2 id="about-title">{t.aboutTitle}</h2>
-          <p id="experience">{t.aboutIntro}</p>
-        </div>
-        <div className="practice" id="expertise">
-          {t.practice.map(([title, detail], index) => <article key={title} id={["security", "infrastructure", undefined, "management"][index]}>
-            <span aria-hidden="true">+</span><h3>{title}</h3><p>{detail}</p>
-          </article>)}
-        </div>
-        <div className="about-foot">
-          <div id="certifications"><h3>{t.credentials}</h3><ul>{t.credentialItems.map(item => <li key={item}>{item}</li>)}<li><a href="https://www.credly.com/badges/a692655c-e6e6-4f24-90cf-905ea99793b9/public_url">Fortinet Certified Fundamentals in Cybersecurity ↗</a></li><li><a href="https://www.credly.com/badges/e4039c04-39c5-47dd-a1fb-47d77e7961ec/public_url">Cisco Networking Academy · Endpoint Security ↗</a></li></ul></div>
-          <div><h3>{t.archive}</h3><ul>{["/blog", "/projetos"].map((path, i) => <li key={path}><a href={path}>{t.archiveLinks[i]} ↗</a></li>)}</ul></div>
-        </div>
+      <section className="wrap scene-lab hero" aria-labelledby="scene-lab-title">
+        <div><p className="mono eyebrow">WEBGL / APERTURE</p><h3 id="scene-lab-title">{english ? "Interactive lab" : "Laboratório interativo"}</h3><p>{english ? "An interactive study in procedural geometry. The core assembles as you approach, then responds to your pointer and scroll." : "Estudo interativo de geometria procedural. O núcleo se monta à medida que você se aproxima e responde ao cursor e à rolagem."}</p></div>
+        <SceneStage kind="core" poster="/aperture/core-poster.svg" labels={sceneLabels[locale]} />
       </section>
+      <ChapterBridge index={4} title={t.nav[3]} />
       <div className="contact-band">
         <section className="wrap section" id="contact" aria-labelledby="contact-title">
           <div className="section-heading">

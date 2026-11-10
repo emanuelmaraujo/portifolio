@@ -67,7 +67,7 @@ export const copy = {
     skip: "Skip to content", home: "Home", nav: ["Work", "AI workflow", "About", "Contact"],
     workAction: "Explore my work", contactAction: "Get in touch",
     pillars: ["AI Engineering", "Cybersecurity", "IT Leadership", "Agent Orchestration", "Systems Architecture"],
-    workLabel: "01 / SELECTED WORK", workTitle: "Products in practice.",
+    workLabel: "02 / SELECTED WORK", workTitle: "Products in practice.",
     workIntro: "Three systems built for distinct problems, from finding a better price to running a store.",
     projects: projectsEn, detail: "Explore the case study", caseLabels: ["Challenge", "Architecture", "Evidence"], visit: "Visit public product",
     lab: "Also in the workshop",
@@ -76,7 +76,7 @@ export const copy = {
       ["Cezar", "Open-source fork", "An upstream control center I use to coordinate Claude Code, Codex and OpenCode."],
       ["VideoFactory", "Pilot", "An AI-assisted audiovisual workflow using Remotion and React Three Fiber."],
     ],
-    workflowLabel: "02 / AI ENGINEERING", workflowTitle: "How I work with agents.",
+    workflowLabel: "03 / AI ENGINEERING", workflowTitle: "How I work with agents.",
     workflowIntro: "I separate planning, implementation and verification so each stage has an explicit output and a handoff someone can review.",
     steps: [
       ["Plan", "Define scope, acceptance criteria and constraints in the issue before assigning the work.", "Issue + acceptance criteria"],
@@ -87,7 +87,7 @@ export const copy = {
       ["Deliver", "Open a pull request with the decisions, checks and remaining limitations for human review.", "Reviewable pull request"],
     ],
     output: "HANDOFF", skillsAction: "Explore my public Agent Skills",
-    aboutLabel: "03 / PROFESSIONAL PRACTICE", aboutTitle: "Engineering for the systems people rely on.",
+    aboutLabel: "01 / PROFESSIONAL PRACTICE", aboutTitle: "Engineering for the systems people rely on.",
     aboutIntro: "I coordinate IT in the financial cooperative sector. That work informs how I build products, from governing access to making services easier to operate.",
     practice: [
       ["Identity & security", "IAM and identity governance with Microsoft 365, Entra ID, Active Directory, Conditional Access and MFA. Endpoint and network protection."],
@@ -104,7 +104,7 @@ export const copy = {
     skip: "Pular para o conteúdo", home: "Início", nav: ["Projetos", "Fluxo de IA", "Sobre", "Contato"],
     workAction: "Explorar projetos", contactAction: "Entrar em contato",
     pillars: ["Engenharia de IA", "Cibersegurança", "Liderança de TI", "Orquestração de Agentes", "Arquitetura de Sistemas"],
-    workLabel: "01 / PROJETOS SELECIONADOS", workTitle: "Produtos na prática.",
+    workLabel: "02 / PROJETOS SELECIONADOS", workTitle: "Produtos na prática.",
     workIntro: "Três sistemas para problemas distintos, de encontrar um preço melhor a operar uma loja.",
     projects: projectsPt, detail: "Explorar o estudo de caso", caseLabels: ["Desafio", "Arquitetura", "Evidência"], visit: "Visitar o produto público",
     lab: "Outros trabalhos",
@@ -113,7 +113,7 @@ export const copy = {
       ["Cezar", "Fork de código aberto", "Central de orquestração que uso para coordenar Claude Code, Codex e OpenCode."],
       ["VideoFactory", "Piloto", "Fluxo audiovisual assistido por IA com Remotion e React Three Fiber."],
     ],
-    workflowLabel: "02 / ENGENHARIA DE IA", workflowTitle: "Como trabalho com agentes.",
+    workflowLabel: "03 / ENGENHARIA DE IA", workflowTitle: "Como trabalho com agentes.",
     workflowIntro: "Separo planejamento, implementação e verificação para que cada etapa produza uma entrega que alguém possa revisar.",
     steps: [
       ["Planejar", "Defino escopo, critérios de aceite e restrições na issue antes de distribuir o trabalho.", "Issue e critérios de aceite"],
@@ -124,7 +124,7 @@ export const copy = {
       ["Entregar", "Abro um pull request com decisões, verificações e limitações para revisão humana.", "Pull request pronto para revisão"],
     ],
     output: "ENTREGA DA ETAPA", skillsAction: "Explorar minhas Agent Skills públicas",
-    aboutLabel: "03 / ATUAÇÃO PROFISSIONAL", aboutTitle: "Engenharia para sistemas dos quais as pessoas dependem.",
+    aboutLabel: "01 / ATUAÇÃO PROFISSIONAL", aboutTitle: "Engenharia para sistemas dos quais as pessoas dependem.",
     aboutIntro: "Coordeno TI no cooperativismo financeiro. Essa experiência orienta como construo produtos, da governança de acessos à operação de serviços.",
     practice: [
       ["Identidade e segurança", "Gestão e governança de identidades com Microsoft 365, Entra ID, Active Directory, Acesso Condicional e MFA. Proteção de endpoints e redes."],

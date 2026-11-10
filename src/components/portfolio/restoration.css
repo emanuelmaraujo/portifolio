@@ -1,0 +1,99 @@
+.signal-document {
+  --paper: #0e1420;
+  --panel: #141d2c;
+  --line: #303c53;
+  --mint: #7ce6f8;
+  --coral: #bbadff;
+}
+.signal-document .masthead, .signal-document .portrait-hero { background: #0e1420; }
+.signal-document .portrait-hero::before {
+  background-size: 42px 42px;
+  mask-image: radial-gradient(ellipse at 50% 40%, #000 0%, transparent 75%);
+}
+.signal-document .portrait-hero::after {
+  inset: 0;
+  background: radial-gradient(ellipse at 49% 21%, #1e344e8c, transparent 49%), radial-gradient(ellipse at 67% 64%, #36295c48, transparent 52%);
+}
+.portrait-content { display: grid; justify-items: center; text-align: center; padding-block: clamp(3.6rem, 8vw, 6.9rem); }
+.portrait-frame { position: relative; width: clamp(126px, 15vw, 168px); aspect-ratio: 1; isolation: isolate; }
+.portrait-frame::before {
+  content: ""; position: absolute; inset: -4px; border-radius: 50%; z-index: -1;
+  background: conic-gradient(from 45deg, #87eaff, #6765c3, #b3a2ff, #87eaff);
+  box-shadow: 0 0 42px #7ce6f845;
+}
+.portrait-frame img { display: block; width: 100%; height: 100%; border-radius: 50%; border: 2px solid #0e1420; object-fit: cover; }
+.signal-document .portrait-content h1 {
+  margin-block: 1.35rem .75rem; font-size: clamp(2.8rem, 8.1vw, 6.2rem);
+  letter-spacing: -.075em; font-weight: 680; line-height: 1;
+  background: linear-gradient(105deg, #ecf3fa 14%, #9cecff 54%, #b9a8fb);
+  color: transparent; background-clip: text;
+}
+.signal-document .portrait-role { text-transform: uppercase; color: #b1c6dd; font-size: .76rem; }
+.signal-document .portrait-tagline { max-width: 37ch; margin-top: .85rem; font-size: clamp(1.1rem, 2.5vw, 1.7rem); text-wrap: balance; }
+.signal-document .portrait-summary { margin-top: .75rem; max-width: 57ch; color: var(--muted); font-size: .95rem; }
+.signal-document .portrait-focus { display: flex; flex-wrap: wrap; justify-content: center; gap: .45rem; margin-top: 1.35rem; color: var(--mint); }
+.portrait-focus li { border: 1px solid #355269; border-radius: 20px; padding: .29rem .58rem; background: #142435; }
+.portrait-content .hero-actions { justify-content: center; }
+.chapter-bridge { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 1rem; min-height: 83px; }
+.chapter-bridge svg { width: 100%; height: 36px; }
+.chapter-number, .chapter-label { color: var(--muted); }
+.chapter-label { text-transform: uppercase; }
+.chapter-trace, .chapter-signal { fill: none; stroke: #465974; stroke-width: 1; }
+.chapter-signal { stroke: var(--mint); stroke-width: 2; stroke-dasharray: 11 89; stroke-dashoffset: 100; opacity: 0; }
+.chapter-bridge[data-active="true"] .chapter-signal { animation: chapter-cross 1.1s var(--ease); }
+.chapter-bridge[data-active="true"] .chapter-number { color: var(--mint); }
+@keyframes chapter-cross { 0% { stroke-dashoffset: 100; opacity: 0; } 13%, 82% { opacity: 1; } 100% { stroke-dashoffset: 0; opacity: 0; } }
+.signal-document .work-band {
+  color-scheme: dark; background: #101a28;
+  --ink: #ecf3fa; --muted: #afc2d5; --mint: #8feaff; --line: #36465c;
+}
+.exhibit-list .exhibit { background: #142031; }
+.exhibit-list .exhibit-torvya { background: #19253a; }
+.exhibit-list .exhibit-marcos-kreps { background: #172331; }
+.scene-lab { display: grid; grid-template-columns: .7fr 1.3fr; gap: 2rem; align-items: center; border-bottom: 1px solid var(--line); }
+.scene-lab h3 { margin-block: .6rem; font-size: clamp(1.65rem, 3.2vw, 2.85rem); }
+.scene-lab p:not(.eyebrow) { color: var(--muted); }
+.scene-lab .scene-core { width: 100%; margin: 0; max-height: 470px; }
+.technical-areas { display: grid; align-items: start; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 1rem; }
+.technical-areas section, .record-side section { min-width: 0; background: #152033; border: 1px solid var(--line); border-radius: .65rem; padding: 1.1rem; }
+.technical-areas section > p { color: var(--mint); }
+.technical-areas h3, .professional-record h3 { margin-block: .45rem .9rem; font-size: 1.22rem; }
+.signal-document .technical-areas details { border-bottom: 0; }
+.signal-document .technical-areas details ul { list-style: disc; padding: 0 0 .8rem 1.15rem; color: var(--muted); font-size: .91rem; }
+.technical-areas details li + li { margin-top: .34rem; }
+.professional-record { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-block: 3rem; }
+.signal-document .record-timeline ol { border-left: 1px solid #55708c; padding-left: 1.2rem; margin-left: .28rem; }
+.record-timeline ol > li { position: relative; padding-bottom: 1.5rem; }
+.record-timeline ol > li::before { content: ""; position: absolute; width: 9px; height: 9px; border-radius: 50%; background: var(--mint); left: calc(-1.2rem - 5px); top: .35rem; }
+.record-timeline h4 { margin: .2rem 0; font-size: 1.17rem; }
+.record-timeline span { color: var(--mint); }
+.record-timeline p { color: var(--muted); }
+.record-timeline p + p { margin-top: .42rem; }
+.record-side { display: grid; gap: .85rem; }
+.signal-document .record-stack { display: flex; flex-wrap: wrap; gap: .48rem; }
+.record-stack li { display: grid; border: 1px solid #435675; padding: .32rem .55rem; border-radius: .32rem; font-size: .88rem; }
+.record-stack small, .record-project p { color: var(--muted); }
+.signal-document .record-badges { display: grid; grid-template-columns: 1fr 1fr; gap: .42rem; }
+.record-badges a { display: flex; align-items: center; gap: .5rem; min-height: 44px; font-size: .86rem; }
+.record-badges a:hover, .record-project a:hover { text-decoration: underline; }
+.record-badges img { flex: none; object-fit: contain; }
+.signal-document .contact-band {
+  color-scheme: dark; --ink: #ecf3fa; --muted: #b5bed7; --mint: #97e8ff; --line: #52607d;
+  color: var(--ink); border-color: var(--line); background: radial-gradient(ellipse at 75% 15%, #28264e, #121c2d 70%);
+}
+.signal-document .contact-band .button.primary { color: #101923; background: var(--mint); }
+@media (max-width: 760px) {
+  .technical-areas { grid-template-columns: 1fr; }
+  .professional-record, .scene-lab { grid-template-columns: 1fr; gap: 1rem; }
+  .scene-lab { padding-top: 2.2rem; }
+  .scene-lab .scene-core { max-height: 360px; }
+}
+@media (max-width: 400px) { .signal-document .record-badges { grid-template-columns: 1fr; } }
+@media (prefers-reduced-motion: no-preference) {
+  .portrait-frame::before { animation: portrait-orbit 10s linear 1; }
+  @keyframes portrait-orbit { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+}
+@media (forced-colors: active) { .signal-document .portrait-content h1 { color: CanvasText; background: none; } }
+
+.signal-document .record-courses ul { padding-bottom: .75rem; color: var(--muted); }
+.record-courses li + li { margin-top: .35rem; }

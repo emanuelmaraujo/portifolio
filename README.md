@@ -2,6 +2,9 @@
 
 Portfólio de engenharia, IA, orquestração de agentes, cibersegurança e liderança de TI. Inglês em `/`, português brasileiro em `/pt`. O acervo permanece em `/blog` e `/projetos`, incluindo os links para artigos e projetos existentes.
 
+## Revisão visual do portfólio original
+
+A branch `portfolio/restore-depth` retoma o retrato central, a paleta ciano/violeta e a apresentação técnica do portfólio original (commit `0ea2a9f`). Segurança, infraestrutura e gestão voltaram a ter detalhes expansíveis, seguidos pela trajetória, stack, cursos e credenciais. O núcleo WebGL fica no laboratório, carregado por proximidade. Divisores executam um pulso direcional ao entrar na tela e permanecem estáticos com movimento reduzido.
 ## Desenvolvimento e Vercel
 
 ```powershell
