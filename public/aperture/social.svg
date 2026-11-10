@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+<defs><pattern id="grid" width="58" height="58" patternUnits="userSpaceOnUse"><path d="M58 0H0v58" fill="none" stroke="#27384d" stroke-width="1"/></pattern><linearGradient id="metal" x2="0.8" y2="1"><stop stop-color="#b6d2e4"/><stop offset=".55" stop-color="#56758e"/><stop offset="1" stop-color="#223449"/></linearGradient></defs>
+<rect width="1200" height="630" fill="#0b1018"/><path d="M590 0h610v630H590z" fill="url(#grid)"/><path d="M56 68h1088M56 562h1088" stroke="#405469"/>
+<text x="62" y="146" fill="#a8e9ff" font-family="monospace" font-size="19" letter-spacing="4">INDEPENDENT ENGINEERING PORTFOLIO</text>
+<text x="56" y="286" fill="#ecf3fa" font-family="Segoe UI,sans-serif" font-weight="700" font-size="109">Emanuel</text>
+<text x="56" y="401" fill="#ecf3fa" font-family="Segoe UI,sans-serif" font-weight="700" font-size="109">Araújo<tspan fill="#ffa38a">.</tspan></text>
+<text x="62" y="478" fill="#aebdcb" font-family="Segoe UI,sans-serif" font-size="26">AI Engineering · Cybersecurity · Systems Architecture</text>
+<g transform="translate(883 295) rotate(-15)">
+<ellipse rx="223" ry="144" fill="none" stroke="#678da9" transform="rotate(19)"/>
+<ellipse rx="219" ry="157" fill="none" stroke="#536d82" transform="rotate(-29)"/>
+<path d="m-133-99 79-61H61l73 57 38 88-24 95-78 65H-55l-81-49-41-98z" fill="#172838" stroke="url(#metal)" stroke-width="25" stroke-dasharray="128 15"/>
+<path d="m-83-43 58-47 67 6 55 62-14 67-58 44-69-12-52-63z" fill="#375875" stroke="#7099b5"/>
+<g transform="translate(-128 -104) scale(4.2)" fill="#e9f4ff"><path d="M9 12h19l-4 6h-9v4h8l-3 5h-5v5h7l-3 6H9z"/><path fill-rule="evenodd" d="M21 38 33 12h6l12 26h-7l-3-7h-9l-3 7zm13-12h5l-2.5-6z"/></g>
+<path d="m111-111 22 16M-124 100l23 16" stroke="#ffa38a" stroke-width="8"/>
+</g></svg>
