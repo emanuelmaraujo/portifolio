@@ -13,7 +13,7 @@ const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
   const { lang, t } = useLanguage();
 
-  const basePath = '/portifolio';
+  const basePath = process.env.NEXT_PUBLIC_PORTFOLIO_BASE_PATH;
   const homePath = lang === 'pt' ? basePath + '/pt' : basePath + '/';
 
   const navItems = [

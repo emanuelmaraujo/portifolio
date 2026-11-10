@@ -1,10 +1,10 @@
 import { ArrowDownRight, ArrowUpRight, Github, Globe2, Linkedin, Mail } from "lucide-react";
-import { copy, links, siteUrl, type Locale } from "./content";
+import { copy, links, type Locale } from "./content";
 import ProjectArt from "./ProjectArt";
 import Signal from "./Signal";
 import Workflow from "./Workflow";
 
-const basePath = new URL(siteUrl).pathname;
+const basePath = process.env.NEXT_PUBLIC_PORTFOLIO_BASE_PATH;
 const sections = ["work", "workflow", "about", "contact"];
 
 export default function Portfolio({ locale }: { locale: Locale }) {

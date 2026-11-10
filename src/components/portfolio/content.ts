@@ -1,6 +1,6 @@
 export type Locale = "en" | "pt-BR";
 
-export const siteUrl = "https://emanuelmaraujo.github.io/portifolio";
+export const siteUrl = process.env.NEXT_PUBLIC_PORTFOLIO_SITE_URL!;
 export const links = {
   github: "https://github.com/emanuelmaraujo",
   linkedin: "https://www.linkedin.com/in/emanuel-rx/",

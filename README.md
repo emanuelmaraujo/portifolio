@@ -20,7 +20,7 @@ npm run typecheck
 npm test
 ```
 
-Next.js exports the site into `out/`. Serve that directory at the `/portifolio` mount point with clean URL support for local production previews. GitHub Pages continues to use the existing workflow and base path. The implementation branch is for review.
+Next.js exports the site into `out/`. Serve that directory at the `/portifolio` mount point with clean URL support for local production previews. GitHub Pages uses the existing workflow and base path. Vercel builds serve the same export at the domain root, with matching canonical URLs and sitemap. To validate the Vercel configuration locally, set `VERCEL=1` in the build and test environment.
 
 ## Architecture and identity
 
