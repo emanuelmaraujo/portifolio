@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { MotionDiv } from "@/components/client/motion-div";
 import { Calendar, User, ArrowLeft, ExternalLink, Code } from "lucide-react";
 import { getProjetoData, getAllProjetoIds } from "@/lib/projetos";
 import { notFound } from "next/navigation";
@@ -45,12 +44,6 @@ async function getProjeto(slug: string): Promise<ProjetoData | null> {
   return { ...projetoData, author: projetoData.author || "Emanuel Araújo" };
 }
 
-// Variantes de animação
-const pageVariants = {
-  hidden: { opacity: 0 },
-  visible: { opacity: 1 },
-};
-
 // Componente da página de Projeto
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export default async function ProjetoPage({ params }: { params: any }) {
@@ -73,12 +66,8 @@ export default async function ProjetoPage({ params }: { params: any }) {
   return (
     <main className="flex min-h-screen flex-col items-center pt-24 pb-16 md:pt-28 md:pb-20 bg-background">
       <LanguageRedirect currentSlug={slug} basePath="/projetos" />
-      <MotionDiv
+      <div
         className="container mx-auto px-4 max-w-3xl"
-        initial="hidden"
-        animate="visible"
-        variants={pageVariants}
-        transition={{ duration: 0.5, ease: "easeOut" }}
       >
         <div className="mb-8">
           <Link href="/projetos" className="text-primary hover:underline flex items-center gap-1 text-sm">
@@ -158,7 +147,7 @@ export default async function ProjetoPage({ params }: { params: any }) {
                      prose-pre:bg-card prose-pre:p-4 prose-pre:rounded-md prose-pre:overflow-x-auto"
           dangerouslySetInnerHTML={{ __html: projeto.contentHtml }}
         />
-      </MotionDiv>
+      </div>
     </main>
   );
 }

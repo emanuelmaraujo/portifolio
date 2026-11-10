@@ -93,11 +93,12 @@
 .prumo-track { height: 1px; background: #527389; position: relative; overflow: hidden; }
 .prumo-track span { display: block; width: 28%; height: 100%; background: #d0f6ff; transform: translateX(-100%); transition: transform 1s var(--ease); }
 .exhibit:hover .prumo-track span, .exhibit:focus-within .prumo-track span { transform: translateX(360%); }
-.torvya-viewport { background: radial-gradient(ellipse at 57% 43%,#315e78,#112434 68%); color: #d5edff; }
+.torvya-viewport { --ink: #ecf3fa; --mint: #a8e9ff; background: radial-gradient(ellipse at 57% 43%,#315e78,#112434 68%); color: #d5edff; }
 .scene-torvya { aspect-ratio: 1.85; }
 .scene-torvya .scene-surface { touch-action: pan-y; cursor: grab; }
 .scene-torvya .scene-surface:active { cursor: grabbing; }
 .scene-torvya .scene-controls { bottom: .7rem; right: .7rem; }
+.scene-torvya .scene-controls button { font-size: 1.15rem; }
 .signal-document .torvya-viewport figcaption, .signal-document .pos-viewport figcaption { padding: .6rem .85rem; }
 .pos-viewport { background: #ccd5e0; padding: 1.3rem clamp(.8rem,3vw,2.3rem) 0; color: #213047; }
 .pos-mock { background: #fffaf7; box-shadow: 13px 16px 0 #8796ab70; border: 1px solid #9da6b3; padding: clamp(.72rem,2vw,1.5rem); border-radius: 5px; }

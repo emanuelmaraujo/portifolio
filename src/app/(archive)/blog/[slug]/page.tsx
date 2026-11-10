@@ -1,7 +1,6 @@
 // /home/ubuntu/portfolio-profissional/src/app/blog/[slug]/page.tsx
 // Convertido para Server Component para buscar dados no build time
 import Link from "next/link";
-import { MotionDiv } from "@/components/client/motion-div";
 import { Calendar, User, ArrowLeft } from "lucide-react";
 import { getPostData, getAllPostIds } from "@/lib/posts";
 import { notFound } from "next/navigation";
@@ -36,12 +35,6 @@ async function getPost(slug: string): Promise<PostData | null> {
   return { ...postData, author: postData.author || "Emanuel Araújo" };
 }
 
-// Variantes de animação (mantidas)
-const pageVariants = {
-  hidden: { opacity: 0 },
-  visible: { opacity: 1 },
-};
-
 // Removido tipo Props explícito, tentando tipo inline com `any` para params devido ao erro persistente
 // type Props = {
 //   params: { slug: string };
@@ -68,16 +61,10 @@ export default async function BlogPostPage({ params }: { params: any }) {
 
   // Renderiza o post usando os dados buscados no servidor
   return (
-    // Envolve com a tag <main> e remove a prop 'as' do MotionDiv
     <main className="flex min-h-screen flex-col items-center pt-24 pb-16 md:pt-28 md:pb-20 bg-background">
       <LanguageRedirect currentSlug={slug} basePath="/blog" />
-      <MotionDiv
-        // as="main" // Removido: A prop 'as' não é suportada pelo MotionDiv simples
+      <div
         className="container mx-auto px-4 max-w-3xl"
-        initial="hidden"
-        animate="visible"
-        variants={pageVariants}
-        transition={{ duration: 0.5, ease: "easeOut" }}
       >
         <div className="mb-8">
           <Link href="/blog" className="text-primary hover:underline flex items-center gap-1 text-sm">
@@ -130,7 +117,7 @@ export default async function BlogPostPage({ params }: { params: any }) {
                      prose-pre:bg-card prose-pre:p-4 prose-pre:rounded-md prose-pre:overflow-x-auto"
           dangerouslySetInnerHTML={{ __html: post.contentHtml }} // Usa contentHtml buscado no servidor
         />
-      </MotionDiv>
+      </div>
     </main>
   );
 }
