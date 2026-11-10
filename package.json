@@ -11,10 +11,12 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
+    "lint": "eslint src",
     "build:worker": "opennextjs-cloudflare",
     "preview": "opennextjs-cloudflare && wrangler dev",
-    "cf-typegen": "wrangler types --env-interface CloudflareEnv env.d.ts"
+    "cf-typegen": "wrangler types --env-interface CloudflareEnv env.d.ts",
+    "typecheck": "tsc --noEmit --incremental false",
+    "test": "node --test tests/export.test.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
@@ -57,7 +59,7 @@
     "gray-matter": "^4.0.3",
     "input-otp": "^1.4.2",
     "lucide-react": "^0.364.0",
-    "next": "15.1.4",
+    "next": "15.5.29",
     "next-themes": "^0.4.4",
     "react": "^18.3.1",
     "react-day-picker": "8.10.1",
@@ -81,7 +83,7 @@
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "eslint": "^9",
-    "eslint-config-next": "15.1.4",
+    "eslint-config-next": "15.5.29",
     "postcss": "^8",
     "tailwindcss": "^3.4.1",
     "turbo": "^2.3.3",
@@ -94,4 +96,3 @@
     "@types/react-dom": "^18"
   }
 }
-

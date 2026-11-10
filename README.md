@@ -1,122 +1,59 @@
-# Portfólio Profissional com Blog
+# Emanuel Araújo · Engineering Portfolio
 
-Este é um projeto de portfólio pessoal construído com Next.js, TypeScript e Tailwind CSS, apresentando uma seção de projetos e um blog dinâmico alimentado por arquivos Markdown.
+Bilingual portfolio for AI engineering, agent orchestration, cybersecurity, IT leadership and product building. The English edition is the default. The Brazilian Portuguese edition lives at `/pt`.
 
-## Funcionalidades
+## Local development
 
-*   **Página Inicial:** Apresentação pessoal e links rápidos.
-*   **Página de Projetos:** Exibição dos projetos desenvolvidos.
-*   **Blog:**
-    *   Listagem de posts com títulos e datas.
-    *   Páginas individuais para cada post, renderizadas a partir de arquivos Markdown.
-    *   Conteúdo dos posts formatado (parágrafos, títulos, código, etc.).
-*   **Design Responsivo:** Adaptado para diferentes tamanhos de tela.
-*   **Animações:** Utiliza Framer Motion para animações sutis.
-*   **Exportação Estática:** O projeto está configurado para gerar um site totalmente estático, ideal para hospedagem em plataformas como Vercel, Netlify, GitHub Pages, etc.
+Validated on Windows with Node.js 26.13.0, npm 11.20.0, Git 2.56.0.windows.4, GitHub CLI 2.103.3, pnpm 11.25.0 and Python 3.14.10. Agent CLI versions were Codex 0.167.0-alpha.3.2 and Claude Code 2.1.317.
 
-## Tecnologias Utilizadas
-
-*   **Framework:** [Next.js](https://nextjs.org/) (App Router)
-*   **Linguagem:** [TypeScript](https://www.typescriptlang.org/)
-*   **Estilização:** [Tailwind CSS](https://tailwindcss.com/)
-*   **Componentes UI:** [Shadcn/UI](https://ui.shadcn.com/)
-*   **Animações:** [Framer Motion](https://www.framer.com/motion/)
-*   **Processamento de Markdown:**
-    *   `gray-matter`: Para extrair metadados (frontmatter) dos arquivos Markdown.
-    *   `remark` & `remark-html`: Para converter Markdown em HTML.
-*   **Gerenciador de Pacotes:** npm
-
-## Começando
-
-Siga estas instruções para configurar e executar o projeto localmente.
-
-### Pré-requisitos
-
-*   [Node.js](https://nodejs.org/) (Versão 18.x ou superior recomendada)
-*   [npm](https://www.npmjs.com/) (geralmente instalado com o Node.js)
-
-### Instalação
-
-1.  Clone o repositório (ou extraia os arquivos do projeto se recebidos em formato zip):
-    ```bash
-    # Se for um repositório git
-    git clone <url-do-repositorio>
-    cd <nome-da-pasta-do-projeto>
-    ```
-2.  Instale as dependências do projeto:
-    ```bash
-    npm install
-    ```
-
-### Executando em Modo de Desenvolvimento
-
-Para iniciar o servidor de desenvolvimento local:
-
-```bash
+```powershell
+npm ci
 npm run dev
 ```
 
-Abra [http://localhost:3000](http://localhost:3000) no seu navegador para ver o resultado.
+Open `http://localhost:3000/portifolio/`. For production validation, run these commands from the repository root.
 
-A página será recarregada automaticamente se você editar os arquivos.
-
-## Build para Produção (Exportação Estática)
-
-Este projeto está configurado para gerar um site estático.
-
-1.  Execute o comando de build:
-    ```bash
-    npm run build
-    ```
-2.  Este comando gerará os arquivos estáticos otimizados na pasta `out` na raiz do projeto.
-3.  Você pode servir estes arquivos estáticos localmente para teste usando um servidor HTTP simples ou fazer o upload do **conteúdo** da pasta `out` para sua plataforma de hospedagem estática preferida.
-
-    *Exemplo usando `serve` (instale com `npm install -g serve` se não tiver):*
-    ```bash
-    serve out
-    ```
-
-## Estrutura de Pastas (Simplificada)
-
-```
-.
-├── public/         # Arquivos estáticos (imagens, fontes, etc.)
-├── posts/          # Arquivos Markdown para os posts do blog
-├── src/
-│   ├── app/        # Rotas e páginas principais (App Router)
-│   │   ├── blog/     # Páginas relacionadas ao blog
-│   │   │   ├── [slug]/ # Página dinâmica para posts individuais
-│   │   │   └── page.tsx # Página de listagem do blog
-│   │   ├── layout.tsx # Layout principal
-│   │   └── page.tsx   # Página inicial
-│   │   └── projetos/ # Página de projetos
-│   ├── components/ # Componentes reutilizáveis
-│   │   ├── client/   # Componentes marcados com "use client"
-│   │   └── ui/       # Componentes Shadcn/UI
-│   ├── lib/        # Funções utilitárias (processamento de posts)
-│   └── styles/     # Arquivos CSS globais
-├── next.config.js  # Configuração do Next.js (com output: 'export')
-├── package.json    # Dependências e scripts do projeto
-├── tsconfig.json   # Configuração do TypeScript
-└── tailwind.config.ts # Configuração do Tailwind CSS
+```powershell
+npm run build
+npm run lint
+npm run typecheck
+npm test
 ```
 
-## Posts do Blog
+Next.js exports the site into `out/`. Serve that directory at the `/portifolio` mount point with clean URL support for local production previews. GitHub Pages continues to use the existing workflow and base path. The implementation branch is for review.
 
-*   Os posts do blog são escritos em arquivos Markdown (`.md`) e localizados na pasta `posts`.
-*   Cada arquivo Markdown deve conter um *frontmatter* no início para metadados como `title`, `date`, e opcionalmente `author`, `image`, `tags`, `summary`.
+## Architecture and identity
 
-    *Exemplo de Frontmatter:*
-    ```yaml
-    ---
-    title: 'Meu Primeiro Post'
-    date: '2024-05-05'
-    author: 'Seu Nome'
-    summary: 'Um breve resumo do post para a listagem.'
-    tags: ['Next.js', 'Blog']
-    ---
+- Next.js App Router, TypeScript and static export. The two portfolio layouts emit their own document language, canonical and alternate links, and Open Graph metadata. Articles and older projects keep their existing paths and archive layout.
+- `src/components/portfolio/content.ts` contains the parallel English and Brazilian Portuguese content. The three featured case studies separate the challenge, architecture and evidence. Their diagrams are original illustrations.
+- **The Signal** is an EA monogram made of three linked planes for intelligence, trust and operations. The same geometry produces the static SVG and the perspective Canvas2D scene. A separate chunk loads only when the stage enters the viewport on fine-pointer devices with motion enabled. Frames are scheduled on interaction, resizing and scroll. The pixel ratio is capped at 1.5. The SVG covers mobile, reduced motion and renderer failure.
+- Three.js would make sense for a scene with materials and lighting. React Three Fiber and Drei would add abstractions for a larger Three.js scene. GSAP would support sequenced animation. The chosen scene uses line geometry, perspective and restrained pointer easing, so none of these are runtime dependencies.
+- `portfolio.css` contains the design tokens. Graphite `#0b1111`, warm white `#edf6ef` and mint `#9bf1c7` anchor the palette. System sans and mono stacks pair with Georgia italic. Reusable wordmarks, the favicon, avatar and social preview are under `public/brand/`.
+- Linear informed content hierarchy, Bruno Simon informed purposeful spatial interaction and Awwwards helped survey WebGL presentation. Active Theory and Vercel were secondary references. The visual assets were drawn for this project. [Linear](https://linear.app/) · [Bruno Simon](https://bruno-simon.com/) · [Awwwards](https://www.awwwards.com/websites/webgl/) · [Active Theory](https://activetheory.net/) · [Vercel](https://vercel.com/)
 
-    Conteúdo do post em Markdown aqui...
-    ```
-*   O nome do arquivo (sem a extensão `.md`) será usado como o `slug` na URL do post (ex: `posts/meu-primeiro-post.md` -> `/blog/meu-primeiro-post`).
+## Evidence and scope
 
+Prumo’s adapters, workers and publishing paths support the commerce case. Torvya’s app dependencies and edge redirect implementation support the NFC case. Marcos Krep’s checkout components, migrations and tests support the POS case. Promos is a prototype exercised against a simulated store, Cezar is a fork of the upstream orchestration tool, and VideoFactory is an audiovisual pilot. Private repository details stay out of public copy. The career section draws from the existing portfolio, public profile and the supplied education and certification.
+
+| Check | Result |
+| --- | --- |
+| Static build, TypeScript, export tests | Pass. Both languages, metadata, brand assets and all archive content are covered by the export tests. |
+| ESLint | Pass with 16 unused-variable warnings in legacy files. |
+| Browser verification | Chrome at 1440×900, 768×1024, 390×844 and 320×720. Tested reflow, keyboard navigation, case studies, workflow, language switch, pointer/scroll motion, Canvas2D failure and reduced-motion changes. |
+| Accessibility | Axe WCAG 2.0/2.1 A and AA checks reported zero violations on the English and Portuguese landing pages at desktop and mobile sizes. Screen-reader and physical-device checks were outside this test run. |
+| Local performance | Three cold browser contexts on localhost at 1440×900. Median observed LCP moved from 324 ms in the previous local export to 140 ms in the new one. Uncompressed JS fetched fell from 592 KiB to 348 KiB, and new CLS was zero in the sample. No field CWV or representative mobile GPU data were collected. |
+| Security and dependencies | The landing uses static content, original assets and no tracking, auth, forms or third-party scripts. Next.js and its lint config were updated within major version 15. npm audit still reports 15 findings when omitting dev dependencies and 66 across the full tree, including two critical findings in inherited tooling. GitHub Pages serves the static export without that tooling. |
+
+## Agent Skills used
+
+The library at `D:/dev/skills` is the canonical local copy. Junctions under `~/.agents/skills` and `~/.claude/skills` expose each package to both tools. Codex returned all 24 packages through `skills/list`. Claude Code startup logs also reported 24 user skills. Claude CLI authentication is separate from discovery. The repository validator and its six unit tests passed. [Agent Skills library](https://github.com/emanuelmaraujo/skills) · [Codex skill discovery](https://learn.chatgpt.com/docs/build-skills) · [Claude Code skill discovery](https://code.claude.com/docs/en/skills)
+
+| Skills | Use in this change |
+| --- | --- |
+| `web-design-orchestrator`, `web-reference-researcher` | Ordered discovery, creative direction, implementation and verification. Assigned a purpose to each primary reference. |
+| `product-art-direction`, `design-system-architect`, `premium-landing-builder` | Shaped the monogram, token palette, typography, content hierarchy and responsive project layouts. |
+| `web-3d-experience-builder`, `web-motion-engineer` | Separated SVG and interactive rendering, limited canvas work and verified reduced motion. |
+| `frontend-visual-qa`, `web-accessibility-audit`, `web-performance-engineer` | Verified screenshots, keyboard paths, layout, accessibility and comparable local performance samples. |
+| `web-security-review`, `seo-technical-auditor` | Reviewed publishable content and dependencies. Verified locale, alternate links, canonical URLs and social assets in the static export. |
+
+The Codex Skill Installer and OpenAI Docs informed setup. Vercel React Best Practices informed the TSX self-review. Browser validation was performed separately from the implementation checks. An independent human review remains part of the pull request process.

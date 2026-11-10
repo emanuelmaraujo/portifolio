@@ -1,9 +1,9 @@
 
 import type { Metadata } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
-import Navbar from "../components/Navbar";
-import ScrollProgress from "../components/ScrollProgress";
-import Providers from "../components/Providers";
+import Navbar from "@/components/Navbar";
+import ScrollProgress from "@/components/ScrollProgress";
+import Providers from "@/components/Providers";
 import "./globals.css";
 
 
@@ -33,4 +33,3 @@ export default function RootLayout({
     </html>
   );
 }
-
