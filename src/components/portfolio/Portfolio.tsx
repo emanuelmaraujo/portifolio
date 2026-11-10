@@ -71,7 +71,7 @@ export default function Portfolio({ locale }: { locale: Locale }) {
             </div>
           </article>)}
         </div>
-        <div className="workshop">
+        <div className="workshop" id="techlab">
           <h3>{t.lab}</h3>
           <ul>{t.experiments.map(([name, status, detail]) => <li key={name}>
             <div><span className="mono">{status}</span><strong>{name === "Cezar" ? <a href="https://github.com/emanuelmaraujo/cezar">Cezar ↗</a> : name}</strong></div>
@@ -94,15 +94,15 @@ export default function Portfolio({ locale }: { locale: Locale }) {
         <div className="section-heading">
           <p className="eyebrow mono">{t.aboutLabel}</p>
           <h2 id="about-title">{t.aboutTitle}</h2>
-          <p>{t.aboutIntro}</p>
+          <p id="experience">{t.aboutIntro}</p>
         </div>
-        <div className="practice">
-          {t.practice.map(([title, detail]) => <article key={title}>
+        <div className="practice" id="expertise">
+          {t.practice.map(([title, detail], index) => <article key={title} id={["security", "infrastructure", "management"][index]}>
             <span aria-hidden="true">+</span><h3>{title}</h3><p>{detail}</p>
           </article>)}
         </div>
         <div className="about-foot">
-          <div><h3>{t.credentials}</h3><ul>{t.credentialItems.map(item => <li key={item}>{item}</li>)}</ul></div>
+          <div id="certifications"><h3>{t.credentials}</h3><ul>{t.credentialItems.map(item => <li key={item}>{item}</li>)}</ul></div>
           <div><h3>{t.archive}</h3><ul>{["/blog", "/projetos"].map((path, i) => <li key={path}><a href={basePath + path}>{t.archiveLinks[i]} ↗</a></li>)}</ul></div>
         </div>
       </section>

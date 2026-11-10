@@ -39,9 +39,9 @@ Prumo’s adapters, workers and publishing paths support the commerce case. Torv
 | --- | --- |
 | Static build, TypeScript, export tests | Pass. Both languages, metadata, brand assets and all archive content are covered by the export tests. |
 | ESLint | Pass with 16 unused-variable warnings in legacy files. |
-| Browser verification | Chrome at 1440×900, 768×1024, 390×844 and 320×720. Tested reflow, keyboard navigation, case studies, workflow, language switch, pointer/scroll motion, Canvas2D failure and reduced-motion changes. |
+| Browser verification | Chrome at 1440×900, 768×1024, 390×844 and 320×720. Tested reflow, keyboard navigation, case studies, workflow, language switch, pointer/scroll motion, Canvas2D failure, reduced-motion changes and legacy navigation from the archive. |
 | Accessibility | Axe WCAG 2.0/2.1 A and AA checks reported zero violations on the English and Portuguese landing pages at desktop and mobile sizes. Screen-reader and physical-device checks were outside this test run. |
-| Local performance | Three cold browser contexts on localhost at 1440×900. Median observed LCP moved from 324 ms in the previous local export to 140 ms in the new one. Uncompressed JS fetched fell from 592 KiB to 348 KiB, and new CLS was zero in the sample. No field CWV or representative mobile GPU data were collected. |
+| Local performance | Three cold browser contexts on localhost at 1440×900. Median observed LCP moved from 328 ms in the previous local export to 168 ms in the new one. Uncompressed JS fetched fell from 592 KiB to 348 KiB, and new CLS was zero in the sample. No field CWV or representative mobile GPU data were collected. |
 | Security and dependencies | The landing uses static content, original assets and no tracking, auth, forms or third-party scripts. Next.js and its lint config were updated within major version 15. npm audit still reports 15 findings when omitting dev dependencies and 66 across the full tree, including two critical findings in inherited tooling. GitHub Pages serves the static export without that tooling. |
 
 ## Agent Skills used

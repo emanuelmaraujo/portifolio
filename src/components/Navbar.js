@@ -11,9 +11,10 @@ const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [activeSection, setActiveSection] = useState('');
   const [scrolled, setScrolled] = useState(false);
-  const { t } = useLanguage();
+  const { lang, t } = useLanguage();
 
   const basePath = '/portifolio';
+  const homePath = lang === 'pt' ? basePath + '/pt' : basePath + '/';
 
   const navItems = [
     { id: 'about', href: '#about', label: t('nav.about'), type: 'anchor' },
@@ -81,14 +82,14 @@ const Navbar = () => {
         <div className="container mx-auto px-4 md:px-6">
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
-            <Link href="/" className="flex items-center gap-2 group flex-shrink-0">
+            <a href={homePath} className="flex items-center gap-2 group flex-shrink-0">
               <div className="w-8 h-8 rounded-lg bg-primary/10 border border-primary/30 flex items-center justify-center group-hover:bg-primary/20 transition-all duration-300">
                 <Shield className="w-4 h-4 text-primary" />
               </div>
               <span className="font-bold text-lg gradient-text hidden sm:inline">
                 Emanuel Araújo
               </span>
-            </Link>
+            </a>
 
             {/* Desktop Navigation */}
             <ul className="hidden lg:flex items-center gap-1">
@@ -96,7 +97,7 @@ const Navbar = () => {
                 <li key={item.id}>
                   {item.type === 'anchor' ? (
                     <a
-                      href={`${basePath}${item.href}`}
+                      href={`${homePath}${item.href}`}
                       onClick={(e) => handleAnchorClick(e, item)}
                       className={`relative px-3 py-2 text-sm font-medium rounded-lg transition-all duration-300 whitespace-nowrap ${
                         activeSection === item.id
@@ -181,7 +182,7 @@ const Navbar = () => {
                   >
                     {item.type === 'anchor' ? (
                       <a
-                        href={`${basePath}${item.href}`}
+                        href={`${homePath}${item.href}`}
                         onClick={(e) => handleAnchorClick(e, item)}
                         className={`block px-4 py-3 rounded-lg text-sm font-medium transition-all duration-300 ${
                           activeSection === item.id
