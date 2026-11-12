@@ -1,72 +1,76 @@
-# Aperture · Emanuel Araújo
+# Emanuel Araújo · portfólio
 
-Portfólio de engenharia, IA, orquestração de agentes, cibersegurança e liderança de TI. Inglês em `/`, português brasileiro em `/pt`. O acervo permanece em `/blog` e `/projetos`, incluindo os links para artigos e projetos existentes.
+Identidade digital de Emanuel Araújo: engenharia de IA, cibersegurança, liderança de TI e produtos próprios. Inglês em `/`, português em `/pt`. Artigos em `/blog` e notas de projeto em `/projetos`.
 
-## Revisão visual do portfólio original
+## Conceito
 
-A branch `portfolio/restore-depth` retoma o retrato central, a paleta ciano/violeta e a apresentação técnica do portfólio original (commit `0ea2a9f`). Segurança, infraestrutura e gestão voltaram a ter detalhes expansíveis, seguidos pela trajetória, stack, cursos e credenciais. O núcleo WebGL fica no laboratório, carregado por proximidade. Divisores executam um pulso direcional ao entrar na tela e permanecem estáticos com movimento reduzido.
-## Desenvolvimento e Vercel
+**Um sistema, muitas formas.** Um único campo de partículas WebGL acompanha a página inteira e se reorganiza a cada capítulo: a marca, os estratos da carreira, o grafo de competências, a orquestra de agentes, o prumo, as placas Torvya, o quadro de pedidos e o horizonte. A rolagem conduz a matéria de uma figura à outra.
+
+| Capítulo | Figura | Interação |
+| --- | --- | --- |
+| Abertura e contato | Marca pessoal | Partículas se condensam na entrada e desviam do cursor |
+| Trajetória | Cinco estratos atravessados por um feixe | A etapa no centro da tela acende a camada correspondente |
+| Competências | Quatro núcleos ligados por filamentos | Selecionar uma disciplina destaca o núcleo e lista as conexões |
+| Agentes | Orquestrador com seis etapas em anel | "Executar uma tarefa" percorre o fluxo, com falha, correção, revisão e aprovação |
+| Prumo | Ruído que converge em um fio de prumo | As etapas do pipeline alternam o destaque entre ruído e fio |
+| Torvya | Placas de acrílico modeladas em 3D | Alternar entre Review e Connect traz a placa para a frente |
+| Marcos Krep's | Quadro de pedidos | Telas reais do sistema com dados de teste |
+| Credenciais | Duas órbitas com os badges como objetos 3D | Escolher uma credencial gira a órbita até o badge ficar de frente |
+| Contato | Marca pessoal | Uma luz sobe pelos três estratos até o feixe, em ciclo |
+| Artigos | Figura gerada a partir do título de cada texto | A figura muda conforme a lista é percorrida e se rearranja a cada seção do artigo |
+
+## Marca
+
+O símbolo é um "A" cuja perna esquerda são três estratos (infraestrutura, segurança, inteligência) e a direita um feixe contínuo (orquestração). A barra do meio se estende até o feixe e forma a travessa do "A"; as três barras leem como "E". A geometria é gerada a partir de uma grade de 64 unidades e é a mesma no SVG, no cabeçalho, no card social e na figura 3D (`src/components/site/scene/mark-paths.json`).
+
+Arquivos em `public/identity/`: `mark.svg` (fundo escuro), `mark-light.svg` (fundo claro), `mark-mono.svg` (`currentColor`), `mark-compact.svg` (tamanhos pequenos), `mark-animated.svg` e `favicon.svg`. O card social (`/og.png`) e o ícone Apple (`/apple-icon.png`) são gerados no build.
+
+Paleta: tinta `#08090b`, osso `#ede8df`, laranja-sinal `#ff5b22`. Cada projeto usa o acento da própria marca (Prumo lima, Torvya azul, Marcos Krep's amarelo). Tipografia: Geist, Geist Mono e Instrument Serif em itálico.
+
+## Arquitetura
+
+```
+src/components/site/
+  content.ts          conteúdo bilíngue e links
+  entries.ts          leitura dos artigos e notas em Markdown
+  Archive.tsx         páginas de artigos e notas
+  Site.tsx            página (server component)
+  SiteLayout.tsx      <html>, fontes e metadados
+  Stage.tsx           canvas fixo; carrega o motor depois da primeira pintura
+  Trajectory · Capabilities · Orchestration · Work   seções interativas
+  scene/engine.ts     renderer, rolagem, câmera, rótulos ancorados
+  scene/forms.ts      geradores das oito figuras
+  scene/plaques.ts    placas Torvya (geometria e faces desenhadas em canvas)
+  scene/badges.ts     badges das credenciais em órbita
+  scene/sigil.ts      figura generativa por texto (3D e emblema 2D)
+  site.css            tokens e layout
+```
+
+As seções controlam a cena por atributos `data-*` (`data-form`, `data-side`, `data-accent`, `data-active`, `data-seed`, `data-badge`), então o React não conversa com o WebGL. Three.js é a única dependência 3D; as animações de interface são CSS.
+
+No celular, cada capítulo abre com uma janela livre para a figura, que recua quando o texto sobe sobre ela. As partículas reagem ao dedo que rola a página, à velocidade da rolagem e à inclinação do aparelho, e a navegação vira uma barra na base da tela.
+
+Um loading curto cobre a entrada até o motor 3D estar pronto, e a animação de abertura começa quando ele sai. Sem JavaScript ele não aparece.
+
+Cada artigo tem uma figura própria: `scene/sigil.ts` gera, a partir do slug, sempre a mesma forma para o mesmo texto. Ela aparece em 3D na página do artigo e como emblema de pontos (SVG) nas listas. O artigo é dividido nos títulos de segundo nível, e cada parte é um capítulo do campo de partículas.
+
+Artigos (`posts/`) e notas de projeto (`projetos_posts/`) são Markdown renderizado no build, listados em `/blog` e `/projetos` e, os três mais recentes, na página inicial. Versões em inglês terminam em `-en` e cada texto aponta para a outra língua.
+
+Todo o conteúdo é HTML renderizado no servidor. Sem WebGL, ou após perda de contexto, a página mantém o fundo em CSS e a marca estática. Com `prefers-reduced-motion`, as figuras trocam sem deslocamento e o laço de animação para. O renderer limita o DPR, reduz a resolução se os quadros ficarem lentos e pausa com a aba oculta.
+
+## Fontes do conteúdo
+
+Fatos de projeto vêm dos repositórios locais (Prumo, PDV Marcos Krep's, Promos, VideoFactory, Skills) e do perfil do GitHub. As logos de Prumo, Torvya e Marcos Krep's são os arquivos originais de cada marca. O card do Prumo é o exemplo do kit da marca. As telas do Marcos Krep's são capturas reais com dados de teste. As faces das placas Torvya são redesenhadas em código: o QR é decorativo e a face Review usa um selo neutro no lugar do logotipo de terceiros impresso no produto.
+
+## Desenvolvimento
 
 ```powershell
 npm ci
-npm run dev
-# http://localhost:3000
-```
-
-```powershell
+npm run dev        # http://localhost:3000
 npm run build
 npm run typecheck
 npm run lint
-npm test
-npm run start
+npm test           # exige build; sobe o servidor de produção em uma porta livre
 ```
 
-`npm test` sobe um servidor de produção em uma porta local livre e valida as páginas, o acervo e os assets. `vercel.json` seleciona o preset Next.js, `npm ci`, `npm run build` e a saída nativa `.next`. Canonical, Open Graph e sitemap usam `PORTFOLIO_SITE_URL` quando definido e o domínio atual da Vercel por padrão. O build usa a raiz do domínio. O workflow do GitHub Pages e as ferramentas de publicação Cloudflare do portfólio foram removidos.
-
-A branch `portfolio/aperture-webgl` parte de `eff50bb`, a versão mais recente do portfólio já publicada. A mudança está preparada para revisão e publicação futura.
-
-## Identidade
-
-**Aperture** representa um núcleo de inteligência cercado por componentes de proteção e operação. As duas peças do monograma EA usam cortes compatíveis com as faces chanfradas da estrutura WebGL. A paleta combina grafite azulado, aço, gelo e coral de sinalização. A landing intercala o hero escuro, a exposição clara de projetos, o grafo escuro e o contato coral.
-
-| Conceito | Originalidade e coerência | Leitura pequena e animação |
-| --- | --- | --- |
-| [Lattice](public/aperture/concepts/01-lattice.svg) | Conexões e nós, próximos de um diagrama técnico | Traços finos perdem presença em tamanhos pequenos. Favorece desenho por linhas |
-| [Aperture](public/aperture/concepts/02-aperture.svg) | Duas peças sólidas com chanfros e espaço negativo, diretamente ligadas à estrutura 3D | Contorno legível em tamanho compacto. As peças convergem em SVG e ganham espessura em WebGL |
-| [Keystone](public/aperture/concepts/03-keystone.svg) | Moldura estrutural com monograma interno | A moldura compete com as letras no favicon. Favorece rotação de conjunto |
-
-A variante selecionada está em [SVG principal](public/aperture/mark.svg), [monocromático](public/aperture/mark-mono.svg), [compacto](public/aperture/mark-compact.svg), [animado](public/aperture/mark-animated.svg) e [favicon](public/aperture/favicon.svg). O [poster do núcleo](public/aperture/core-poster.svg), as placas e os assets sociais são originais. Os tokens de cor, escala e movimento estão em `portfolio.css` e as regras específicas do hero em `aperture.css`.
-
-O uso de profundidade para comunicar função veio das referências de experiências interativas. A composição, o símbolo e a geometria são próprios. [Awwwards WebGL](https://www.awwwards.com/websites/webgl/) · [Active Theory](https://activetheory.net/) · [Bruno Simon](https://bruno-simon.com/)
-
-## Cena e motion
-
-`SceneStage.tsx` carrega separadamente os modelos e o renderer. `webgl/core.ts` contém as placas extrudadas, cristal, monograma e trilhos. `webgl/torvya.ts` desenha as placas Review e Connect e suas texturas em código. Three.js renderiza a perspectiva, os materiais e as luzes em WebGL2. R3F, Drei e GSAP foram considerados. O controle direto das duas cenas e CSS para transições da interface cobriram o escopo sem uma segunda camada de animação.
-
-| Movimento | Gatilho, estado e tempo | Comportamento alternativo |
-| --- | --- | --- |
-| Formação EA | Entrada. Duas peças convergem em 750 ms com atraso de 80 ms na segunda | SVG estático com movimento reduzido |
-| Título | Entrada. Duas linhas passam por máscara direcional em 880 ms com atraso de 120 ms | Texto completo desde a primeira pintura |
-| Montagem do núcleo | Entrada na viewport. Placas se aproximam radialmente e encaixam com easing cúbico e 43 ms de defasagem entre segmentos. Último encaixe em cerca de 1,33 s de animação | Poster vetorial disponível durante carregamento, perda de contexto e movimento reduzido |
-| Resposta do núcleo | Cursor e rolagem amortecem câmera, orientação e separação das placas. O loop ocioso move cristal e órbitas | Pausa congela a cena. Em toque, rolagem continua a orientar o núcleo |
-| Transição das exposições | No navegador com `animation-timeline`, a rolagem conduz o visual de 24 px e escala .97 até o tamanho final | Layout sem movimento mantém o conteúdo e os controles visíveis |
-| Profundidade e fluxo | Ponteiro inclina o Prumo e o POS em 260 ms. No Prumo, hover ou foco conduz o sinal de distribuição em 1 s | Conteúdo completo em toque e movimento reduzido |
-| Torvya | Arrasto horizontal ou botão por teclado muda a orientação em incrementos de 60° com amortecimento | Ilustração vetorial e descrições HTML |
-| Grafo | Teclado ou clique seleciona um nó. Pulso de 1,2 s por ciclo, até três ciclos. Detalhe troca em 270 ms | Conexões e estado selecionado continuam legíveis sem animação |
-
-O renderer limita o DPR a 1,5 em desktop e 1 em ponteiro de toque, com redução adaptativa até .75. Ele interrompe frames fora da viewport e com a aba oculta. Desmontagem libera observers, listeners, materiais, texturas, geometrias e contexto. O fallback restaura o poster no evento de perda de contexto, e a cena recria a iluminação se o navegador restaurar o contexto.
-
-## Projetos e fontes
-
-O Prumo apresenta o fluxo de marketplaces, workers, curadoria e distribuição. A Torvya mostra os conceitos de produto, com review e compartilhamento via NFC/QR. Marcos Krep’s usa um estudo de interface baseado em estados verificados no repositório, com identificadores fictícios. A seção de laboratório distingue Promos, Cezar e VideoFactory por maturidade. Credenciais públicas incluem ISO/IEC 27001 Foundation, Fortinet e Cisco. As apresentações evitam capturas com dados de operação.
-
-## Skills e validação
-
-- `web-design-orchestrator` organizou reconhecimento, símbolo, protótipo, exposições e QA. `product-art-direction` e `design-system-architect` produziram os três conceitos SVG, a escolha e os tokens.
-- `premium-landing-builder` conduziu a hierarquia bilíngue e as apresentações distintas. `web-3d-experience-builder`, `web-motion-engineer` e `code-driven-motion-storytelling` orientaram a cena real, a montagem em etapas, a navegação e as alternativas estáticas.
-- `frontend-visual-qa`, `web-accessibility-audit` e `web-performance-engineer` orientaram capturas, teclado, teste de movimento, perda de contexto e medições de laboratório.
-- `web-security-review` orientou a revisão de dados, dependências e assets. A remoção do tooling Cloudflare e a atualização do ESLint dentro da mesma major eliminaram os alertas críticos do `npm audit` neste lockfile. Permanecem avisos herdados de dependências. A revisão do código foi feita pelo implementador.
-
-Build, TypeScript e três testes de produção local passaram. ESLint registra 16 avisos em componentes legados. As capturas e comparações de estado estão em `aperture-qa` no workspace da tarefa. A validação de navegador usa Chrome emulado e renderização por software.
-
-Em três sessões frias por cenário a 1440 × 900, o LCP mediano foi 192 ms no export local anterior e 192 ms em Aperture com WebGL. O JavaScript decodificado foi de 348 KiB para 942 KiB com a cena ativa e 356 KiB com movimento reduzido. O CLS observado foi zero. Os servidores locais são distintos e a comparação serve como amostra de laboratório. Em 60 intervalos com a cena ativa, o p95 foi 33,4 ms no desktop e 16,8 ms no perfil móvel emulado. O axe encontrou zero violações A/AA nas quatro combinações de idioma e tamanho auditadas. Os títulos do acervo também foram verificados com JavaScript desativado. A validação local não cobre leitor de tela, GPU de dispositivos físicos ou execução remota na Vercel.
+Deploy na Vercel com o preset Next.js (`vercel.json`). Canonical, Open Graph e sitemap usam `PORTFOLIO_SITE_URL` quando definido.

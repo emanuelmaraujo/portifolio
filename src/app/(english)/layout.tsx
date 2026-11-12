@@ -1,9 +1,8 @@
 import type { ReactNode } from "react";
-import PortfolioLayout from "@/components/portfolio/PortfolioLayout";
-import { portfolioMetadata } from "@/components/portfolio/metadata";
+import SiteLayout, { siteMetadata } from "@/components/site/SiteLayout";
 
-export const metadata = portfolioMetadata("en");
+export const metadata = siteMetadata("en");
 
 export default function Layout({ children }: { children: ReactNode }) {
-  return <PortfolioLayout locale="en">{children}</PortfolioLayout>;
+  return <SiteLayout locale="en">{children}</SiteLayout>;
 }

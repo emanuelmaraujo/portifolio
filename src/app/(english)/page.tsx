@@ -1,5 +1,5 @@
-import Portfolio from "@/components/portfolio/Portfolio";
+import Site from "@/components/site/Site";
 
 export default function Page() {
-  return <Portfolio locale="en" />;
+  return <Site locale="en" />;
 }

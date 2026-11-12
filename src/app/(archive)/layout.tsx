@@ -1,37 +1,14 @@
-
+import type { ReactNode } from "react";
 import type { Metadata } from "next";
-import { Inter, JetBrains_Mono } from "next/font/google";
-import Navbar from "@/components/Navbar";
-import ScrollProgress from "@/components/ScrollProgress";
-import Providers from "@/components/Providers";
-import "./globals.css";
-import "./archive.css";
-
-
-const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
-const jetbrainsMono = JetBrains_Mono({ subsets: ["latin"], variable: "--font-mono" });
+import SiteLayout from "@/components/site/SiteLayout";
+import { siteUrl } from "@/components/site/content";
 
 export const metadata: Metadata = {
-  title: "Emanuel Araújo | Especialista em Infraestrutura & Segurança",
-  description: "Portfólio profissional de Emanuel Araújo — Especialista em Infraestrutura de TI, Segurança da Informação, Governança e Automação. Mais de 4 anos protegendo ambientes tecnológicos no setor financeiro.",
-  icons: { icon: "/aperture/favicon.svg" },
-  keywords: ["segurança da informação", "infraestrutura de TI", "governança de TI", "automação", "compliance", "portfólio", "Emanuel Araújo"],
+  title: { default: "Artigos e notas · Emanuel Araújo", template: "%s · Emanuel Araújo" },
+  description: "Artigos sobre segurança da informação e notas de projetos de infraestrutura, por Emanuel Araújo.",
+  icons: { icon: `${siteUrl}/identity/favicon.svg`, apple: `${siteUrl}/apple-icon.png` },
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
-  return (
-    <html lang="pt-BR" className={`archive-document scroll-smooth ${inter.variable} ${jetbrainsMono.variable}`}>
-      <body className={`${inter.className} antialiased`}>
-        <Providers>
-          <ScrollProgress />
-          <Navbar />
-          {children}
-        </Providers>
-      </body>
-    </html>
-  );
+export default function Layout({ children }: { children: ReactNode }) {
+  return <SiteLayout locale="pt-BR">{children}</SiteLayout>;
 }

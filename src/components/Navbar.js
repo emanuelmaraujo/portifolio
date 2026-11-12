@@ -11,7 +11,7 @@ export default function Navbar() {
     <div className="archive-header-inner">
       <a href={home} className="archive-brand" aria-label="Emanuel Araújo">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/aperture/mark.svg" width={42} height={35} alt="" />
+        <img src="/identity/mark.svg" width={36} height={36} alt="" />
         <span>Emanuel Araújo</span>
       </a>
       <nav aria-label={lang === "pt" ? "Navegação do acervo" : "Archive navigation"}>
