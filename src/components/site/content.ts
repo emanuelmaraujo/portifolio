@@ -3,7 +3,7 @@ export type Locale = "en" | "pt-BR";
 export const siteUrl = process.env.NEXT_PUBLIC_PORTFOLIO_SITE_URL!;
 export const links = {
   github: "https://github.com/emanuelmaraujo",
-  linkedin: "https://www.linkedin.com/in/emanuel-rx/",
+  linkedin: "https://www.linkedin.com/in/emanuelmaraujo/",
   email: "mailto:emanuel-morais@outlook.com",
   skills: "https://github.com/emanuelmaraujo/skills",
   prumo: "https://prumobr.app.br",
@@ -35,8 +35,8 @@ const en = {
     label: "Trajectory", title: "Built in layers.",
     intro: "Each stage sits on the one before it. I learned the business first, then its infrastructure, then how to protect it, then how to lead it. Now I build intelligent systems on top of all four.",
     layers: [
-      { when: "2020", name: "Foundations", role: "Front line of a financial cooperative",
-        text: "I started in member service and internal processes, with technical support on the side. I saw how the business runs before I was responsible for the systems under it.",
+      { when: "2017", name: "Foundations", role: "Apprentice, intern and administrative assistant at a financial cooperative",
+        text: "I joined the cooperative as an apprentice and stayed through an internship and an administrative role, in member service and internal processes, with technical support on the side. I saw how the business runs before I was responsible for the systems under it.",
         gained: ["Business processes", "Documentation", "User support"] },
       { when: "2021", name: "Infrastructure & operations", role: "Moved into IT",
         text: "I took over day-to-day operations: servers, networks, identity and L1/L2 support. I containerised internal services and published them behind a reverse proxy with TLS. I also deployed Snipe-IT, NetBox and Vaultwarden to give IT an inventory, a network map and a credential vault.",
@@ -44,7 +44,7 @@ const en = {
       { when: "2023 → 2025", name: "Security & governance", role: "Computer Science degree, security specialisation",
         text: "Security became the centre of the job: identity and MFA, endpoint protection, hardening, vulnerability management and incident response. I supported internal and external audits in a regulated sector and aligned controls with ISO 27001 and NIST.",
         gained: ["IAM · MFA · Conditional Access", "EDR · hardening", "Audit evidence", "ISO/IEC 27001 Foundation"] },
-      { when: "Today", name: "IT leadership", role: "IT coordination",
+      { when: "2026", name: "IT leadership", role: "IT Coordinator",
         text: "I coordinate IT for the cooperative: planning, priorities, vendors and contracts, technology risk and business continuity. The decisions are about what the organisation can rely on.",
         gained: ["Technology planning", "Risk & continuity (BCP/DRP)", "Vendor & asset lifecycle"] },
       { when: "Now building", name: "Intelligent systems", role: "AI engineering and my own products",
@@ -160,7 +160,7 @@ const en = {
     label: "Credentials", title: "Proof, in orbit.",
     intro: "Certifications and badges I earned along the way. Choose one to bring it forward.",
     educationLabel: "Education",
-    education: [["BSc in Computer Science", "Universidade Paulista · 2023"], ["Information Security", "Postgraduate studies"]],
+    education: [["Postgraduate in IT Management", "Faculdade Focus · 2026 – 2027, in progress"], ["Postgraduate in Information Security", "Faculdade Focus"], ["BSc in Computer Science", "Universidade Paulista · 2023"]],
     verify: "Verify on Credly",
   },
   writing: {
@@ -201,8 +201,8 @@ const pt: typeof en = {
     label: "Trajetória", title: "Construída em camadas.",
     intro: "Cada etapa se apoia na anterior. Primeiro aprendi o negócio, depois a infraestrutura, depois como protegê-la e como liderá-la. Hoje construo sistemas inteligentes sobre essas quatro bases.",
     layers: [
-      { when: "2020", name: "Fundamentos", role: "Linha de frente de uma cooperativa financeira",
-        text: "Comecei no atendimento e nos processos internos, com suporte técnico em paralelo. Conheci o funcionamento do negócio antes de responder pelos sistemas que o sustentam.",
+      { when: "2017", name: "Fundamentos", role: "Aprendiz, estagiário e auxiliar administrativo em uma cooperativa financeira",
+        text: "Entrei na cooperativa como aprendiz e segui como estagiário e auxiliar administrativo, no atendimento e nos processos internos, com suporte técnico em paralelo. Conheci o funcionamento do negócio antes de responder pelos sistemas que o sustentam.",
         gained: ["Processos de negócio", "Documentação", "Suporte ao usuário"] },
       { when: "2021", name: "Infraestrutura e operações", role: "Entrada na área de TI",
         text: "Assumi a operação do dia a dia: servidores, redes, identidade e suporte N1/N2. Coloquei serviços internos em contêineres e os publiquei atrás de proxy reverso com TLS. Também implantei Snipe-IT, NetBox e Vaultwarden para dar à TI um inventário, um mapa de rede e um cofre de credenciais.",
@@ -210,7 +210,7 @@ const pt: typeof en = {
       { when: "2023 → 2025", name: "Segurança e governança", role: "Graduação em Ciência da Computação e especialização em segurança",
         text: "A segurança passou a ser o centro do trabalho: identidade e MFA, proteção de endpoints, hardening, gestão de vulnerabilidades e resposta a incidentes. Apoiei auditorias internas e externas em um setor regulado e alinhei controles à ISO 27001 e ao NIST.",
         gained: ["IAM · MFA · Acesso Condicional", "EDR · hardening", "Evidências de auditoria", "ISO/IEC 27001 Foundation"] },
-      { when: "Hoje", name: "Liderança de TI", role: "Coordenação de TI",
+      { when: "2026", name: "Liderança de TI", role: "Coordenador de TI",
         text: "Coordeno a TI da cooperativa: planejamento, prioridades, fornecedores e contratos, risco tecnológico e continuidade de negócios. As decisões tratam daquilo em que a organização pode confiar.",
         gained: ["Planejamento tecnológico", "Risco e continuidade (PCN/PRD)", "Fornecedores e ciclo de vida de ativos"] },
       { when: "Em construção", name: "Sistemas inteligentes", role: "Engenharia de IA e produtos próprios",
@@ -326,7 +326,7 @@ const pt: typeof en = {
     label: "Credenciais", title: "Provas, em órbita.",
     intro: "Certificações e badges conquistados no caminho. Escolha um para trazê-lo à frente.",
     educationLabel: "Formação",
-    education: [["Bacharelado em Ciência da Computação", "Universidade Paulista · 2023"], ["Segurança da Informação", "Pós-graduação"]],
+    education: [["Pós-graduação em Gestão de TI", "Faculdade Focus · 2026 – 2027, em andamento"], ["Pós-graduação em Segurança da Informação", "Faculdade Focus"], ["Bacharelado em Ciência da Computação", "Universidade Paulista · 2023"]],
     verify: "Verificar no Credly",
   },
   writing: {
