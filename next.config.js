@@ -1,26 +1,8 @@
 /** @type {import("next").NextConfig} */
 
-// Define o nome do repositório para o basePath
-const repoName = "portifolio"; // Descomentado para build estático
+export const siteUrl = (process.env.PORTFOLIO_SITE_URL || "https://emanuel-araujo-portfolio.vercel.app").replace(/\/$/, "");
 
-const nextConfig = {
-  output: "export", // Descomentado para build estático
-  basePath: `/${repoName}`, // Descomentado para build estático
-  assetPrefix: `/${repoName}/`, // Descomentado para build estático
+export default {
+  env: { NEXT_PUBLIC_PORTFOLIO_SITE_URL: siteUrl },
   reactStrictMode: true,
-  images: {
-    // Desabilita a otimização de imagens do Next.js, pois não funciona com exportação estática sem configuração adicional
-    unoptimized: true,
-    remotePatterns: [
-      {
-        protocol: "https",
-        hostname: "via.placeholder.com",
-        port: "",
-        pathname: "/**",
-      },
-    ],
-  },
 };
-
-export default nextConfig;
-

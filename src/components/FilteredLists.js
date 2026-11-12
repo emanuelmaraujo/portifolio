@@ -3,13 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { Calendar, ArrowRight, Clock, ExternalLink, Code } from 'lucide-react';
-import { MotionDiv } from '@/components/client/motion-div';
 import { useLanguage } from '../hooks/useLanguage';
-
-const listItemVariants = {
-  hidden: { opacity: 0, y: 15 },
-  visible: { opacity: 1, y: 0 },
-};
 
 // ═══════════════════════════════════════════
 // Blog Post List — filters by current language
@@ -31,14 +25,10 @@ export function BlogPostList({ allPosts }) {
 
   return (
     <div className="max-w-3xl mx-auto space-y-4">
-      {filtered.map((post, index) => (
-        <MotionDiv
+      {filtered.map((post) => (
+        <div
           key={post.id}
           className="group relative"
-          variants={listItemVariants}
-          initial="hidden"
-          animate="visible"
-          transition={{ duration: 0.4, delay: index * 0.08 }}
         >
           <Link href={`/blog/${post.id}`} className="block">
             <div className="premium-card p-6 md:p-8 hover:border-primary/20 transition-all duration-300">
@@ -72,7 +62,7 @@ export function BlogPostList({ allPosts }) {
               </div>
             </div>
           </Link>
-        </MotionDiv>
+        </div>
       ))}
     </div>
   );
@@ -98,14 +88,10 @@ export function ProjectList({ allProjects }) {
 
   return (
     <div className="max-w-3xl mx-auto grid gap-5">
-      {filtered.map((projeto, index) => (
-        <MotionDiv
+      {filtered.map((projeto) => (
+        <div
           key={projeto.id}
           className="premium-card p-6 md:p-8 group hover:border-primary/20 transition-all duration-300"
-          variants={listItemVariants}
-          initial="hidden"
-          animate="visible"
-          transition={{ duration: 0.4, delay: index * 0.08 }}
         >
           <div className="relative z-10">
             {/* Date */}
@@ -175,7 +161,7 @@ export function ProjectList({ allProjects }) {
               )}
             </div>
           </div>
-        </MotionDiv>
+        </div>
       ))}
     </div>
   );
