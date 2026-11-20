@@ -157,7 +157,7 @@ function Torvya({ t, w }: { t: Copy["work"]["torvya"]; w: WorkCopy }) {
   const [phase, setPhase] = useState(0);
   const rotate = (step: number) => setTurn(value => Math.max(-0.9, Math.min(0.9, value + step)));
   return (
-    <section id="torvya" className="chapter project torvya" data-form="torvya" data-caption={w.captions.torvya} data-side="1" data-accent={accents.torvya} data-plaque={plaque} data-turn={turn} data-active={phase ? phase + 1 : undefined} data-dim="0.5" data-lift="0.85" style={{ "--accent": accents.torvya } as React.CSSProperties} aria-labelledby="torvya-title">
+    <section className="chapter project torvya" data-form="torvya" data-caption={w.captions.torvya} data-side="1" data-accent={accents.torvya} data-plaque={plaque} data-turn={turn} data-active={phase ? phase + 1 : undefined} data-dim="0.5" data-lift="0.85" style={{ "--accent": accents.torvya } as React.CSSProperties} aria-labelledby="torvya-title">
       <div className="grab grab--right" data-grab aria-hidden="true"><span>{t.flow.drag}</span></div>
       <div className="col">
         {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -191,7 +191,7 @@ function Torvya({ t, w }: { t: Copy["work"]["torvya"]; w: WorkCopy }) {
 
 function Kreps({ t, w }: { t: Copy["work"]["kreps"]; w: WorkCopy }) {
   return (
-    <section id="kreps" className="chapter project kreps" data-form="kreps" data-caption={w.captions.kreps} data-side="-1" data-accent={accents.kreps} data-dim="0.35" style={{ "--accent": accents.kreps } as React.CSSProperties} aria-labelledby="kreps-title">
+    <section className="chapter project kreps" data-form="kreps" data-caption={w.captions.kreps} data-side="-1" data-accent={accents.kreps} data-dim="0.35" style={{ "--accent": accents.kreps } as React.CSSProperties} aria-labelledby="kreps-title">
       <div className="col">
         <p className="brand brand--kreps" data-reveal>
           {/* eslint-disable-next-line @next/next/no-img-element */}

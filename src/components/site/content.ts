@@ -21,15 +21,6 @@ export const accents = { self: "#ff5b22", prumo: "#c8f24b", torvya: "#5b6cff", k
 
 const en = {
   skip: "Skip to content", figure: "Fig.",
-  ask: {
-    launch: "Ask", title: "Ask the system", intro: "Ask about Emanuel’s work. The field above takes the shape of the answer.",
-    placeholder: "Type a question", send: "Send", close: "Close", you: "You", guide: "Guide", thinking: "Reading the system",
-    chips: [["who", "Who is Emanuel?"], ["security", "Security experience"], ["agents", "How he works with AI agents"], ["prumo", "What is Prumo?"], ["contact", "How to reach him"]] as [string, string][],
-    live: "AI · Claude", guided: "Guided answer", see: "See it on the page",
-    unknown: "I can answer about his trajectory, the three pillars, the agent workflow, Prumo, Torvya, the POS, credentials, articles and contact. Try one of the suggestions.",
-    note: "Typed questions are answered by an AI model from the content of this site and may contain mistakes. Suggestions are answered directly from the site.",
-    noteGuided: "No AI model is connected right now. Answers come straight from the content of this site.",
-  },
   motion: { label: "Motion", auto: "Auto", lite: "Light", off: "Off", now: "Running:", tiers: { high: "full quality", balanced: "balanced", lite: "light", static: "static, no 3D" } },
   captions: {
     hero: "The mark · three strata under one beam", trajectory: "Strata · a career built in layers", orchestration: "Orchestra · one orchestrator, six stages",
@@ -234,15 +225,6 @@ const en = {
 
 const pt: typeof en = {
   skip: "Pular para o conteúdo", figure: "Fig.",
-  ask: {
-    launch: "Perguntar", title: "Pergunte ao sistema", intro: "Pergunte sobre o trabalho do Emanuel. O campo acima assume a forma da resposta.",
-    placeholder: "Digite uma pergunta", send: "Enviar", close: "Fechar", you: "Você", guide: "Guia", thinking: "Consultando o sistema",
-    chips: [["who", "Quem é o Emanuel?"], ["security", "Experiência em segurança"], ["agents", "Como ele trabalha com agentes de IA"], ["prumo", "O que é o Prumo?"], ["contact", "Como falar com ele"]],
-    live: "IA · Claude", guided: "Resposta guiada", see: "Ver na página",
-    unknown: "Consigo responder sobre a trajetória, os três pilares, o fluxo com agentes, o Prumo, a Torvya, o PDV, as credenciais, os artigos e o contato. Experimente uma das sugestões.",
-    note: "Perguntas digitadas são respondidas por um modelo de IA a partir do conteúdo deste site e podem conter erros. As sugestões são respondidas direto do site.",
-    noteGuided: "Nenhum modelo de IA está conectado agora. As respostas vêm direto do conteúdo deste site.",
-  },
   motion: { label: "Movimento", auto: "Automático", lite: "Leve", off: "Desligado", now: "Em uso:", tiers: { high: "qualidade total", balanced: "equilibrado", lite: "leve", static: "estático, sem 3D" } },
   captions: {
     hero: "A marca · três camadas sob um feixe", trajectory: "Estratos · uma carreira em camadas", orchestration: "Orquestra · um orquestrador, seis etapas",

@@ -16,8 +16,6 @@ import { budget, type Tier } from "./quality";
  *   data-active   group id to highlight          data-glow / data-dim   field opacity on wide / compact layouts
  *   data-turn     extra yaw in radians, the keyboard alternative to dragging
  *   data-caption  what the figure stands for, announced through the `scene:chapter` event
- * The `scene:show` event (detail: a figure name, or null) lends the chapter on screen another figure for a while. The
- * site's guide uses it so the field takes the shape of what is being answered.
  * Elements with `data-anchor="name"` inside a chapter are positioned over the matching 3D anchor every frame.
  * Elements with `data-grab` are drag surfaces: dragging across one turns the figure, one to one with the finger.
  *
@@ -198,8 +196,7 @@ export function createEngine(canvas: HTMLCanvasElement, tier: Exclude<Tier, "sta
 
   const chapters: Chapter[] = [...document.querySelectorAll<HTMLElement>("[data-form]")].map(el => ({ el, anchors: [...el.querySelectorAll<HTMLElement>("[data-anchor]")] }));
   const formOf = (c: Chapter) => c.el.dataset.form as FormName;
-  let lent: { chapter: Chapter; key: string } | null = null;
-  const keyOf = (c: Chapter) => (lent?.chapter === c ? lent.key : formOf(c) === "sigil" ? "sigil:" + (c.el.dataset.seed ?? "") : formOf(c));
+  const keyOf = (c: Chapter) => (formOf(c) === "sigil" ? "sigil:" + (c.el.dataset.seed ?? "") : formOf(c));
   let pair = ["", ""];
   const load = (a: string, b: string) => {
     if (pair[0] === a && pair[1] === b) return;
@@ -279,11 +276,6 @@ export function createEngine(canvas: HTMLCanvasElement, tier: Exclude<Tier, "sta
   const onTilt = (e: DeviceOrientationEvent) => {
     if (e.gamma === null || e.beta === null) return;
     tilt.set(THREE.MathUtils.clamp(e.gamma / 35, -1, 1), THREE.MathUtils.clamp((e.beta - 50) / 35, -1, 1));
-    awake();
-  };
-  const onShow = (e: Event) => {
-    const key = (e as CustomEvent<string | null>).detail;
-    lent = key && leading >= 0 ? { chapter: chapters[leading], key } : null;
     awake();
   };
   const onTiltSwitch = (e: Event) => {
@@ -458,7 +450,6 @@ export function createEngine(canvas: HTMLCanvasElement, tier: Exclude<Tier, "sta
     }
 
     const leadIndex = mix < 0.5 ? a : b;
-    if (lent && lent.chapter !== lead) lent = null; // the visitor scrolled on: the chapter gets its own figure back
     const caption = lead.el.dataset.caption ?? "";
     if (leadIndex !== leading || caption !== captioned) {
       leading = leadIndex;
@@ -493,7 +484,6 @@ export function createEngine(canvas: HTMLCanvasElement, tier: Exclude<Tier, "sta
   addEventListener("pointerup", onPointerUp, { passive: true });
   addEventListener("pointercancel", onPointerUp, { passive: true });
   addEventListener("scene:tilt", onTiltSwitch);
-  addEventListener("scene:show", onShow);
   document.documentElement.addEventListener("pointerleave", onLeave);
   addEventListener("resize", onResize);
   addEventListener("scroll", awake, { passive: true });
@@ -519,7 +509,6 @@ export function createEngine(canvas: HTMLCanvasElement, tier: Exclude<Tier, "sta
       removeEventListener("pointerup", onPointerUp);
       removeEventListener("pointercancel", onPointerUp);
       removeEventListener("scene:tilt", onTiltSwitch);
-      removeEventListener("scene:show", onShow);
       removeEventListener("deviceorientation", onTilt);
       document.documentElement.removeEventListener("pointerleave", onLeave);
       removeEventListener("resize", onResize);
