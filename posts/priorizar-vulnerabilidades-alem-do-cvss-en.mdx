@@ -1,0 +1,187 @@
+---
+title: "Prioritising vulnerabilities beyond CVSS: a risk- and context-based approach"
+date: "2026-11-20"
+author: "Emanuel Araújo"
+lang: "en"
+category: "Vulnerability management"
+tags: ["Vulnerabilities", "CVSS", "EPSS", "KEV", "SSVC", "Risk management"]
+summary: "CVSS measures how severe a flaw is, not the risk it poses to your organisation. Here is how to combine known exploitation, exposure and asset criticality to decide what to fix first."
+seo:
+  title: "Prioritising vulnerabilities beyond CVSS: risk and context"
+references:
+  - title: "CVSS v3.1 User Guide, section 2.1"
+    url: "https://www.first.org/cvss/v3.1/user-guide"
+    publisher: "FIRST"
+  - title: "CVSS v3.1 Specification Document"
+    url: "https://www.first.org/cvss/v3.1/specification-document"
+    publisher: "FIRST"
+  - title: "CVSS v4.0 Specification Document"
+    url: "https://www.first.org/cvss/v4.0/specification-document"
+    publisher: "FIRST"
+  - title: "Exploit Prediction Scoring System (EPSS)"
+    url: "https://www.first.org/epss/"
+    publisher: "FIRST"
+  - title: "EPSS: probability, percentiles and binning"
+    url: "https://www.first.org/epss/articles/prob_percentile_bins"
+    publisher: "FIRST"
+  - title: "Known Exploited Vulnerabilities Catalog"
+    url: "https://www.cisa.gov/known-exploited-vulnerabilities-catalog"
+    publisher: "CISA"
+  - title: "BOD 22-01: Reducing the Significant Risk of Known Exploited Vulnerabilities"
+    url: "https://www.cisa.gov/news-events/directives/bod-22-01-reducing-significant-risk-known-exploited-vulnerabilities"
+    publisher: "CISA"
+  - title: "BOD 26-04: Prioritizing Security Updates Based on Risk"
+    url: "https://www.cisa.gov/news-events/directives/bod-26-04-prioritizing-security-updates-based-risk"
+    publisher: "CISA"
+  - title: "Stakeholder-Specific Vulnerability Categorization (SSVC)"
+    url: "https://www.cisa.gov/stakeholder-specific-vulnerability-categorization-ssvc"
+    publisher: "CISA"
+  - title: "SSVC: CERT/CC documentation"
+    url: "https://certcc.github.io/SSVC/"
+    publisher: "CERT/CC, Carnegie Mellon University"
+  - title: "SP 800-40 Rev. 4: Guide to Enterprise Patch Management Planning"
+    url: "https://csrc.nist.gov/pubs/sp/800/40/r4/final"
+    publisher: "NIST"
+  - title: "Vulnerability Metrics"
+    url: "https://nvd.nist.gov/vuln-metrics/cvss"
+    publisher: "NIST NVD"
+  - title: "CIS Control 7: Continuous Vulnerability Management"
+    url: "https://www.cisecurity.org/controls/continuous-vulnerability-management"
+    publisher: "Center for Internet Security"
+---
+
+A scan report usually arrives with hundreds of findings, and the first instinct is to sort it by score: criticals first, then highs, and so on. The rule is easy to explain and easy to audit. The trouble is that it answers a different question from the one the team needs answered.
+
+The score says how bad a flaw can be. The team needs to know which flaw, in this environment and this week, is most likely to become an incident.
+
+## What CVSS measures
+
+CVSS (the Common Vulnerability Scoring System) is maintained by FIRST and describes the technical characteristics of a vulnerability: how it is reached, which privileges it needs, whether it depends on user interaction and what it does to confidentiality, integrity and availability. The result is a score from 0 to 10, which version 3.1 translates into ratings:
+
+| Rating | Base score |
+|---|---|
+| None | 0.0 |
+| Low | 0.1 to 3.9 |
+| Medium | 4.0 to 6.9 |
+| High | 7.0 to 8.9 |
+| Critical | 9.0 to 10.0 |
+
+The CVSS user guide itself has a section titled “CVSS Measures Severity, not Risk”, and NIST's vulnerability database repeats the warning. The base score is calculated once, for every environment in the world. It does not know whether anyone is exploiting the flaw, whether your server is exposed or what that server supports.
+
+<Callout title="Severity and risk">
+Severity is a property of the flaw. Risk is what happens when the flaw meets a threat and an asset that has value. One vulnerability has a single severity and as many risks as there are places where it appears.
+</Callout>
+
+The standard allows for that adjustment. Version 4.0, published in November 2023, arranges its metrics in four groups (Base, Threat, Environmental and Supplemental) and adopts a naming scheme that states what was considered: CVSS-B is the base alone, CVSS-BT adds threat, CVSS-BE adds the environment and CVSS-BTE has all three. In practice almost every score that circulates in reports is the base. Sorting the queue by it alone is using half of the standard.
+
+## Threat: is anyone exploiting it?
+
+The first missing context is the threat. According to FIRST, only around 5% of published vulnerabilities are ever exploited. Knowing which ones changes the queue more than any decimal place of the score.
+
+Two public sources help:
+
+- **KEV (Known Exploited Vulnerabilities)**, from CISA, is a catalogue of vulnerabilities with confirmed exploitation. It began with directive BOD 22-01 of November 2021, which gave US federal civilian agencies deadlines to remediate whatever entered the list. In June 2026 that directive was superseded by BOD 26-04, which sets update deadlines by risk. Even for those not bound by it, the catalogue answers a plain question: has this been used in attacks?
+- **EPSS (Exploit Prediction Scoring System)**, from FIRST, estimates the probability, from 0 to 1, that a vulnerability will be exploited in the next 30 days. Scores are updated daily and come with a percentile, which places the flaw relative to all the others.
+
+The two complement each other. KEV records what has happened, and EPSS estimates what is likely to. Neither knows your environment.
+
+Querying both is simple enough to belong in any triage routine:
+
+```python
+import json
+from urllib.request import urlopen
+
+EPSS = "https://api.first.org/data/v1/epss?cve={}"
+KEV = "https://www.cisa.gov/sites/default/files/feeds/known_exploited_vulnerabilities.json"
+
+
+def load_kev() -> set[str]:
+    with urlopen(KEV) as response:
+        catalogue = json.load(response)
+    return {item["cveID"] for item in catalogue["vulnerabilities"]}
+
+
+def query_epss(cve: str) -> tuple[float, float]:
+    with urlopen(EPSS.format(cve)) as response:
+        data = json.load(response)["data"]
+    if not data:
+        return 0.0, 0.0
+    return float(data[0]["epss"]), float(data[0]["percentile"])
+
+
+kev = load_kev()
+for cve in ["CVE-2021-44228"]:
+    probability, percentile = query_epss(cve)
+    print(cve, "KEV" if cve in kev else "-", f"EPSS {probability:.3f}", f"percentile {percentile:.2f}")
+```
+
+## Exposure: can the flaw be reached?
+
+The second context is the path to the asset. A remote code execution flaw in a service published on the internet and the same flaw on a lab server with no inbound route share a score and carry very different risks.
+
+For each relevant finding it is worth answering:
+
+- Is the vulnerable service exposed to the internet, to partners or only to the internal network?
+- Is there segmentation between it and ordinary users?
+- Is the vulnerable component actually in use, or merely installed?
+- Is there a compensating control that has been tested, such as a WAF rule or the affected feature being disabled?
+
+These answers depend on a reliable inventory. Without knowing what exists and where, prioritising by context becomes opinion.
+
+## Asset criticality and business impact
+
+The third context is the value of what is at stake. Here the question stops being technical: if this asset stops, leaks or is altered, what happens to operations, to customers and to regulatory obligations?
+
+Many organisations express this as a likelihood by impact matrix. The matrix is useful for talking to decision makers, as long as it is clear what it is: a policy written in the shape of a table.
+
+<InteractiveRiskMatrix />
+
+Change the risk appetite and watch the same cell move to another band. The vulnerability is the same. What changed is the organisation's decision about how much risk it accepts, and that decision belongs to whoever answers for the business, with security as the technical side of the conversation.
+
+## Turning the signals into a decision
+
+With severity, threat, exposure and criticality on the table, it is tempting to multiply everything and produce a new score. The result looks precise and hides the reasoning.
+
+An alternative is the one taken by SSVC (Stakeholder-Specific Vulnerability Categorization), created by CERT/CC and used by CISA. Instead of a score, it walks a decision tree with questions such as the state of exploitation, whether the attack can be automated, the technical impact and the effect on mission and public well-being. The output is an action: Track, Track*, Attend or Act.
+
+The simulator below follows that spirit with a much smaller model, written for this article. Adjust the factors and read the explanation of each result.
+
+<DecisionSimulator />
+
+Two of the preset scenarios show the difference. A CVSS 9.8 flaw on an isolated lab server, with no known exploitation, stays in the normal cycle. A CVSS 6.5 flaw under active exploitation on a critical, internet-facing asset calls for immediate action. Sorted by score alone, the queue would handle them in the opposite order.
+
+## From decision to operation
+
+Good prioritisation only has an effect when the decision becomes routine. The flow below describes the stages and what each one hands to the next.
+
+<DataFlowDiagram
+  title="From discovery to verification"
+  note="Conceptual flow. Stage names vary between organisations and tools."
+  steps={[
+    { name: "Discovery", text: "Scans, agents and vendor advisories reveal the flaws. Inventory coverage defines what is never seen at all.", enters: "Assets and versions", leaves: "Findings with CVE and base score" },
+    { name: "Enrichment", text: "Each finding receives the threat signals: presence in KEV, the EPSS probability and vendor advisories.", enters: "Findings", leaves: "Findings with threat" },
+    { name: "Context", text: "The inventory answers who owns the asset, whether it is exposed, how critical it is and which controls already exist.", enters: "Findings with threat", leaves: "Findings with context" },
+    { name: "Decision", text: "An explicit rule turns the signals into a handling class. Exceptions are recorded, with an owner and an expiry date.", enters: "Findings with context", leaves: "Class and deadline" },
+    { name: "Treatment", text: "Fix, mitigate or formally accept the risk, inside the change process. Patching without testing is a risk too.", enters: "Class and deadline", leaves: "Change applied" },
+    { name: "Verification", text: "A new scan confirms the flaw is gone. Time to remediate feeds the indicators and the next review of the rule.", enters: "Change applied", leaves: "Evidence and metrics" },
+  ]}
+/>
+
+A few practices make the process defensible in an audit:
+
+1. **Write the rule down.** The policy should say which signals are considered and which deadline each class receives. Control 8.8 in Annex A of ISO/IEC 27001:2022 asks for the management of technical vulnerabilities, and CIS Control 7 covers managing them continuously. Neither requires sorting the queue by CVSS.
+2. **Record the decision, not only the fix.** Staying at “track” is a valid decision when it has a justification, an owner and a review date.
+3. **Reassess when the context changes.** A new KEV entry, or a service that became exposed, changes the class without the score changing.
+4. **Measure by class.** The average time to remediate everything hides what matters. Follow how long flaws in the most urgent class stay open and how many exceptions have expired.
+
+## Limits of the approach
+
+Prioritising by context asks for more than prioritising by score, and it is honest to state the costs:
+
+- **It depends on data.** An outdated inventory and generic criticality ratings produce wrong priorities that look methodical.
+- **EPSS is a probability.** A low score does not guarantee the flaw will not be exploited, and the model is global, not specific to your sector.
+- **KEV is late confirmation.** A flaw enters the catalogue after exploitation has been observed. Absence from the list does not mean safety.
+- **Compensating controls age.** A blocking rule nobody tests again stops being a control.
+- **It does not replace hygiene.** NIST's patch management guide (SP 800-40 Rev. 4) treats patching as preventive maintenance. Prioritisation decides the order. It is not permission to leave the rest unpatched indefinitely.
+
+The CVSS score remains useful as a starting point and as a common language with vendors. Deciding what to fix first also needs the threat, the exposure and the value of the asset, and it needs to be written in a way someone else can repeat.

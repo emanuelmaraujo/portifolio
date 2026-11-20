@@ -1,0 +1,187 @@
+---
+title: "Como priorizar vulnerabilidades além do CVSS: uma abordagem baseada em risco e contexto"
+date: "2026-11-20"
+author: "Emanuel Araújo"
+lang: "pt"
+category: "Gestão de vulnerabilidades"
+tags: ["Vulnerabilidades", "CVSS", "EPSS", "KEV", "SSVC", "Gestão de riscos"]
+summary: "O CVSS mede a severidade de uma falha, não o risco que ela representa para a sua organização. Veja como combinar exploração conhecida, exposição e criticidade do ativo para decidir o que corrigir primeiro."
+seo:
+  title: "Priorizar vulnerabilidades além do CVSS: risco e contexto"
+references:
+  - title: "CVSS v3.1 User Guide, seção 2.1"
+    url: "https://www.first.org/cvss/v3.1/user-guide"
+    publisher: "FIRST"
+  - title: "CVSS v3.1 Specification Document"
+    url: "https://www.first.org/cvss/v3.1/specification-document"
+    publisher: "FIRST"
+  - title: "CVSS v4.0 Specification Document"
+    url: "https://www.first.org/cvss/v4.0/specification-document"
+    publisher: "FIRST"
+  - title: "Exploit Prediction Scoring System (EPSS)"
+    url: "https://www.first.org/epss/"
+    publisher: "FIRST"
+  - title: "EPSS: probability, percentiles and binning"
+    url: "https://www.first.org/epss/articles/prob_percentile_bins"
+    publisher: "FIRST"
+  - title: "Known Exploited Vulnerabilities Catalog"
+    url: "https://www.cisa.gov/known-exploited-vulnerabilities-catalog"
+    publisher: "CISA"
+  - title: "BOD 22-01: Reducing the Significant Risk of Known Exploited Vulnerabilities"
+    url: "https://www.cisa.gov/news-events/directives/bod-22-01-reducing-significant-risk-known-exploited-vulnerabilities"
+    publisher: "CISA"
+  - title: "BOD 26-04: Prioritizing Security Updates Based on Risk"
+    url: "https://www.cisa.gov/news-events/directives/bod-26-04-prioritizing-security-updates-based-risk"
+    publisher: "CISA"
+  - title: "Stakeholder-Specific Vulnerability Categorization (SSVC)"
+    url: "https://www.cisa.gov/stakeholder-specific-vulnerability-categorization-ssvc"
+    publisher: "CISA"
+  - title: "SSVC: documentação do CERT/CC"
+    url: "https://certcc.github.io/SSVC/"
+    publisher: "CERT/CC, Carnegie Mellon University"
+  - title: "SP 800-40 Rev. 4: Guide to Enterprise Patch Management Planning"
+    url: "https://csrc.nist.gov/pubs/sp/800/40/r4/final"
+    publisher: "NIST"
+  - title: "Vulnerability Metrics"
+    url: "https://nvd.nist.gov/vuln-metrics/cvss"
+    publisher: "NIST NVD"
+  - title: "CIS Control 7: Continuous Vulnerability Management"
+    url: "https://www.cisecurity.org/controls/continuous-vulnerability-management"
+    publisher: "Center for Internet Security"
+---
+
+Um relatório de varredura costuma chegar com centenas de achados, e a primeira reação é ordená-lo pela nota: críticas primeiro, depois altas, e assim por diante. É uma regra simples de explicar e de auditar. O problema é que ela responde a uma pergunta diferente da que a equipe precisa responder.
+
+A nota diz quão grave uma falha pode ser. A equipe precisa saber qual falha, neste ambiente e nesta semana, tem mais chance de virar incidente.
+
+## O que o CVSS mede
+
+O CVSS (Common Vulnerability Scoring System) é mantido pelo FIRST e descreve características técnicas de uma vulnerabilidade: como ela é alcançada, que privilégios exige, se depende de interação do usuário e qual o efeito sobre confidencialidade, integridade e disponibilidade. O resultado é uma nota de 0 a 10, traduzida em faixas na versão 3.1:
+
+| Faixa | Nota base |
+|---|---|
+| Nenhuma | 0,0 |
+| Baixa | 0,1 a 3,9 |
+| Média | 4,0 a 6,9 |
+| Alta | 7,0 a 8,9 |
+| Crítica | 9,0 a 10,0 |
+
+O próprio guia do usuário do CVSS tem uma seção com o título “CVSS Measures Severity, not Risk”, e a base de vulnerabilidades do NIST repete o aviso. A nota base é calculada uma vez, para todos os ambientes do mundo. Ela não sabe se alguém está explorando a falha, se o seu servidor está exposto nem o que ele sustenta.
+
+<Callout title="Severidade e risco">
+Severidade é uma propriedade da falha. Risco é o encontro da falha com uma ameaça e com um ativo que tem valor. A mesma vulnerabilidade tem uma severidade só e tantos riscos quantos forem os lugares em que ela aparece.
+</Callout>
+
+O padrão prevê esse ajuste. A versão 4.0, publicada em novembro de 2023, organiza as métricas em quatro grupos (Base, Ameaça, Ambiental e Suplementar) e adota uma nomenclatura que deixa claro o que foi considerado: CVSS-B é só a base, CVSS-BT inclui ameaça, CVSS-BE inclui o ambiente e CVSS-BTE inclui os três. Na prática, quase toda nota que circula em relatórios é a base. Usá-la sozinha para ordenar a fila é usar o padrão pela metade.
+
+## Ameaça: alguém está explorando?
+
+O primeiro contexto que falta é a ameaça. Segundo o FIRST, apenas cerca de 5% das vulnerabilidades publicadas chegam a ser exploradas. Saber quais são muda a fila mais do que qualquer casa decimal da nota.
+
+Duas fontes públicas ajudam:
+
+- **KEV (Known Exploited Vulnerabilities)**, da CISA, é um catálogo de vulnerabilidades com exploração confirmada. Ele nasceu com a diretiva BOD 22-01, de novembro de 2021, que deu prazos às agências federais civis dos Estados Unidos para corrigir o que entrasse na lista. Em junho de 2026 essa diretiva foi substituída pela BOD 26-04, que organiza os prazos de atualização por risco. Mesmo para quem não está sujeito a ela, o catálogo responde a uma pergunta objetiva: isto já foi usado em ataques?
+- **EPSS (Exploit Prediction Scoring System)**, do FIRST, estima a probabilidade, de 0 a 1, de uma vulnerabilidade ser explorada nos próximos 30 dias. A pontuação é atualizada diariamente e vem acompanhada de um percentil, que indica a posição daquela falha em relação às demais.
+
+As duas se complementam. O KEV registra o que já aconteceu, e o EPSS estima o que tende a acontecer. Nenhuma delas conhece o seu ambiente.
+
+Consultar as duas fontes é simples o bastante para entrar em qualquer rotina de triagem:
+
+```python
+import json
+from urllib.request import urlopen
+
+EPSS = "https://api.first.org/data/v1/epss?cve={}"
+KEV = "https://www.cisa.gov/sites/default/files/feeds/known_exploited_vulnerabilities.json"
+
+
+def carregar_kev() -> set[str]:
+    with urlopen(KEV) as resposta:
+        catalogo = json.load(resposta)
+    return {item["cveID"] for item in catalogo["vulnerabilities"]}
+
+
+def consultar_epss(cve: str) -> tuple[float, float]:
+    with urlopen(EPSS.format(cve)) as resposta:
+        dados = json.load(resposta)["data"]
+    if not dados:
+        return 0.0, 0.0
+    return float(dados[0]["epss"]), float(dados[0]["percentile"])
+
+
+kev = carregar_kev()
+for cve in ["CVE-2021-44228"]:
+    probabilidade, percentil = consultar_epss(cve)
+    print(cve, "KEV" if cve in kev else "-", f"EPSS {probabilidade:.3f}", f"percentil {percentil:.2f}")
+```
+
+## Exposição: a falha é alcançável?
+
+O segundo contexto é o caminho até o ativo. Uma falha de execução remota em um serviço publicado na internet e a mesma falha em um servidor de laboratório sem rota de entrada têm a mesma nota e riscos muito diferentes.
+
+Vale responder, para cada achado relevante:
+
+- O serviço vulnerável está exposto à internet, a parceiros ou só à rede interna?
+- Existe segmentação entre ele e os usuários comuns?
+- O componente vulnerável está de fato em uso, ou apenas instalado?
+- Há um controle compensatório que tenha sido testado, como uma regra de WAF ou o bloqueio da funcionalidade afetada?
+
+Essas respostas dependem de um inventário confiável. Sem saber o que existe e onde está, a priorização por contexto vira opinião.
+
+## Criticidade do ativo e impacto no negócio
+
+O terceiro contexto é o valor do que está em jogo. Aqui a pergunta deixa de ser técnica: se este ativo parar, vazar ou for alterado, o que acontece com a operação, com os clientes e com as obrigações regulatórias?
+
+Muitas organizações expressam isso em uma matriz de probabilidade por impacto. A matriz é útil para conversar com quem decide, desde que fique claro o que ela é: uma política escrita em forma de tabela.
+
+<InteractiveRiskMatrix />
+
+Mude o apetite a risco e observe a mesma célula trocar de faixa. A vulnerabilidade continua a mesma. O que mudou foi a decisão da organização sobre quanto risco aceita, e essa decisão precisa ser tomada por quem responde pelo negócio, com a segurança como parte técnica da conversa.
+
+## Juntando os sinais em uma decisão
+
+Com severidade, ameaça, exposição e criticidade na mesa, existe a tentação de multiplicar tudo e gerar uma nota nova. O resultado tem aparência de precisão e esconde o raciocínio.
+
+Uma alternativa é a adotada pelo SSVC (Stakeholder-Specific Vulnerability Categorization), criado pelo CERT/CC e usado pela CISA. Em vez de uma pontuação, ele percorre uma árvore de decisão com perguntas como o estado da exploração, se o ataque é automatizável, o impacto técnico e o efeito sobre a missão e o bem-estar público. A saída é uma ação: Track, Track*, Attend ou Act.
+
+O simulador abaixo segue esse espírito com um modelo bem menor, feito para este artigo. Ajuste os fatores e leia a explicação de cada resultado.
+
+<DecisionSimulator />
+
+Dois dos cenários prontos mostram a diferença. Uma falha com CVSS 9,8 em um servidor de laboratório isolado, sem exploração conhecida, fica no ciclo normal. Uma falha com CVSS 6,5, em exploração ativa, em um ativo crítico exposto à internet, pede ação imediata. Ordenada só pela nota, a fila trataria as duas na ordem inversa.
+
+## Da decisão à operação
+
+Priorizar bem só tem efeito quando a decisão vira rotina. O fluxo abaixo descreve as etapas e o que cada uma entrega para a seguinte.
+
+<DataFlowDiagram
+  title="Da descoberta à verificação"
+  note="Fluxo conceitual. Os nomes das etapas variam entre organizações e ferramentas."
+  steps={[
+    { name: "Descoberta", text: "Varreduras, agentes e avisos de fornecedores revelam as falhas. A cobertura do inventário define o que nem chega a ser visto.", enters: "Ativos e versões", leaves: "Achados com CVE e nota base" },
+    { name: "Enriquecimento", text: "Cada achado recebe os sinais de ameaça: presença no KEV, probabilidade do EPSS e avisos do fabricante.", enters: "Achados", leaves: "Achados com ameaça" },
+    { name: "Contexto", text: "O inventário responde quem é o dono do ativo, se ele está exposto, quão crítico é e que controles já existem.", enters: "Achados com ameaça", leaves: "Achados com contexto" },
+    { name: "Decisão", text: "Uma regra explícita transforma os sinais em classe de tratamento. Exceções ficam registradas, com responsável e validade.", enters: "Achados com contexto", leaves: "Classe e prazo" },
+    { name: "Tratamento", text: "Correção, mitigação ou aceite formal do risco, dentro do processo de mudanças. Corrigir sem testar também é um risco.", enters: "Classe e prazo", leaves: "Mudança aplicada" },
+    { name: "Verificação", text: "Uma nova varredura confirma que a falha saiu. O tempo até a correção alimenta os indicadores e a próxima revisão da regra.", enters: "Mudança aplicada", leaves: "Evidência e métricas" },
+  ]}
+/>
+
+Alguns cuidados tornam o processo defensável em uma auditoria:
+
+1. **Escreva a regra.** A política deve dizer quais sinais são considerados e que prazo cada classe recebe. O controle 8.8 do Anexo A da ISO/IEC 27001:2022 pede a gestão de vulnerabilidades técnicas, e o Controle 7 do CIS trata de sua gestão contínua. Nenhum dos dois exige ordenar a fila pelo CVSS.
+2. **Registre a decisão, não só a correção.** Ficar em “acompanhar” é uma decisão válida quando tem justificativa, responsável e data de revisão.
+3. **Reavalie quando o contexto mudar.** Uma entrada nova no KEV ou um serviço que passou a ficar exposto mudam a classe sem que a nota mude.
+4. **Meça por classe.** O tempo médio de correção de tudo esconde o que importa. Acompanhe quanto tempo as falhas da classe mais urgente ficam abertas e quantas exceções venceram.
+
+## Limites da abordagem
+
+Priorizar por contexto exige mais do que priorizar pela nota, e é honesto reconhecer os custos:
+
+- **Depende de dados.** Inventário desatualizado e classificação de criticidade genérica produzem prioridades erradas com aparência de método.
+- **EPSS é probabilidade.** Uma pontuação baixa não garante que a falha não será explorada, e o modelo é global, não específico do seu setor.
+- **KEV é confirmação tardia.** Uma falha entra no catálogo depois que a exploração foi observada. A ausência na lista não significa segurança.
+- **Controles compensatórios envelhecem.** Uma regra de bloqueio que ninguém testa de novo deixa de ser um controle.
+- **Não substitui a higiene.** O guia de gestão de correções do NIST (SP 800-40 Rev. 4) trata a atualização como manutenção preventiva. A priorização decide a ordem. Ela não é licença para deixar o restante sem correção indefinidamente.
+
+A nota do CVSS continua útil como ponto de partida e como linguagem comum com fornecedores. A decisão sobre o que corrigir primeiro precisa também da ameaça, da exposição e do valor do ativo, e precisa estar escrita de um jeito que outra pessoa consiga repetir.

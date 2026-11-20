@@ -3,6 +3,9 @@ title: 'Understanding and Avoiding Phishing Attacks'
 date: '2024-05-04'
 author: 'Emanuel Araújo'
 lang: 'en'
+category: 'Awareness'
+tags: ['Phishing', 'Social engineering']
+summary: 'How to recognise phishing messages, the most common types and what to do to avoid them.'
 ---
 
 ## What is Phishing?

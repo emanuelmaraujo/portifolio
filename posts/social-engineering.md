@@ -3,6 +3,9 @@ title: 'Engenharia Social: A Arte de Manipular Pessoas'
 date: '2024-05-04'
 author: 'Emanuel Araújo'
 lang: 'pt'
+category: 'Conscientização'
+tags: ['Engenharia social']
+summary: 'Por que a engenharia social funciona, as táticas mais usadas e como criar o hábito de verificar antes de confiar.'
 ---
 
 ## O Que é Engenharia Social?

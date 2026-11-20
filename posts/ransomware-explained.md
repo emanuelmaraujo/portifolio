@@ -3,6 +3,9 @@ title: 'Ransomware: A Ameaça Digital que Sequestra Seus Dados'
 date: '2024-05-04'
 author: 'Emanuel Araújo'
 lang: 'pt'
+category: 'Conscientização'
+tags: ['Ransomware', 'Backup']
+summary: 'Como o ransomware funciona, por onde ele entra e quais medidas reduzem o impacto de um ataque.'
 ---
 
 ## O Que é Ransomware?

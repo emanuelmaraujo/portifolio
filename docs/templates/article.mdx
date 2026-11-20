@@ -1,0 +1,44 @@
+---
+title: "Título do artigo"
+date: "2026-01-01"
+lang: "pt"
+category: "Categoria"
+tags: ["Tag 1", "Tag 2"]
+summary: "Uma ou duas frases que dizem o que o leitor vai aprender. Aparece nas listas, na descrição da página e nos cards sociais."
+status: "draft"
+references:
+  - title: "Nome da fonte"
+    url: "https://example.org/fonte"
+    publisher: "Quem publicou"
+---
+
+Abertura: o problema, em dois ou três parágrafos, antes do primeiro título.
+
+## Primeira seção
+
+Cada título de segundo nível vira uma seção do sumário.
+
+<Callout title="Conceito">
+Uma ideia que merece destaque.
+</Callout>
+
+## Uma seção com diagrama
+
+<DataFlowDiagram
+  title="Nome do fluxo"
+  note="Diagrama conceitual."
+  steps={[
+    { name: "Etapa 1", text: "O que acontece aqui.", enters: "O que entra", leaves: "O que sai" },
+    { name: "Etapa 2", text: "O que acontece aqui.", enters: "O que entra", leaves: "O que sai" },
+  ]}
+/>
+
+## Uma seção com código
+
+```python
+print("o bloco recebe destaque de sintaxe e botão de copiar")
+```
+
+## Conclusão
+
+Feche com o que o leitor pode fazer a seguir.

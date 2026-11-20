@@ -3,6 +3,9 @@ title: 'Entendendo e Evitando Ataques de Phishing'
 date: '2024-05-04'
 author: 'Emanuel Araújo'
 lang: 'pt'
+category: 'Conscientização'
+tags: ['Phishing', 'Engenharia social']
+summary: 'Como reconhecer mensagens de phishing, quais são os tipos mais comuns e o que fazer para não cair.'
 ---
 
 ## O Que é Phishing?
