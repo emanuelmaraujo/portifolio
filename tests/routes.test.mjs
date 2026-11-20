@@ -54,9 +54,13 @@ for (const [route, locale, ogLocale] of [["/", "en", "en_US"], ["/pt", "pt-BR", 
     assert.ok(html.includes(`property="og:image" content="${siteUrl}/og.png"`));
     // The page must be readable without WebGL: every chapter and project is in the HTML.
     for (const name of ["Prumo", "Torvya", "Marcos Krep’s", "ISO/IEC 27001 Foundation", "Agent Skills"]) assert.ok(html.includes(name), name);
-    for (const section of ["top", "trajectory", "capabilities", "orchestration", "work", "writing", "credentials", "contact"]) assert.ok(html.includes(`id="${section}"`), section);
-    for (const form of ["mark", "strata", "graph", "orchestra", "prumo", "torvya", "kreps", "horizon"]) assert.ok(html.includes(`data-form="${form}"`), form);
+    for (const section of ["top", "trajectory", "pillars", "orchestration", "work", "writing", "credentials", "contact"]) assert.ok(html.includes(`id="${section}"`), section);
+    for (const form of ["mark", "strata", "aegis", "orchestra", "prumo", "torvya", "kreps", "horizon"]) assert.ok(html.includes(`data-form="${form}"`), form);
     assert.ok(html.includes('href="#main"'));
+    // Nothing may cover the content while scripts load, and every pillar and pipeline stage is in the HTML.
+    assert.ok(!html.includes('class="loader"'));
+    assert.equal((html.match(/role="tabpanel"/g) ?? []).length, 9);
+    assert.ok(html.includes('"@type":"Person"'));
     assert.ok(html.includes(route === "/" ? 'href="/blog/hackers-do-bem-en"' : 'href="/blog/hackers-do-bem"'));
     assert.ok(html.includes(route === "/" ? 'href="/pt"' : 'href="/"'));
   });
@@ -79,6 +83,28 @@ test("archive routes, brand SVGs, project assets and sitemap stay reachable", as
     assert.equal(response.headers.get("content-type"), "image/png", file);
   }
   for (const file of ["/work/prumo/logo-negativo.svg", "/work/torvya/torvya-logo-dark.svg"]) assert.match(await read(file), /<svg\b/);
-  assert.ok((await read("/sitemap.xml")).includes(`<loc>${siteUrl}/pt</loc>`));
+  const sitemap = await read("/sitemap.xml");
+  for (const route of ["/pt", "/blog", "/blog/priorizar-vulnerabilidades-alem-do-cvss", "/projetos/servidor-de-aplicacoes-interno-en"]) assert.ok(sitemap.includes(`<loc>${siteUrl}${route}</loc>`), route);
+  assert.ok((await read("/robots.txt")).includes(`Sitemap: ${siteUrl}/sitemap.xml`));
   assert.ok(readFileSync(new URL("../vercel.json", import.meta.url), "utf8").includes('"framework": "nextjs"'));
+});
+
+test("articles carry their own SEO, structure and interactive pieces in the server HTML", async () => {
+  const slug = "priorizar-vulnerabilidades-alem-do-cvss", html = await read("/blog/" + slug);
+  assert.ok(html.includes(`rel="canonical" href="${siteUrl}/blog/${slug}"`));
+  assert.ok(html.includes(`hrefLang="en" href="${siteUrl}/blog/${slug}-en"`));
+  assert.ok(html.includes('property="og:type" content="article"'));
+  assert.ok(html.includes('"@type":"BlogPosting"'));
+  // Contents, sections, references and the widgets' accessible controls are rendered without client scripts.
+  for (const text of ['id="part-1"', 'id="references-title"', 'class="widget"', 'type="range"', 'class="code"', "hljs-keyword", "first.org/cvss"]) assert.ok(html.includes(text), text);
+  assert.ok((await read("/blog")).includes(`href="/blog/${slug}"`));
+});
+
+test("the anonymised case study keeps its old address and exposes no internal names", async () => {
+  const old = await fetch(local + "/projetos/servidor-aplicacoes-credfaz", { redirect: "manual" });
+  assert.equal(old.status, 308);
+  assert.ok(old.headers.get("location").endsWith("/projetos/servidor-de-aplicacoes-interno"));
+  for (const route of ["/projetos/servidor-de-aplicacoes-interno", "/projetos/servidor-de-aplicacoes-interno-en", "/projetos"]) {
+    assert.doesNotMatch(await read(route), /credfaz|\/opt\/|proxy_net/i, route);
+  }
 });

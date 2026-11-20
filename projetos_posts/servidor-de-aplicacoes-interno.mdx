@@ -1,0 +1,112 @@
+---
+title: "Servidor de aplicações interno em contêineres"
+date: "2025-02-01"
+updated: "2026-11-20"
+author: "Emanuel Araújo"
+summary: "Como centralizei aplicações internas de uma cooperativa financeira em contêineres isolados, atrás de um proxy reverso com TLS e certificados da autoridade certificadora interna."
+category: "Infraestrutura"
+tags: ["Docker", "Nginx", "Linux", "TLS", "Active Directory", "Infraestrutura"]
+lang: "pt"
+---
+
+## Visão geral
+
+O projeto criou um **servidor central de aplicações internas** para uma cooperativa financeira. As aplicações rodam em contêineres isolados, atrás de um **proxy reverso** que encerra o TLS com certificados emitidos pela **autoridade certificadora interna** (AD CS).
+
+O objetivo era ter um ambiente padronizado: toda aplicação interna nova entra do mesmo jeito, com nome de domínio interno, TLS válido para as estações da rede e isolamento em relação às demais.
+
+<Callout title="Sobre esta nota">
+Os nomes de domínio, endereços, caminhos e a topologia real foram omitidos ou trocados por exemplos. O que importa aqui são as decisões, e elas valem para qualquer ambiente parecido.
+</Callout>
+
+## O caminho de uma requisição
+
+<DataFlowDiagram
+  title="Do navegador ao serviço interno"
+  note="Diagrama conceitual. Os nomes são exemplos, não os do ambiente real."
+  steps={[
+    { name: "Estação", text: "O usuário abre um endereço interno no navegador. A estação confia na autoridade certificadora interna da organização.", enters: "Endereço digitado", leaves: "Consulta DNS" },
+    { name: "DNS interno", text: "O DNS do Active Directory resolve o nome para o servidor de aplicações. Cada serviço tem um registro próprio sob uma zona interna.", enters: "Nome do serviço", leaves: "Endereço do servidor" },
+    { name: "Proxy reverso", text: "O Nginx é o único ponto de entrada. Ele encerra o TLS, aplica os cabeçalhos de segurança e escolhe o serviço pelo nome solicitado.", enters: "Conexão TLS", leaves: "Requisição encaminhada" },
+    { name: "Rede de contêineres", text: "O proxy e os serviços compartilham uma rede Docker dedicada.", enters: "Requisição interna", leaves: "Chamada ao contêiner" },
+    { name: "Serviço", text: "O contêiner atende com privilégios reduzidos e isolado dos demais serviços.", enters: "Chamada", leaves: "Resposta ao usuário" },
+  ]}
+/>
+
+## Componentes
+
+| Camada | Escolha |
+|---|---|
+| Sistema | Linux Server |
+| Execução | Docker e Docker Compose |
+| Entrada | Nginx como proxy reverso, com TLS |
+| Certificados | Certificado curinga emitido pelo AD CS |
+| Rede | VLAN dedicada, com acesso segmentado |
+
+Serviços publicados:
+
+- **Cofre de senhas** (Vaultwarden) para as credenciais da TI.
+- **Gestão de ativos** (Snipe-IT) com banco de dados próprio.
+- **Sistema interno** da organização, isolado dos demais.
+- **Painel de gestão de contêineres** (Portainer).
+
+## Certificados
+
+O certificado curinga da zona interna segue o fluxo usual de uma autoridade certificadora corporativa:
+
+1. Geração da chave e do pedido de assinatura (CSR) com OpenSSL.
+2. Assinatura pelo AD CS.
+3. Instalação no proxy, com a cadeia completa.
+4. Uso por todos os serviços, que não lidam com TLS por conta própria.
+
+```nginx
+server {
+    listen 443 ssl;
+    server_name servico.apps.exemplo.internal;
+
+    ssl_protocols TLSv1.2 TLSv1.3;
+    add_header Strict-Transport-Security "max-age=31536000" always;
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header X-Frame-Options "SAMEORIGIN" always;
+
+    location / {
+        proxy_pass http://servico:8080;
+        proxy_set_header Host $host;
+        proxy_set_header X-Forwarded-Proto https;
+    }
+}
+```
+
+## Segurança
+
+- **TLS 1.2 e 1.3** em todas as conexões, sem protocolos antigos.
+- **Cabeçalhos de segurança** aplicados no proxy: HSTS, `X-Content-Type-Options` e `X-Frame-Options`.
+- **Contêineres endurecidos** com `no-new-privileges`, remoção de capabilities e sistema de arquivos somente leitura onde a aplicação permite.
+- **Bloqueio de diretórios sensíveis** no proxy.
+- **Um único ponto de entrada**, o que simplifica registro de acessos e revisão de regras.
+
+```yaml
+services:
+  servico:
+    image: exemplo/servico:1.0
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    networks: [proxy]
+
+networks:
+  proxy:
+    external: true
+```
+
+## Problemas resolvidos
+
+- **Conflitos de porta** entre contêineres: resolvidos com uma rede bridge dedicada.
+- **Certificados não confiáveis** nas estações: a cadeia de certificação passou a ser entregue completa.
+- **Erro 500 na gestão de ativos**: variáveis de conexão com o banco estavam incorretas.
+- **Certificado antigo em cache no navegador**: limpeza do estado de HSTS durante a troca.
+- **Nomes não resolvidos**: registros criados corretamente na zona interna.
+
+## Resultado
+
+A TI passou a ter um modelo único para publicar aplicações internas: TLS da autoridade interna, entrada centralizada, serviços isolados e nomes padronizados. Um serviço novo é um arquivo Compose e um bloco no proxy, e a revisão de segurança olha sempre para os mesmos pontos.

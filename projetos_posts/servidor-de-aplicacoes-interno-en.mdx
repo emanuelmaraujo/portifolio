@@ -1,0 +1,112 @@
+---
+title: "An internal application server on containers"
+date: "2025-02-01"
+updated: "2026-11-20"
+author: "Emanuel Araújo"
+summary: "How I centralised the internal applications of a financial cooperative in isolated containers, behind a TLS reverse proxy with certificates from the internal certificate authority."
+category: "Infrastructure"
+tags: ["Docker", "Nginx", "Linux", "TLS", "Active Directory", "Infrastructure"]
+lang: "en"
+---
+
+## Overview
+
+The project created a **central server for internal applications** at a financial cooperative. The applications run in isolated containers behind a **reverse proxy** that terminates TLS with certificates issued by the **internal certificate authority** (AD CS).
+
+The goal was a standard environment: every new internal application comes in the same way, with an internal domain name, TLS that workstations already trust and isolation from the others.
+
+<Callout title="About this note">
+Domain names, addresses, paths and the real topology were left out or replaced with examples. The decisions are what matters here, and they hold for any similar environment.
+</Callout>
+
+## The path of one request
+
+<DataFlowDiagram
+  title="From the browser to the internal service"
+  note="Conceptual diagram. The names are examples, not the real environment's."
+  steps={[
+    { name: "Workstation", text: "The user opens an internal address in the browser. The workstation trusts the organisation's internal certificate authority.", enters: "Typed address", leaves: "DNS query" },
+    { name: "Internal DNS", text: "Active Directory DNS resolves the name to the application server. Each service has its own record under an internal zone.", enters: "Service name", leaves: "Server address" },
+    { name: "Reverse proxy", text: "Nginx is the only way in. It terminates TLS, applies the security headers and picks the service by the requested name.", enters: "TLS connection", leaves: "Forwarded request" },
+    { name: "Container network", text: "The proxy and the services share a dedicated Docker network.", enters: "Internal request", leaves: "Call to the container" },
+    { name: "Service", text: "The container answers with reduced privileges, isolated from the other services.", enters: "Call", leaves: "Response to the user" },
+  ]}
+/>
+
+## Components
+
+| Layer | Choice |
+|---|---|
+| System | Linux Server |
+| Runtime | Docker and Docker Compose |
+| Entry | Nginx as a reverse proxy, with TLS |
+| Certificates | Wildcard certificate issued by AD CS |
+| Network | Dedicated VLAN with segmented access |
+
+Published services:
+
+- **Password vault** (Vaultwarden) for IT credentials.
+- **Asset management** (Snipe-IT) with its own database.
+- **Internal system** of the organisation, isolated from the rest.
+- **Container management panel** (Portainer).
+
+## Certificates
+
+The wildcard certificate for the internal zone follows the usual flow of a corporate certificate authority:
+
+1. Key and signing request (CSR) generated with OpenSSL.
+2. Signed by AD CS.
+3. Installed on the proxy with the full chain.
+4. Used by every service, none of which handles TLS on its own.
+
+```nginx
+server {
+    listen 443 ssl;
+    server_name service.apps.example.internal;
+
+    ssl_protocols TLSv1.2 TLSv1.3;
+    add_header Strict-Transport-Security "max-age=31536000" always;
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header X-Frame-Options "SAMEORIGIN" always;
+
+    location / {
+        proxy_pass http://service:8080;
+        proxy_set_header Host $host;
+        proxy_set_header X-Forwarded-Proto https;
+    }
+}
+```
+
+## Security
+
+- **TLS 1.2 and 1.3** on every connection, with no legacy protocols.
+- **Security headers** applied at the proxy: HSTS, `X-Content-Type-Options` and `X-Frame-Options`.
+- **Hardened containers** with `no-new-privileges`, dropped capabilities and a read-only file system where the application allows it.
+- **Sensitive directories blocked** at the proxy.
+- **A single way in**, which simplifies access logging and rule reviews.
+
+```yaml
+services:
+  service:
+    image: example/service:1.0
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    networks: [proxy]
+
+networks:
+  proxy:
+    external: true
+```
+
+## Problems solved
+
+- **Port conflicts** between containers: solved with a dedicated bridge network.
+- **Untrusted certificates** on workstations: the certificate chain is now served in full.
+- **Error 500 in asset management**: database connection variables were wrong.
+- **Old certificate cached in the browser**: HSTS state cleared during the change.
+- **Names not resolving**: records created correctly in the internal zone.
+
+## Result
+
+IT now has one model for publishing internal applications: TLS from the internal authority, a central entry point, isolated services and standard names. A new service is one Compose file and one proxy block, and a security review always looks at the same places.
