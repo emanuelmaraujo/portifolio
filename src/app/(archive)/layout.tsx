@@ -3,6 +3,8 @@ import type { Metadata } from "next";
 import SiteLayout from "@/components/site/SiteLayout";
 import { siteUrl } from "@/components/site/content";
 
+export { viewport } from "@/components/site/SiteLayout";
+
 export const metadata: Metadata = {
   title: { default: "Artigos e notas · Emanuel Araújo", template: "%s · Emanuel Araújo" },
   description: "Artigos sobre segurança da informação e notas de projetos de infraestrutura, por Emanuel Araújo.",

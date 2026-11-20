@@ -5,11 +5,11 @@ import type { Copy } from "./content";
 import { useCentredChild } from "./hooks";
 
 /** Career as strata. The step nearest the middle of the screen lights its layer in the 3D stack. */
-export default function Trajectory({ t }: { t: Copy["trajectory"] }) {
+export default function Trajectory({ t, caption }: { t: Copy["trajectory"]; caption: string }) {
   const root = useRef<HTMLElement>(null);
   const active = useCentredChild(root, ".layer");
   return (
-    <section ref={root} id="trajectory" className="chapter trajectory" data-form="strata" data-side="1" data-active={active} data-dim="0.42" aria-labelledby="trajectory-title">
+    <section ref={root} id="trajectory" className="chapter trajectory" data-form="strata" data-caption={caption} data-side="1" data-active={active} data-dim="0.42" aria-labelledby="trajectory-title">
       <div className="anchors" aria-hidden="true">
         {t.layers.map((layer, i) => <span className={"tag" + (i === active ? " is-active" : "")} data-anchor={"layer" + i} key={layer.name}>{layer.when}</span>)}
       </div>
