@@ -1,5 +1,7 @@
 import { copy, links, siteUrl, type Locale } from "./content";
 import { Legend, MotionControl, Spotlight, TiltToggle, Wayfinder } from "./Controls";
+import Ask from "./ask/Ask";
+import { topics } from "./ask/knowledge";
 import Credentials from "./Credentials";
 import Finale from "./Finale";
 import Sigil from "./Sigil";
@@ -33,6 +35,7 @@ export default function Site({ locale }: { locale: Locale }) {
       <Wayfinder />
       <Spotlight />
       <Legend label={t.figure} />
+      <Ask t={t.ask} locale={locale} topics={topics(locale)} />
       <div className="progress" aria-hidden="true" />
 
       <header className="header">
