@@ -3,7 +3,7 @@ import { sigil } from "./sigil";
 
 /** A form is one arrangement of the particle field: positions, a tone (0 bone, 1 accent) and a group id used for highlighting. */
 export type Form = { pos: Float32Array; tone: Float32Array; group: Float32Array; anchors: Record<string, [number, number, number]> };
-export type FormName = "mark" | "strata" | "graph" | "orchestra" | "prumo" | "torvya" | "kreps" | "horizon" | "orbit" | "sigil";
+export type FormName = "mark" | "strata" | "aegis" | "lattice" | "keystone" | "orchestra" | "prumo" | "torvya" | "kreps" | "horizon" | "orbit" | "sigil";
 
 function rng(seed: number) {
   return () => {
@@ -97,20 +97,83 @@ function strataForm(n: number): Form {
   return form;
 }
 
-export const GRAPH_NODES: [number, number, number][] = [[0, 1.0, 0], [-1.2, -0.25, 0.25], [1.2, -0.25, 0.25], [0, -1.0, -0.2]];
-
-function graphForm(n: number): Form {
+/** Security and governance: a protected core inside rings of control and an outer cage. */
+function aegisForm(n: number): Form {
   const { form, r, put, fill, rest, sphere } = builder(n, 37);
-  GRAPH_NODES.forEach((p, j) => (form.anchors["node" + j] = [p[0], p[1] - 0.6, p[2]]));
-  const pairs: [number, number][] = [[0, 1], [0, 2], [0, 3], [1, 2], [1, 3], [2, 3]];
-  fill(0.3, (k) => {
-    const [a, b] = pairs[k % pairs.length], t = r(), A = GRAPH_NODES[a], B = GRAPH_NODES[b];
-    const sag = Math.sin(t * Math.PI) * 0.16;
-    put(A[0] + (B[0] - A[0]) * t + (r() - 0.5) * 0.03, A[1] + (B[1] - A[1]) * t + (r() - 0.5) * 0.03, A[2] + (B[2] - A[2]) * t + sag, 0, 8);
+  fill(0.14, () => { const [x, y, z] = sphere(r() < 0.75 ? 0.26 : 0.26 * r()); put(x, y, z, 1, 0); });
+  // Two inner rings of control, tilted against each other.
+  fill(0.16, () => { const a = r() * Math.PI * 2, rad = 0.62 + (r() - 0.5) * 0.025; put(Math.cos(a) * rad, Math.sin(a) * rad * 0.34, Math.sin(a) * rad, 0, 1); });
+  fill(0.18, () => { const a = r() * Math.PI * 2, rad = 0.94 + (r() - 0.5) * 0.025; put(Math.cos(a) * rad, -Math.cos(a) * rad * 0.42, Math.sin(a) * rad, 0, 2); });
+  // The cage: meridians and parallels of a sphere, with one gate left open towards the reader.
+  rest((k) => {
+    const R = 1.34;
+    if (k % 2) {
+      const lat = (Math.floor(r() * 7) - 3) * 0.36, a = r() * Math.PI * 2;
+      if (Math.abs(lat) < 0.2 && Math.abs(a - Math.PI / 2) < 0.3) return put(0, 0, 0, 1, 0);
+      put(Math.cos(lat) * Math.cos(a) * R, Math.sin(lat) * R, Math.cos(lat) * Math.sin(a) * R, 0, 3);
+    } else {
+      const lon = (Math.floor(r() * 12) / 12) * Math.PI * 2, lat = (r() - 0.5) * Math.PI * 0.86;
+      put(Math.cos(lat) * Math.cos(lon) * R, Math.sin(lat) * R, Math.cos(lat) * Math.sin(lon) * R, 0, 3);
+    }
+  });
+  return form;
+}
+
+/** AI and data: observations enter on the left, pass through layers and leave as one decision. */
+const LATTICE_LAYERS = [5, 4, 3, 1];
+function latticeNode(layer: number, j: number): [number, number, number] {
+  const count = LATTICE_LAYERS[layer], spread = layer === 3 ? 0 : 0.54;
+  return [-1.2 + layer * 0.8, (j - (count - 1) / 2) * spread, ((j + layer) % 2 ? 0.28 : -0.28) * (layer === 3 ? 0 : 1)];
+}
+function latticeForm(n: number): Form {
+  const { form, r, put, fill, rest, sphere } = builder(n, 43);
+  const links: [number, number, number, number][] = [];
+  for (let l = 0; l < 3; l++) for (let a = 0; a < LATTICE_LAYERS[l]; a++) for (let b = 0; b < LATTICE_LAYERS[l + 1]; b++) links.push([l, a, l + 1, b]);
+  fill(0.46, (k) => {
+    const [la, a, lb, b] = links[k % links.length], A = latticeNode(la, a), B = latticeNode(lb, b), t = r();
+    const s = t * t * (3 - 2 * t); // links leave and arrive level, like signal traces
+    put(A[0] + (B[0] - A[0]) * t, A[1] + (B[1] - A[1]) * s + (r() - 0.5) * 0.012, A[2] + (B[2] - A[2]) * s, 0, 8);
   });
   rest((k) => {
-    const j = k % 4, c = GRAPH_NODES[j], [x, y, z] = sphere(r() < 0.7 ? 0.42 : 0.42 * Math.cbrt(r()));
-    put(c[0] + x, c[1] + y, c[2] + z, 0, j);
+    let layer = k % 13 < 5 ? 0 : k % 13 < 9 ? 1 : k % 13 < 12 ? 2 : 3;
+    if (r() < 0.12) layer = 3;
+    const j = Math.floor(r() * LATTICE_LAYERS[layer]), c = latticeNode(layer, j), size = layer === 3 ? 0.24 : 0.13;
+    const [x, y, z] = sphere(r() < 0.8 ? size : size * r());
+    put(c[0] + x, c[1] + y, c[2] + z, layer === 3 ? 1 : 0, layer);
+  });
+  return form;
+}
+
+/** Leadership and architecture: an arch. Every block carries load, and the keystone holds the rest in place. */
+function keystoneForm(n: number): Form {
+  const { form, r, put, fill, rest } = builder(n, 47);
+  const blocks = 9, inner = 0.78, outer = 1.16, cy = -0.18, depth = 0.26;
+  const face = () => (r() < 0.5 ? -1 : 1) * depth;
+  fill(0.18, () => {
+    // The keystone, filled.
+    const a = Math.PI / 2 + (r() - 0.5) * (Math.PI / blocks), rad = inner - 0.05 + r() * (outer - inner + 0.14);
+    put(Math.cos(a) * rad, cy + Math.sin(a) * rad, (r() * 2 - 1) * depth, 1, 1);
+  });
+  fill(0.44, () => {
+    if (r() < 0.55) {
+      const a = r() * Math.PI, rad = r() < 0.5 ? inner : outer;
+      put(Math.cos(a) * rad, cy + Math.sin(a) * rad, r() < 0.7 ? face() : (r() * 2 - 1) * depth, 0, 2);
+    } else {
+      const a = (Math.floor(r() * (blocks + 1)) / blocks) * Math.PI, rad = inner + r() * (outer - inner);
+      put(Math.cos(a) * rad, cy + Math.sin(a) * rad, r() < 0.7 ? face() : (r() * 2 - 1) * depth, 0, 2);
+    }
+  });
+  fill(0.24, () => {
+    // Piers under the springing line.
+    const side = r() < 0.5 ? -1 : 1, x0 = inner, x1 = outer, y = cy - r() * 1.12;
+    const edge = r();
+    const x = edge < 0.4 ? x0 : edge < 0.8 ? x1 : x0 + r() * (x1 - x0);
+    put(side * x, edge < 0.8 ? y : cy - Math.round(r() * 4) * 0.28, r() < 0.7 ? face() : (r() * 2 - 1) * depth, 0, 3);
+  });
+  rest(() => {
+    // The ground plan the structure stands on.
+    const x = Math.round((r() * 2 - 1) * 1.7 * 6) / 6, z = (r() * 2 - 1) * 0.9;
+    put(r() < 0.5 ? x : (r() * 2 - 1) * 1.7, cy - 1.14, r() < 0.5 ? z : Math.round(z * 5) / 5, 0, 4);
   });
   return form;
 }
@@ -222,7 +285,7 @@ function sigilForm(n: number, arg: string): Form {
 }
 
 const makers: Record<Exclude<FormName, "sigil">, (n: number) => Form> = {
-  mark: markForm, strata: strataForm, graph: graphForm, orchestra: orchestraForm,
+  mark: markForm, strata: strataForm, aegis: aegisForm, lattice: latticeForm, keystone: keystoneForm, orchestra: orchestraForm,
   prumo: prumoForm, torvya: torvyaForm, kreps: krepsForm, horizon: horizonForm, orbit: orbitForm,
 };
 

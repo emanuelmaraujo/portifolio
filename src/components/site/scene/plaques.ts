@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment.js";
 
 /**
  * Torvya plaques as real geometry: a 100 x 100 mm acrylic block with rounded corners and a printed face.
@@ -138,14 +139,16 @@ function roundedSquare(size: number, radius: number) {
   return shape;
 }
 
-export function createPlaques() {
+/** With a renderer, the acrylic picks up soft studio reflections. Without one (lower tiers) it is lit by the scene lights only. */
+export function createPlaques(renderer: THREE.WebGLRenderer | null = null) {
   const group = new THREE.Group();
   group.visible = false;
   const size = 1.12, depth = 0.11;
   const shape = roundedSquare(size, 0.09);
   const block = new THREE.ExtrudeGeometry(shape, { depth, bevelEnabled: true, bevelSize: 0.012, bevelThickness: 0.012, bevelSegments: 3, curveSegments: 10 });
   block.translate(0, 0, -depth / 2);
-  const acrylic = new THREE.MeshPhysicalMaterial({ color: 0xcfe0ff, roughness: 0.06, metalness: 0, transparent: true, opacity: 0.2, clearcoat: 1, clearcoatRoughness: 0.05 });
+  const acrylic = new THREE.MeshPhysicalMaterial({ color: 0xcfe0ff, roughness: 0.06, metalness: 0, transparent: true, opacity: 0.2, clearcoat: 1, clearcoatRoughness: 0.05, envMapIntensity: 1.1 });
+  let environment: THREE.Texture | null = null;
   const faceShape = new THREE.ShapeGeometry(roundedSquare(size - 0.035, 0.08), 10);
   // ShapeGeometry UVs are in shape units; remap them to 0..1 for the printed face.
   const uv = faceShape.attributes.uv;
@@ -157,7 +160,7 @@ export function createPlaques() {
     textures.push(texture);
     const plaque = new THREE.Group();
     plaque.name = name;
-    const print = new THREE.Mesh(faceShape, new THREE.MeshStandardMaterial({ map: texture, roughness: 0.35 }));
+    const print = new THREE.Mesh(faceShape, new THREE.MeshStandardMaterial({ map: texture, roughness: 0.35, envMapIntensity: 0.35 }));
     print.position.z = depth / 2 + 0.014;
     const rear = new THREE.Mesh(faceShape, back);
     rear.rotation.y = Math.PI;
@@ -176,6 +179,15 @@ export function createPlaques() {
     update(presence: number, time: number, selected: string, still: boolean) {
       group.visible = presence > 0.01;
       if (!group.visible) return;
+      // The reflection map is built the first time the plaques come into view, so it costs nothing at start-up.
+      if (renderer && !environment) {
+        const pmrem = new THREE.PMREMGenerator(renderer);
+        environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+        pmrem.dispose();
+        acrylic.envMap = environment;
+        acrylic.needsUpdate = true;
+        for (const p of [review, connect]) { const m = (p.children[1] as THREE.Mesh).material as THREE.MeshStandardMaterial; m.envMap = environment; m.needsUpdate = true; }
+      }
       const ease = presence * presence * (3 - 2 * presence);
       for (const [plaque, key] of [[review, "review"], [connect, "connect"]] as const) {
         const s = state[key], on = selected === key ? 1 : 0;
@@ -188,7 +200,7 @@ export function createPlaques() {
       }
     },
     dispose() {
-      block.dispose(); faceShape.dispose(); acrylic.dispose(); back.dispose();
+      block.dispose(); faceShape.dispose(); acrylic.dispose(); back.dispose(); environment?.dispose();
       for (const t of textures) t.dispose();
       for (const p of [review, connect]) ((p.children[1] as THREE.Mesh).material as THREE.Material).dispose();
     },
