@@ -17,7 +17,10 @@ import { budget, type Tier } from "./quality";
  *   data-turn     extra yaw in radians, the keyboard alternative to dragging
  *   data-caption  what the figure stands for, announced through the `scene:chapter` event
  * Elements with `data-anchor="name"` inside a chapter are positioned over the matching 3D anchor every frame.
- * Elements with `data-grab` are drag surfaces: dragging across one turns the figure.
+ * Elements with `data-grab` are drag surfaces: dragging across one turns the figure, one to one with the finger.
+ *
+ * Input is direct. The figure turns with the scroll position itself (not its speed), so it moves exactly as far as the
+ * page does and comes back when the page does. A finger that is scrolling does not disturb the particles; a tap does.
  *
  * The engine owns every listener and the only render loop. It renders at full rate while something moves, drops to a
  * slow tick when the page is idle and stops when the tab is hidden or the context is lost.
@@ -63,12 +66,12 @@ void main() {
   vec3 p = mix(aFrom, aTo, m);
   float burst = sin(m * 3.14159);
   // In transit the matter turns around the vertical axis.
-  float turn = burst * (aRand.y - 0.5) * 2.2;
+  float turn = burst * (aRand.y - 0.5) * 1.3;
   p.xz = mat2(cos(turn), -sin(turn), sin(turn), cos(turn)) * p.xz;
-  p += flow(p * 1.2 + aRand * 6.0, uTime * 0.35) * (0.011 * uMotion + burst * 0.18 + uStir * 0.07);
-  p += normalize(aRand - 0.5) * burst * 0.32 * aRand.y;
+  p += flow(p * 1.2 + aRand * 6.0, uTime * 0.35) * (0.011 * uMotion + burst * 0.11 + uStir * 0.035);
+  p += normalize(aRand - 0.5) * burst * 0.2 * aRand.y;
   // Scrolling drags a short streak behind every particle, in the direction of travel.
-  p.y += uVel * (0.1 + aRand.z * 0.28) * (0.35 + burst);
+  p.y += uVel * (0.05 + aRand.z * 0.14) * (0.35 + burst);
 
   // Entrance: the field condenses from a wide cloud.
   float intro = clamp(uIntro * 1.5 - aRand.y * 0.5, 0.0, 1.0);
@@ -77,8 +80,10 @@ void main() {
 
   vec4 world = modelMatrix * vec4(p, 1.0);
   vec3 away = world.xyz - uPointer;
-  float near = smoothstep(0.8, 0.0, length(away.xy)) * uMotion;
-  world.xyz += normalize(vec3(away.xy, 0.35)) * near * 0.26;
+  float near = smoothstep(0.7, 0.0, length(away.xy)) * uMotion;
+  // Under the pointer the surface swells towards the viewer and brightens. It is not pushed aside, so the figure
+  // never shows a hole where the cursor rests.
+  world.xyz += vec3(normalize(away.xy + 0.0001) * 0.035, 0.22) * near;
 
   // A touch sends one ring through the field.
   float age = uTime - uPulse.w;
@@ -95,7 +100,7 @@ void main() {
   float far = smoothstep(5.4, 9.0, -view.z);
   vTone = clamp(tone + max(lit, 0.0) + ring * 0.6, 0.0, 1.0);
   vAlpha = (0.5 + 0.5 * aRand.z) * (lit < 0.0 ? 0.42 : 1.0) * (0.25 + 0.75 * intro) * mix(1.0, 0.45, far);
-  gl_PointSize = uSize * (0.55 + aRand.z * 0.95) * (1.0 + max(lit, 0.0) * 0.45 + near * 1.4 + ring * 1.6) / -view.z;
+  gl_PointSize = uSize * (0.55 + aRand.z * 0.95) * (1.0 + max(lit, 0.0) * 0.45 + near * 0.9 + ring * 1.6) / -view.z;
 }`;
 
 const FRAGMENT = /* glsl */ `
@@ -221,7 +226,8 @@ export function createEngine(canvas: HTMLCanvasElement, tier: Exclude<Tier, "sta
   // Input --------------------------------------------------------------------
   const pointer = new THREE.Vector2(0, 0), pointerSmooth = new THREE.Vector2(0, 0), rest = new THREE.Vector2(0, 0), tilt = new THREE.Vector2(0, 0);
   let pointerSeen = false, tilting = false, lastInput = performance.now();
-  const drag = { on: false, id: -1, x: 0, y: 0, yaw: 0, pitch: 0, vyaw: 0, released: 0 };
+  const drag = { on: false, id: -1, x: 0, y: 0, yaw: 0, pitch: 0, goal: 0, tilt: 0, vyaw: 0, released: 0 };
+  const tap = { id: -1, x: 0, y: 0, at: 0 };
   const place = (x: number, y: number) => { pointer.set((x / innerWidth) * 2 - 1, -(y / innerHeight) * 2 + 1); pointerSeen = true; };
   const awake = () => { lastInput = performance.now(); wake(); };
 
@@ -229,9 +235,10 @@ export function createEngine(canvas: HTMLCanvasElement, tier: Exclude<Tier, "sta
     if (drag.on && e.pointerId === drag.id) {
       const dx = e.clientX - drag.x, dy = e.clientY - drag.y;
       drag.x = e.clientX; drag.y = e.clientY;
-      drag.vyaw = dx * 0.009;
-      drag.yaw = THREE.MathUtils.clamp(drag.yaw + drag.vyaw, -1.25, 1.25);
-      if (e.pointerType === "mouse") drag.pitch = THREE.MathUtils.clamp(drag.pitch + dy * 0.005, -0.5, 0.5);
+      // The same distance on any screen: a full swipe across the viewport is a little under half a turn.
+      drag.vyaw = (dx / innerWidth) * 2.6;
+      drag.goal = THREE.MathUtils.clamp(drag.goal + drag.vyaw, -1.3, 1.3);
+      if (e.pointerType === "mouse") drag.tilt = THREE.MathUtils.clamp(drag.tilt + (dy / innerHeight) * 1.6, -0.5, 0.5);
       awake();
     }
     if (e.pointerType === "mouse") { place(e.clientX, e.clientY); lastInput = performance.now(); }
@@ -241,23 +248,30 @@ export function createEngine(canvas: HTMLCanvasElement, tier: Exclude<Tier, "sta
     ray.set(pointer.x, pointer.y, 0.5).unproject(camera).sub(camera.position).normalize();
     return out.copy(camera.position).addScaledVector(ray, -camera.position.z / ray.z);
   };
+  const pulse = (x: number, y: number) => {
+    if (reduced.matches) return;
+    pointer.set((x / innerWidth) * 2 - 1, -(y / innerHeight) * 2 + 1);
+    onPlane(world);
+    uniforms.uPulse.value.set(world.x, world.y, 0, time);
+  };
   const onPointerDown = (e: PointerEvent) => {
-    place(e.clientX, e.clientY);
+    const mouse = e.pointerType === "mouse";
+    if (mouse) place(e.clientX, e.clientY);
     const grab = (e.target as Element | null)?.closest?.("[data-grab]");
     if (grab) {
       drag.on = true; drag.id = e.pointerId; drag.x = e.clientX; drag.y = e.clientY; drag.vyaw = 0;
       document.documentElement.dataset.touched = "1";
     }
-    if (!reduced.matches) { onPlane(world); uniforms.uPulse.value.set(world.x, world.y, 0, time); }
+    // A mouse press answers at once. A finger only answers if it turns out to be a tap, so scrolling stays quiet.
+    if (mouse) pulse(e.clientX, e.clientY); else { tap.id = e.pointerId; tap.x = e.clientX; tap.y = e.clientY; tap.at = performance.now(); }
     awake();
   };
   const onPointerUp = (e: PointerEvent) => {
     if (e.pointerId === drag.id) { drag.on = false; drag.id = -1; drag.released = performance.now(); }
-    if (e.pointerType !== "mouse") pointerSeen = false;
+    if (e.type === "pointerup" && e.pointerId === tap.id && performance.now() - tap.at < 350 && Math.hypot(e.clientX - tap.x, e.clientY - tap.y) < 12) { pulse(e.clientX, e.clientY); awake(); }
+    if (e.pointerId === tap.id) tap.id = -1;
   };
   const onLeave = () => { pointerSeen = false; };
-  // On touch screens the finger that scrolls also pushes the particles.
-  const onTouch = (e: TouchEvent) => { const t = e.touches[0]; if (t) { place(t.clientX, t.clientY); awake(); } };
   // Device tilt is opt-in: the page asks for it (and for permission where the browser requires one) before listening.
   const onTilt = (e: DeviceOrientationEvent) => {
     if (e.gamma === null || e.beta === null) return;
@@ -292,7 +306,7 @@ export function createEngine(canvas: HTMLCanvasElement, tier: Exclude<Tier, "sta
     return { pose, side: Number(c.el.dataset.side ?? 0), spin: Number(c.el.dataset.spin ?? pose.spin), turn: Number(c.el.dataset.turn ?? 0) };
   };
 
-  let lastScroll = scrollY, stir = 0, velocity = 0, turn = 0;
+  let lastScroll = scrollY, stir = 0, velocity = 0, turn = 0, scrub = 0;
   const shown = new Map<Chapter, string>();
   let swap: { chapter: Chapter; from: string; to: string; t: number } | null = null;
   let position = target(), raf = 0, last = performance.now(), time = 0, visible = !document.hidden, slow = 0, lost = false, intro = 0, leading = -1;
@@ -302,7 +316,7 @@ export function createEngine(canvas: HTMLCanvasElement, tier: Exclude<Tier, "sta
     raf = 0;
     if (lost) return;
     const elapsed = now - last, still = reduced.matches, goal = target();
-    const settled = Math.abs(goal - position) < 0.0015 && !swap && intro >= 1 && !drag.on && Math.abs(drag.vyaw) < 0.0005;
+    const settled = Math.abs(goal - position) < 0.0015 && !swap && intro >= 1 && !drag.on && Math.abs(drag.vyaw) < 0.0005 && Math.abs(drag.goal - drag.yaw) < 0.001;
     // Nothing moved for a while: keep the figure breathing at a slow tick and let the GPU rest.
     const rate = settled && now - lastInput > 4000 ? Math.min(fps, 24) : fps;
     if (elapsed < 1000 / rate - 2) { raf = requestAnimationFrame(frame); return; }
@@ -310,7 +324,7 @@ export function createEngine(canvas: HTMLCanvasElement, tier: Exclude<Tier, "sta
     last = now;
     time += still ? 0 : dt;
 
-    position = still ? goal : position + (goal - position) * (1 - Math.exp(-dt * 7));
+    position = still ? goal : position + (goal - position) * (1 - Math.exp(-dt * 9));
     const a = Math.min(chapters.length - 1, Math.floor(position)), b = Math.min(chapters.length - 1, a + 1);
     let mix = position - a;
     if (still) mix = mix < 0.5 ? 0 : 1; // reduced motion: figures swap without travelling
@@ -339,8 +353,10 @@ export function createEngine(canvas: HTMLCanvasElement, tier: Exclude<Tier, "sta
     // Scrolling stirs the field and leaves a streak, so the figure answers the gesture even without a cursor.
     const moved = (scrollY - lastScroll) / Math.max(dt, 0.001) / innerHeight;
     lastScroll = scrollY;
-    stir += (Math.min(1, Math.abs(moved) * 0.5) - stir) * (1 - Math.exp(-dt * 5));
-    velocity += (THREE.MathUtils.clamp(moved * 0.35, -1, 1) - velocity) * (1 - Math.exp(-dt * 8));
+    stir += (Math.min(1, Math.abs(moved) * 0.4) - stir) * (1 - Math.exp(-dt * 4));
+    velocity += (THREE.MathUtils.clamp(moved * 0.3, -1, 1) - velocity) * (1 - Math.exp(-dt * 4));
+    // The figure turns with the page: this depends on where the scroll is, never on how fast it got there.
+    scrub += (Math.sin((scrollY / innerHeight) * 1.1) * 0.42 - scrub) * (still ? 1 : 1 - Math.exp(-dt * 12));
     uniforms.uStir.value = still ? 0 : stir;
     uniforms.uVel.value = still ? 0 : velocity;
     // The entrance never blocks: the text is already readable, and the first scroll hurries the field into place.
@@ -365,23 +381,26 @@ export function createEngine(canvas: HTMLCanvasElement, tier: Exclude<Tier, "sta
     const opacity = lerp(strength(chapters[a]), strength(chapters[b]), e);
     uniforms.uOpacity.value = opacity;
 
-    pointerSmooth.lerp(pointerSeen && !touch ? pointer : tilting ? tilt : rest, 1 - Math.exp(-dt * 4));
+    pointerSmooth.lerp(pointerSeen ? pointer : tilting ? tilt : rest, 1 - Math.exp(-dt * 4));
 
     // Drag: the figure follows the finger, keeps a little momentum on release and then eases home.
     if (!drag.on) {
-      drag.yaw = THREE.MathUtils.clamp(drag.yaw + drag.vyaw, -1.25, 1.25);
-      drag.vyaw *= Math.exp(-dt * 4);
-      if (now - drag.released > 1400) { const home = 1 - Math.exp(-dt * 1.6); drag.yaw -= drag.yaw * home; drag.pitch -= drag.pitch * home; }
+      drag.goal = THREE.MathUtils.clamp(drag.goal + drag.vyaw, -1.3, 1.3);
+      drag.vyaw *= Math.exp(-dt * 3.2);
+      if (now - drag.released > 1800) { const home = 1 - Math.exp(-dt * 1.1); drag.goal -= drag.goal * home; drag.tilt -= drag.tilt * home; }
     }
+    // What is drawn follows the finger through a short spring: tight enough to feel held, soft enough to hide jitter.
+    const follow = still ? 1 : 1 - Math.exp(-dt * 16);
+    drag.yaw += (drag.goal - drag.yaw) * follow;
+    drag.pitch += (drag.tilt - drag.pitch) * follow;
     turn += (lerp(A.turn, B.turn, e) - turn) * (still ? 1 : 1 - Math.exp(-dt * 6));
 
     // Camera: it dollies with the chapter, pushes through the cloud while a figure is in transit, backs off a little
     // under fast scrolling and shifts with the pointer, which is what gives the layers their parallax.
     const transit = still ? 0 : Math.sin(Math.min(1, Math.max(0, travel)) * Math.PI);
-    const dolly = lerp(A.pose.dolly, B.pose.dolly, e) - transit * 0.85 + stir * 0.5;
+    const dolly = lerp(A.pose.dolly, B.pose.dolly, e) - transit * (compact.matches ? 0.3 : 0.6) + stir * 0.2;
     camera.position.set(still ? 0 : pointerSmooth.x * 0.3, still ? 0 : pointerSmooth.y * 0.18, dolly);
     camera.lookAt(0, 0, 0);
-    camera.rotation.z = still ? 0 : velocity * 0.025;
 
     const halfW = Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) * dolly * camera.aspect;
     const shift = phone ? 0 : lerp(A.side, B.side, e) * halfW * 0.46;
@@ -394,7 +413,7 @@ export function createEngine(canvas: HTMLCanvasElement, tier: Exclude<Tier, "sta
     rig.scale.setScalar(lerp(A.pose.scale, B.pose.scale, e) * fit);
     rig.rotation.set(
       lerp(A.pose.rx, B.pose.rx, e) - pointerSmooth.y * sway * 0.5 + drag.pitch,
-      lerp(A.pose.ry, B.pose.ry, e) + spin + pointerSmooth.x * sway + drag.yaw + turn + (still ? 0 : Math.sin(time * 0.21 + 1.3) * 0.06),
+      lerp(A.pose.ry, B.pose.ry, e) + spin + pointerSmooth.x * sway + drag.yaw + turn + scrub + (still ? 0 : Math.sin(time * 0.21 + 1.3) * 0.06),
       0,
     );
     rig.updateMatrixWorld();
@@ -406,7 +425,7 @@ export function createEngine(canvas: HTMLCanvasElement, tier: Exclude<Tier, "sta
     }
 
     // Pointer on the z=0 plane, in world space, for the repulsion in the shader.
-    if (pointerSeen && !still) onPlane(uniforms.uPointer.value); else uniforms.uPointer.value.set(99, 99, 0);
+    if (pointerSeen && !still && !drag.on) onPlane(uniforms.uPointer.value); else uniforms.uPointer.value.set(99, 99, 0);
 
     const torvya = chapters.findIndex(c => formOf(c) === "torvya");
     plaques.update(torvya < 0 ? 0 : Math.max(0, 1 - Math.abs(position - torvya) * 2.4), time, lead.el.dataset.plaque ?? "review", still);
@@ -464,9 +483,6 @@ export function createEngine(canvas: HTMLCanvasElement, tier: Exclude<Tier, "sta
   addEventListener("pointerdown", onPointerDown, { passive: true });
   addEventListener("pointerup", onPointerUp, { passive: true });
   addEventListener("pointercancel", onPointerUp, { passive: true });
-  addEventListener("touchstart", onTouch, { passive: true });
-  addEventListener("touchmove", onTouch, { passive: true });
-  addEventListener("touchend", onLeave, { passive: true });
   addEventListener("scene:tilt", onTiltSwitch);
   document.documentElement.addEventListener("pointerleave", onLeave);
   addEventListener("resize", onResize);
@@ -492,9 +508,6 @@ export function createEngine(canvas: HTMLCanvasElement, tier: Exclude<Tier, "sta
       removeEventListener("pointerdown", onPointerDown);
       removeEventListener("pointerup", onPointerUp);
       removeEventListener("pointercancel", onPointerUp);
-      removeEventListener("touchstart", onTouch);
-      removeEventListener("touchmove", onTouch);
-      removeEventListener("touchend", onLeave);
       removeEventListener("scene:tilt", onTiltSwitch);
       removeEventListener("deviceorientation", onTilt);
       document.documentElement.removeEventListener("pointerleave", onLeave);

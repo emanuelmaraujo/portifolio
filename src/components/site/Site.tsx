@@ -41,6 +41,8 @@ export default function Site({ locale }: { locale: Locale }) {
         </a>
         <nav aria-label={locale === "en" ? "Sections" : "Seções"}>
           {t.nav.map(([id, name]) => <a href={"#" + id} key={id}>{name}</a>)}
+          {/* On phones the language switch lives in the dock, within thumb reach. */}
+          <a className="nav-lang" href={t.switchHref} hrefLang={locale === "en" ? "pt-BR" : "en"} lang={locale === "en" ? "pt-BR" : "en"} aria-label={t.switchLabel}>{locale === "en" ? "PT" : "EN"}</a>
         </nav>
         <a className="language" href={t.switchHref} hrefLang={locale === "en" ? "pt-BR" : "en"} lang={locale === "en" ? "pt-BR" : "en"}>{t.switchLabel}</a>
       </header>

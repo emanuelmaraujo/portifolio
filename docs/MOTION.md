@@ -57,12 +57,22 @@ then the frame rate. Steps are one-way for the visit.
 
 ## Input
 
-- Pointer: parallax and local repulsion.
-- Any press: one ring travels through the field from the point touched.
-- Drag on a `data-grab` surface: turns the figure, with momentum and a return to rest. The surfaces set
-  `touch-action: pan-y`, so vertical scrolling always belongs to the page.
+The rule is direct manipulation: what moves is tied to what the visitor is moving, by position and not by speed.
+
+- Scroll: the figure turns with the scroll position, so it travels exactly as far as the page and returns with it.
+  Scroll speed only adds a faint streak.
+- Drag on a `data-grab` surface: the figure follows the finger one to one through a short spring, keeps a little
+  momentum on release and eases home. The surfaces set `touch-action: pan-y`, so vertical scrolling always belongs to
+  the page.
+- Tap or click: one ring travels through the field from that point. A finger that is scrolling triggers nothing.
+- Mouse: slight parallax, and the surface under the cursor swells and brightens. Particles are not pushed aside.
 - Device tilt: opt-in through a button, with the permission prompt where the browser requires one.
 - Keyboard: every drag has a button alternative (`data-turn`), and every interactive piece is a native control.
+
+The page itself only moves vertically (`touch-action: pan-y pinch-zoom` on `main`, `overflow-x: clip` on the root).
+Nothing may be wider than the viewport: a scaled full-width layer once widened the layout viewport on phones and let the
+fixed header slide sideways. The route tests cannot catch that, so check `innerWidth === scrollWidth` in a phone
+viewport after adding any transformed full-bleed element.
 
 ## Adding a figure
 

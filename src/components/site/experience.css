@@ -15,9 +15,16 @@
 }
 .header { padding-top: max(18px, var(--safe-t)); padding-inline: max(var(--pad), env(safe-area-inset-left, 0px)) max(var(--pad), env(safe-area-inset-right, 0px)); }
 .chapter > .col, .chapter > .wide, .sticky > .col { position: relative; z-index: 1; }
+/* The page only ever moves vertically. Sideways gestures belong to the pieces that ask for them (cards, sliders, the
+   figure), so the fixed header and dock can never be dragged out of view. Pinch zoom stays available. */
+@supports (overflow: clip) { html.site, .site body { overflow-x: clip; } }
+.site body { overscroll-behavior-x: none; }
+main { touch-action: pan-y pinch-zoom; }
+.header { width: 100%; }
+.nav-lang { display: none; }
 
 /* Hero planes: ghost word (far), particles (middle), headline (near) ------- */
-.plate { position: absolute; top: 0; left: 0; right: 0; height: 100svh; z-index: 0; overflow: clip; pointer-events: none; display: grid; place-items: center; }
+.plate { position: absolute; top: 0; left: 0; right: 0; height: 100svh; z-index: 0; overflow: hidden; overflow: clip; contain: paint; pointer-events: none; display: grid; place-items: center; }
 .plate span {
   font: italic 400 clamp(9rem, 31vw, 31rem) / 0.8 var(--serif);
   letter-spacing: -0.04em;
@@ -28,8 +35,12 @@
 }
 @keyframes plate-in { from { opacity: 0; transform: scale(1.06); } }
 @supports (animation-timeline: scroll()) {
-  .plate { animation: plate-away linear both; animation-timeline: scroll(root); animation-range: 0 100vh; }
-  @keyframes plate-away { to { transform: translateY(26vh) scale(1.1); opacity: 0; } }
+  /* Only the word inside moves. The plate itself keeps the size of the screen: scaling it made the page wider than a
+     phone's viewport, which let the fixed header and dock slide sideways. */
+  .plate { animation: plate-fade linear both; animation-timeline: scroll(root); animation-range: 0 100vh; }
+  @keyframes plate-fade { to { opacity: 0; } }
+  .plate span { animation: plate-in 1.4s var(--ease) both, plate-drift linear both; animation-timeline: auto, scroll(root); animation-range: normal, 0 100vh; }
+  @keyframes plate-drift { to { translate: 0 26vh; scale: 1.1; } }
   /* The headline leaves faster than the figure behind it, which is what reads as depth. */
   .hero > .col, .hero > .facets { animation: hero-away linear both; animation-timeline: view(); animation-range: exit 5% exit 75%; }
   @keyframes hero-away { to { transform: translateY(-9vh) scale(0.97); opacity: 0; filter: blur(6px); } }
@@ -255,9 +266,11 @@ html[data-quality="static"] .run-steps { display: grid; }
   .hero .facets { display: none; }
   /* The dock: section links within thumb reach, clear of the home indicator. */
   .header nav { bottom: calc(10px + var(--safe-b)); padding: 5px; }
-  .header nav a { border-radius: 999px; min-height: 44px; display: grid; place-items: center; padding: 0 9px; transition: background var(--t-med), color var(--t-fast); }
+  .header nav a { border-radius: 999px; min-height: 44px; display: grid; place-items: center; padding: 0 7px; transition: background var(--t-med), color var(--t-fast); }
   .header nav a::after { display: none; }
   .header nav a[aria-current] { background: var(--bone); color: var(--ink); }
+  .header nav .nav-lang { display: grid; flex: 0 0 auto; margin-left: 4px; padding: 0 12px; border: 1px solid var(--line-strong); color: var(--bone); font-weight: 600; }
+  .header:not(.header--archive) > .language { display: none; }
   .header nav a:active { background: rgba(237, 232, 223, 0.16); }
   /* Pillars become cards on a snap track. The card in view chooses the figure above. */
   .pillar-tabs { display: flex; gap: 6px; margin: 24px 0 10px; border: 0; }
@@ -267,7 +280,7 @@ html[data-quality="static"] .run-steps { display: grid; }
   .pillar-tabs button[aria-selected="true"] { padding: 0 8px; background: var(--accent); border-color: var(--accent); color: var(--ink); }
   .swipe-hint { display: flex; justify-content: space-between; margin-bottom: 12px; font: 500 0.6rem/1 var(--mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
   .swipe-hint span { color: var(--accent); }
-  .pillar-track { display: flex; gap: 12px; margin-inline: calc(var(--pad) * -1); padding-inline: var(--pad); scroll-padding-inline: var(--pad); overflow-x: auto; scroll-snap-type: x mandatory; overscroll-behavior-x: contain; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+  .pillar-track { touch-action: pan-x pan-y pinch-zoom; display: flex; gap: 12px; margin-inline: calc(var(--pad) * -1); padding-inline: var(--pad); scroll-padding-inline: var(--pad); overflow-x: auto; scroll-snap-type: x mandatory; overscroll-behavior-x: contain; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
   .pillar-track::-webkit-scrollbar { display: none; }
   .js .pillar:not(.is-active), .pillar { display: block; flex: 0 0 88%; scroll-snap-align: start; scroll-snap-stop: always; animation: none; background: rgba(10, 11, 14, 0.84); transition: border-color var(--t-med), opacity var(--t-med); }
   .js .pillar:not(.is-active) { opacity: 0.55; }
