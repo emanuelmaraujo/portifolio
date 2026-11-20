@@ -3,6 +3,9 @@ title: 'Wi-Fi Security: Protecting Your Home Connection'
 date: '2024-05-04'
 author: 'Emanuel Araújo'
 lang: 'en'
+category: 'Awareness'
+tags: ['Wi-Fi', 'Networks']
+summary: 'The essential settings for protecting a home Wi-Fi network.'
 ---
 
 ## The Importance of Wi-Fi Security

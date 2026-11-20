@@ -1,10 +1,11 @@
-import { copy, links, type Locale } from "./content";
-import Capabilities from "./Capabilities";
+import { copy, links, siteUrl, type Locale } from "./content";
+import { Legend, MotionControl, Spotlight, TiltToggle, Wayfinder } from "./Controls";
 import Credentials from "./Credentials";
 import Finale from "./Finale";
 import Sigil from "./Sigil";
 import Mark from "./Mark";
 import Orchestration from "./Orchestration";
+import Pillars from "./Pillars";
 import Reveals from "./Reveals";
 import Stage from "./Stage";
 import Trajectory from "./Trajectory";
@@ -19,15 +20,19 @@ export default function Site({ locale }: { locale: Locale }) {
   const posts = entries("posts", locale).slice(0, 3);
   return (
     <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
+        "@context": "https://schema.org", "@type": "Person", name: "Emanuel Araújo", url: siteUrl, image: siteUrl + "/identity/portrait.jpg",
+        jobTitle: t.contact.role, description: t.meta.description, address: { "@type": "PostalAddress", addressLocality: "Brasília", addressCountry: "BR" },
+        sameAs: [links.github, links.linkedin], knowsAbout: t.hero.facets,
+      }).replace(/</g, "\u003c") }} />
       <a className="skip" href="#main">{t.skip}</a>
-      <div className="loader" role="status" aria-live="polite">
-        <Mark animated />
-        <p>Emanuel Araújo</p>
-        <span className="loader-bar" />
-        <small>{t.loading}</small>
-      </div>
+      {/* The plate sits under the particle layer, the headline above it: three planes that move at different rates. */}
+      <div className="plate" aria-hidden="true"><span>{t.hero.plate}</span></div>
       <Stage />
       <Reveals />
+      <Wayfinder />
+      <Spotlight />
+      <Legend label={t.figure} />
       <div className="progress" aria-hidden="true" />
 
       <header className="header">
@@ -41,7 +46,8 @@ export default function Site({ locale }: { locale: Locale }) {
       </header>
 
       <main id="main">
-        <section id="top" className="chapter hero" data-form="mark" data-side="1.2" data-dim="0.35" data-lift="1.0">
+        <section id="top" className="chapter hero" data-form="mark" data-caption={t.captions.hero} data-side="1.2" data-dim="0.35" data-lift="1.18">
+          <div className="grab grab--hero" data-grab aria-hidden="true"><span>{t.hero.drag}</span></div>
           <div className="col">
             <p className="eyebrow">{t.hero.eyebrow}</p>
             <h1 aria-label={t.hero.title.map(([text]) => text).join("")}>
@@ -53,6 +59,7 @@ export default function Site({ locale }: { locale: Locale }) {
             <p className="actions">
               <a className="button button--accent" href="#work">{t.hero.primary}</a>
               <a className="button" href="#orchestration">{t.hero.secondary}</a>
+              <TiltToggle on={t.hero.tiltOn} off={t.hero.tiltOff} />
             </p>
           </div>
           <ul className="facets" aria-label={locale === "en" ? "Areas of practice" : "Áreas de atuação"}>
@@ -61,19 +68,19 @@ export default function Site({ locale }: { locale: Locale }) {
           <p className="hint" aria-hidden="true">{t.hero.hint}</p>
         </section>
 
-        <Trajectory t={t.trajectory} />
-        <Capabilities t={t.capabilities} />
-        <Orchestration t={t.orchestration} />
-        <Work t={t.work} />
+        <Trajectory t={t.trajectory} caption={t.captions.trajectory} />
+        <Pillars t={t.pillars} />
+        <Orchestration t={t.orchestration} caption={t.captions.orchestration} />
+        <Work t={{ ...t.work, captions: t.captions }} />
 
-        <section className="chapter more" data-form="horizon" data-side="0" data-dim="0.16" data-glow="0.4" data-lift="0" aria-labelledby="lab-title">
+        <section className="chapter more" data-form="horizon" data-caption={t.captions.more} data-side="0" data-dim="0.16" data-glow="0.4" data-lift="0" aria-labelledby="lab-title">
           <div className="wide">
             <h2 id="lab-title" className="mini" data-reveal>{t.work.labTitle}</h2>
             <div className="lab">
               {t.work.lab.map(item => {
                 const body = <><p className="kind">{item.status}</p><h3>{item.name}{item.href && <Arrow />}</h3><p>{item.text}</p></>;
                 return item.href
-                  ? <a className="lab-item" href={item.href} target="_blank" rel="noreferrer" data-reveal key={item.name}>{body}</a>
+                  ? <a className="lab-item" href={item.href} target="_blank" rel="noreferrer" data-reveal data-spot key={item.name}>{body}</a>
                   : <article className="lab-item" data-reveal key={item.name}>{body}</article>;
               })}
             </div>
@@ -105,9 +112,9 @@ export default function Site({ locale }: { locale: Locale }) {
 
         </section>
 
-        <Credentials t={t.credentials} />
+        <Credentials t={t.credentials} caption={t.captions.credentials} />
 
-        <section id="contact" className="chapter contact" data-form="mark" data-side="1.1" data-dim="0.3" data-lift="0.95" aria-labelledby="contact-title">
+        <section id="contact" className="chapter contact" data-form="mark" data-caption={t.captions.contact} data-side="1.1" data-dim="0.3" data-lift="0.95" aria-labelledby="contact-title">
           <Finale />
           <div className="wide">
             <figure className="portrait" data-reveal>
@@ -130,6 +137,7 @@ export default function Site({ locale }: { locale: Locale }) {
           <footer className="footer">
             <span className="identity"><Mark />Emanuel Araújo</span>
             <span>{t.contact.footer}</span>
+            <MotionControl t={t.motion} />
             <a href="#top">{t.contact.top} ↑</a>
           </footer>
         </section>

@@ -3,6 +3,9 @@ title: 'The Importance of Strong Passwords and Multi-Factor Authentication (MFA)
 date: '2024-05-04'
 author: 'Emanuel Araújo'
 lang: 'en'
+category: 'Awareness'
+tags: ['Passwords', 'MFA', 'Identity']
+summary: 'Why weak and reused passwords are a risk, and how password managers and MFA solve the problem.'
 ---
 
 ## Why Are Weak Passwords a Risk?

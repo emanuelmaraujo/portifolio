@@ -2,31 +2,41 @@ import * as THREE from "three";
 import { createForms, type FormName } from "./forms";
 import { createPlaques } from "./plaques";
 import { createBadges } from "./badges";
+import { budget, type Tier } from "./quality";
 
 /**
  * One persistent particle field for the whole page. Every chapter (`[data-form]`) names the figure the field takes while
  * that chapter is on screen. Scrolling morphs the same matter from one figure to the next.
  *
  * Chapters drive the scene through data attributes, so React never talks to WebGL directly:
- *   data-form     figure name                    data-accent   accent colour for the chapter
- *   data-side     -1 | 0 | 1, where the figure sits horizontally (desktop)
- *   data-active   group id to highlight          data-glow / data-dim   field opacity on desktop / phone
- *   data-seed    text that generates the figure when data-form is "sigil"; changing it morphs the figure in place
+ *   data-form     figure name. Changing it while the chapter holds the screen morphs the figure in place
+ *   data-seed     text that generates the figure when data-form is "sigil"
+ *   data-accent   accent colour for the chapter
+ *   data-side     -1 | 0 | 1, where the figure sits horizontally (wide layouts)
+ *   data-active   group id to highlight          data-glow / data-dim   field opacity on wide / compact layouts
+ *   data-turn     extra yaw in radians, the keyboard alternative to dragging
+ *   data-caption  what the figure stands for, announced through the `scene:chapter` event
  * Elements with `data-anchor="name"` inside a chapter are positioned over the matching 3D anchor every frame.
+ * Elements with `data-grab` are drag surfaces: dragging across one turns the figure.
+ *
+ * The engine owns every listener and the only render loop. It renders at full rate while something moves, drops to a
+ * slow tick when the page is idle and stops when the tab is hidden or the context is lost.
  */
 
-type Pose = { scale: number; rx: number; ry: number; y: number; spin: number; sway: number };
+type Pose = { scale: number; rx: number; ry: number; y: number; spin: number; sway: number; dolly: number };
 const POSES: Record<FormName, Pose> = {
-  mark: { scale: 1, rx: 0, ry: -0.32, y: 0, spin: 0, sway: 0.34 },
-  strata: { scale: 1, rx: 0.36, ry: -0.5, y: 0, spin: 0, sway: 0.22 },
-  graph: { scale: 0.92, rx: 0.1, ry: 0, y: 0, spin: 0.3, sway: 0.3 },
-  orchestra: { scale: 0.95, rx: 0.12, ry: 0, y: 0, spin: 0, sway: 0.16 },
-  prumo: { scale: 1, rx: 0.08, ry: 0, y: 0, spin: 0.9, sway: 0.2 },
-  torvya: { scale: 1, rx: 0.1, ry: 0, y: 0, spin: 0, sway: 0.2 },
-  kreps: { scale: 0.95, rx: -0.12, ry: -0.42, y: 0, spin: 0, sway: 0.2 },
-  horizon: { scale: 1.2, rx: 0, ry: 0, y: -0.7, spin: 0, sway: 0.1 },
-  orbit: { scale: 1, rx: 0.3, ry: 0, y: 0, spin: 0, sway: 0.25 },
-  sigil: { scale: 0.95, rx: 0.15, ry: 0, y: 0, spin: 0.7, sway: 0.35 },
+  mark: { scale: 1, rx: 0, ry: -0.32, y: 0, spin: 0, sway: 0.34, dolly: 6.4 },
+  strata: { scale: 1, rx: 0.36, ry: -0.5, y: 0, spin: 0, sway: 0.22, dolly: 6.6 },
+  aegis: { scale: 0.9, rx: 0.22, ry: 0.2, y: 0, spin: 0.5, sway: 0.3, dolly: 6.2 },
+  lattice: { scale: 0.94, rx: 0.1, ry: -0.36, y: 0, spin: 0.16, sway: 0.3, dolly: 6.3 },
+  keystone: { scale: 1, rx: 0.06, ry: -0.42, y: 0.1, spin: 0.1, sway: 0.26, dolly: 6.5 },
+  orchestra: { scale: 0.95, rx: 0.12, ry: 0, y: 0, spin: 0, sway: 0.16, dolly: 6.4 },
+  prumo: { scale: 1, rx: 0.08, ry: 0, y: 0, spin: 0.9, sway: 0.2, dolly: 6.2 },
+  torvya: { scale: 1, rx: 0.1, ry: 0, y: 0, spin: 0, sway: 0.2, dolly: 5.9 },
+  kreps: { scale: 0.95, rx: -0.12, ry: -0.42, y: 0, spin: 0, sway: 0.2, dolly: 6.4 },
+  horizon: { scale: 1.2, rx: 0, ry: 0, y: -0.7, spin: 0, sway: 0.1, dolly: 6.8 },
+  orbit: { scale: 1, rx: 0.3, ry: 0, y: 0, spin: 0, sway: 0.25, dolly: 6.3 },
+  sigil: { scale: 0.95, rx: 0.15, ry: 0, y: 0, spin: 0.7, sway: 0.35, dolly: 6.4 },
 };
 
 const VERTEX = /* glsl */ `
@@ -34,8 +44,9 @@ attribute vec3 aFrom;
 attribute vec3 aTo;
 attribute vec4 aMeta; // from tone, from group, to tone, to group
 attribute vec3 aRand;
-uniform float uMix, uTime, uActive, uSize, uMotion, uIntro, uStir;
+uniform float uMix, uTime, uActive, uSize, uMotion, uIntro, uStir, uVel;
 uniform vec3 uPointer;
+uniform vec4 uPulse; // xy: where the visitor touched, w: when
 varying float vTone;
 varying float vAlpha;
 
@@ -44,13 +55,20 @@ vec3 flow(vec3 p, float t) {
 }
 
 void main() {
-  // Each particle leaves on its own beat, so a morph reads as matter travelling rather than a crossfade.
-  float m = clamp(uMix * 1.6 - aRand.x * 0.6, 0.0, 1.0);
+  // Each particle leaves on its own beat. Part of the beat follows height, so a figure comes apart from the top down
+  // while the next one is already settling: the morph reads as matter travelling, never as a crossfade.
+  float order = mix(aRand.x, 0.5 - 0.5 * clamp(aFrom.y / 1.4, -1.0, 1.0), 0.4);
+  float m = clamp(uMix * 1.6 - order * 0.6, 0.0, 1.0);
   m = m * m * (3.0 - 2.0 * m);
   vec3 p = mix(aFrom, aTo, m);
   float burst = sin(m * 3.14159);
-  p += flow(p * 1.2 + aRand * 6.0, uTime * 0.35) * (0.011 * uMotion + burst * 0.2 + uStir * 0.07);
-  p += normalize(aRand - 0.5) * burst * 0.3 * aRand.y;
+  // In transit the matter turns around the vertical axis.
+  float turn = burst * (aRand.y - 0.5) * 2.2;
+  p.xz = mat2(cos(turn), -sin(turn), sin(turn), cos(turn)) * p.xz;
+  p += flow(p * 1.2 + aRand * 6.0, uTime * 0.35) * (0.011 * uMotion + burst * 0.18 + uStir * 0.07);
+  p += normalize(aRand - 0.5) * burst * 0.32 * aRand.y;
+  // Scrolling drags a short streak behind every particle, in the direction of travel.
+  p.y += uVel * (0.1 + aRand.z * 0.28) * (0.35 + burst);
 
   // Entrance: the field condenses from a wide cloud.
   float intro = clamp(uIntro * 1.5 - aRand.y * 0.5, 0.0, 1.0);
@@ -62,15 +80,22 @@ void main() {
   float near = smoothstep(0.8, 0.0, length(away.xy)) * uMotion;
   world.xyz += normalize(vec3(away.xy, 0.35)) * near * 0.26;
 
+  // A touch sends one ring through the field.
+  float age = uTime - uPulse.w;
+  vec2 fromTouch = world.xy - uPulse.xy;
+  float ring = exp(-pow((length(fromTouch) - age * 2.4) * 3.2, 2.0)) * exp(-age * 1.5) * step(age, 3.0) * uMotion;
+  world.xyz += vec3(normalize(fromTouch + 0.0001) * 0.15, 0.28) * ring;
+
   vec4 view = viewMatrix * world;
   gl_Position = projectionMatrix * view;
 
   float tone = mix(aMeta.x, aMeta.z, m);
   float group = m > 0.5 ? aMeta.w : aMeta.y;
   float lit = uActive < 0.0 ? 0.0 : (abs(group - uActive) < 0.5 ? 1.0 : -1.0);
-  vTone = clamp(tone + max(lit, 0.0), 0.0, 1.0);
-  vAlpha = (0.5 + 0.5 * aRand.z) * (lit < 0.0 ? 0.42 : 1.0) * (0.25 + 0.75 * intro);
-  gl_PointSize = uSize * (0.55 + aRand.z * 0.95) * (1.0 + max(lit, 0.0) * 0.45 + near * 1.4) / -view.z;
+  float far = smoothstep(5.4, 9.0, -view.z);
+  vTone = clamp(tone + max(lit, 0.0) + ring * 0.6, 0.0, 1.0);
+  vAlpha = (0.5 + 0.5 * aRand.z) * (lit < 0.0 ? 0.42 : 1.0) * (0.25 + 0.75 * intro) * mix(1.0, 0.45, far);
+  gl_PointSize = uSize * (0.55 + aRand.z * 0.95) * (1.0 + max(lit, 0.0) * 0.45 + near * 1.4 + ring * 1.6) / -view.z;
 }`;
 
 const FRAGMENT = /* glsl */ `
@@ -85,19 +110,24 @@ void main() {
   gl_FragColor = vec4(mix(uBase, uAccent, vTone), disc * vAlpha * uOpacity);
 }`;
 
-type Chapter = { el: HTMLElement; form: FormName; anchors: HTMLElement[] };
+type Chapter = { el: HTMLElement; anchors: HTMLElement[] };
 
 export type Engine = { dispose(): void };
+export type QualityReport = { tier: Tier; particles: number; dpr: number; fps: number };
 
-export function createEngine(canvas: HTMLCanvasElement, onLost: () => void): Engine {
+/** Compact layout: the figure sits behind the text instead of beside it. Mirrors the media query in site.css. */
+export const COMPACT = "(max-width: 899px) and (orientation: portrait), (max-width: 599px)";
+
+export function createEngine(canvas: HTMLCanvasElement, tier: Exclude<Tier, "static">, onLost: () => void): Engine {
   const reduced = matchMedia("(prefers-reduced-motion: reduce)");
-  const coarse = matchMedia("(pointer: coarse)").matches;
-  const small = () => innerWidth < 900;
-  const count = coarse || innerWidth < 900 ? 11000 : 26000;
+  const compact = matchMedia(COMPACT);
+  const touch = matchMedia("(pointer: coarse)").matches;
+  const limits = budget(tier, touch);
+  const count = limits.particles;
+  let dpr = limits.dpr, fps = limits.fps, drawn = count;
 
-  const renderer = new THREE.WebGLRenderer({ canvas, antialias: false, alpha: true, powerPreference: "high-performance" });
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: false, alpha: true, powerPreference: tier === "lite" ? "low-power" : "high-performance" });
   renderer.setClearColor(0x000000, 0);
-  let dpr = Math.min(devicePixelRatio, coarse ? 1.5 : 1.75);
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(34, 1, 0.1, 40);
   camera.position.set(0, 0, 6.4);
@@ -105,14 +135,20 @@ export function createEngine(canvas: HTMLCanvasElement, onLost: () => void): Eng
   scene.add(rig);
 
   const forms = createForms(count);
-  const chapters_orbit = () => document.querySelector<HTMLElement>('[data-form="orbit"]');
   const geometry = new THREE.BufferGeometry();
   const from = new THREE.BufferAttribute(new Float32Array(count * 3), 3);
   const to = new THREE.BufferAttribute(new Float32Array(count * 3), 3);
   const meta = new THREE.BufferAttribute(new Float32Array(count * 4), 4);
   const rand = new Float32Array(count * 3);
   let seed = 7;
-  for (let i = 0; i < rand.length; i++) { seed = (seed * 16807) % 2147483647; rand[i] = seed / 2147483647; }
+  const next = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+  for (let i = 0; i < rand.length; i++) rand[i] = next();
+  // Figures are written part by part. Drawing through a shuffled index lets the engine draw fewer particles under
+  // load and thin the whole figure evenly, instead of cutting off whatever part was written last.
+  const order = new Uint32Array(count);
+  for (let i = 0; i < count; i++) order[i] = i;
+  for (let i = count - 1; i > 0; i--) { const j = Math.floor(next() * (i + 1)), t = order[i]; order[i] = order[j]; order[j] = t; }
+  geometry.setIndex(new THREE.BufferAttribute(order, 1));
   geometry.setAttribute("position", from); // three needs a position attribute to draw; the shader uses aFrom/aTo
   geometry.setAttribute("aFrom", from);
   geometry.setAttribute("aTo", to);
@@ -121,18 +157,31 @@ export function createEngine(canvas: HTMLCanvasElement, onLost: () => void): Eng
   geometry.boundingSphere = new THREE.Sphere(new THREE.Vector3(), 20);
 
   const uniforms = {
-    uMix: { value: 0 }, uTime: { value: 0 }, uActive: { value: -1 }, uSize: { value: 1 }, uMotion: { value: 1 }, uIntro: { value: 0 }, uStir: { value: 0 },
-    uPointer: { value: new THREE.Vector3(99, 99, 0) }, uBase: { value: new THREE.Color("#ede8df") }, uAccent: { value: new THREE.Color("#ff5b22") },
-    uOpacity: { value: 1 },
+    uMix: { value: 0 }, uTime: { value: 0 }, uActive: { value: -1 }, uSize: { value: 1 }, uMotion: { value: 1 }, uIntro: { value: 0 }, uStir: { value: 0 }, uVel: { value: 0 },
+    uPointer: { value: new THREE.Vector3(99, 99, 0) }, uPulse: { value: new THREE.Vector4(0, 0, 0, -10) },
+    uBase: { value: new THREE.Color("#ede8df") }, uAccent: { value: new THREE.Color("#ff5b22") }, uOpacity: { value: 1 },
   };
   const material = new THREE.ShaderMaterial({ vertexShader: VERTEX, fragmentShader: FRAGMENT, uniforms, transparent: true, depthWrite: false, depthTest: false, blending: THREE.AdditiveBlending });
   const points = new THREE.Points(geometry, material);
   points.frustumCulled = false;
   rig.add(points);
 
-  const plaques = createPlaques();
+  // Depth dust: sparse points far behind and in front of the figure. They are not part of any figure, so the camera's
+  // small moves show real parallax between the layers.
+  let dust: THREE.Points | null = null;
+  if (limits.dust) {
+    const spots = new Float32Array(limits.dust * 3);
+    for (let i = 0; i < limits.dust; i++) spots.set([(next() - 0.5) * 15, (next() - 0.5) * 10, -7 + next() * 9.5], i * 3);
+    const dustGeometry = new THREE.BufferGeometry();
+    dustGeometry.setAttribute("position", new THREE.BufferAttribute(spots, 3));
+    dust = new THREE.Points(dustGeometry, new THREE.PointsMaterial({ color: 0xede8df, size: 0.022, sizeAttenuation: true, transparent: true, opacity: 0.4, depthWrite: false, depthTest: false, blending: THREE.AdditiveBlending }));
+    dust.frustumCulled = false;
+    scene.add(dust);
+  }
+
+  const plaques = createPlaques(limits.reflections ? renderer : null);
   rig.add(plaques.group);
-  const orbit = chapters_orbit();
+  const orbit = document.querySelector<HTMLElement>('[data-form="orbit"]');
   const badges = orbit ? createBadges((orbit.dataset.badges ?? "").split(",").filter(Boolean), camera) : null;
   if (badges) rig.add(badges.group);
   scene.add(new THREE.HemisphereLight(0xffffff, 0x20242c, 1.5));
@@ -140,15 +189,9 @@ export function createEngine(canvas: HTMLCanvasElement, onLost: () => void): Eng
   key.position.set(2.5, 3.5, 4);
   scene.add(key);
 
-  let chapters: Chapter[] = [];
-  const collect = () => {
-    chapters = [...document.querySelectorAll<HTMLElement>("[data-form]")].map(el => ({
-      el, form: el.dataset.form as FormName, anchors: [...el.querySelectorAll<HTMLElement>("[data-anchor]")],
-    }));
-  };
-  collect();
-
-  const keyOf = (c: Chapter) => (c.form === "sigil" ? "sigil:" + (c.el.dataset.seed ?? "") : c.form);
+  const chapters: Chapter[] = [...document.querySelectorAll<HTMLElement>("[data-form]")].map(el => ({ el, anchors: [...el.querySelectorAll<HTMLElement>("[data-anchor]")] }));
+  const formOf = (c: Chapter) => c.el.dataset.form as FormName;
+  const keyOf = (c: Chapter) => (formOf(c) === "sigil" ? "sigil:" + (c.el.dataset.seed ?? "") : formOf(c));
   let pair = ["", ""];
   const load = (a: string, b: string) => {
     if (pair[0] === a && pair[1] === b) return;
@@ -175,59 +218,104 @@ export function createEngine(canvas: HTMLCanvasElement, onLost: () => void): Eng
     return 0;
   };
 
-  const pointer = new THREE.Vector2(0, 0), pointerSmooth = new THREE.Vector2(0, 0), rest = new THREE.Vector2(0, 0);
-  let pointerSeen = false;
-  const onPointer = (e: PointerEvent) => { if (e.pointerType !== "mouse") return; pointer.set((e.clientX / innerWidth) * 2 - 1, -(e.clientY / innerHeight) * 2 + 1); pointerSeen = true; };
-  const onLeave = () => { pointerSeen = false; };
-  // On touch screens the finger that scrolls also pushes the particles, and tilting the device turns the scene.
-  const onTouch = (e: TouchEvent) => {
-    const touch = e.touches[0];
-    if (!touch) return;
-    pointer.set((touch.clientX / innerWidth) * 2 - 1, -(touch.clientY / innerHeight) * 2 + 1);
-    pointerSeen = true;
-    wake();
+  // Input --------------------------------------------------------------------
+  const pointer = new THREE.Vector2(0, 0), pointerSmooth = new THREE.Vector2(0, 0), rest = new THREE.Vector2(0, 0), tilt = new THREE.Vector2(0, 0);
+  let pointerSeen = false, tilting = false, lastInput = performance.now();
+  const drag = { on: false, id: -1, x: 0, y: 0, yaw: 0, pitch: 0, vyaw: 0, released: 0 };
+  const place = (x: number, y: number) => { pointer.set((x / innerWidth) * 2 - 1, -(y / innerHeight) * 2 + 1); pointerSeen = true; };
+  const awake = () => { lastInput = performance.now(); wake(); };
+
+  const onPointerMove = (e: PointerEvent) => {
+    if (drag.on && e.pointerId === drag.id) {
+      const dx = e.clientX - drag.x, dy = e.clientY - drag.y;
+      drag.x = e.clientX; drag.y = e.clientY;
+      drag.vyaw = dx * 0.009;
+      drag.yaw = THREE.MathUtils.clamp(drag.yaw + drag.vyaw, -1.25, 1.25);
+      if (e.pointerType === "mouse") drag.pitch = THREE.MathUtils.clamp(drag.pitch + dy * 0.005, -0.5, 0.5);
+      awake();
+    }
+    if (e.pointerType === "mouse") { place(e.clientX, e.clientY); lastInput = performance.now(); }
   };
-  const tilt = new THREE.Vector2(0, 0);
+  const world = new THREE.Vector3(), ray = new THREE.Vector3();
+  const onPlane = (out: THREE.Vector3) => {
+    ray.set(pointer.x, pointer.y, 0.5).unproject(camera).sub(camera.position).normalize();
+    return out.copy(camera.position).addScaledVector(ray, -camera.position.z / ray.z);
+  };
+  const onPointerDown = (e: PointerEvent) => {
+    place(e.clientX, e.clientY);
+    const grab = (e.target as Element | null)?.closest?.("[data-grab]");
+    if (grab) {
+      drag.on = true; drag.id = e.pointerId; drag.x = e.clientX; drag.y = e.clientY; drag.vyaw = 0;
+      document.documentElement.dataset.touched = "1";
+    }
+    if (!reduced.matches) { onPlane(world); uniforms.uPulse.value.set(world.x, world.y, 0, time); }
+    awake();
+  };
+  const onPointerUp = (e: PointerEvent) => {
+    if (e.pointerId === drag.id) { drag.on = false; drag.id = -1; drag.released = performance.now(); }
+    if (e.pointerType !== "mouse") pointerSeen = false;
+  };
+  const onLeave = () => { pointerSeen = false; };
+  // On touch screens the finger that scrolls also pushes the particles.
+  const onTouch = (e: TouchEvent) => { const t = e.touches[0]; if (t) { place(t.clientX, t.clientY); awake(); } };
+  // Device tilt is opt-in: the page asks for it (and for permission where the browser requires one) before listening.
   const onTilt = (e: DeviceOrientationEvent) => {
     if (e.gamma === null || e.beta === null) return;
     tilt.set(THREE.MathUtils.clamp(e.gamma / 35, -1, 1), THREE.MathUtils.clamp((e.beta - 50) / 35, -1, 1));
+    awake();
+  };
+  const onTiltSwitch = (e: Event) => {
+    const on = Boolean((e as CustomEvent<boolean>).detail);
+    if (on === tilting) return;
+    tilting = on;
+    if (on) addEventListener("deviceorientation", onTilt); else { removeEventListener("deviceorientation", onTilt); tilt.set(0, 0); }
   };
 
+  const report = () => {
+    const detail: QualityReport = { tier, particles: drawn, dpr, fps };
+    document.documentElement.dataset.quality = tier;
+    dispatchEvent(new CustomEvent("scene:quality", { detail }));
+  };
   const resize = () => {
     renderer.setPixelRatio(dpr);
     renderer.setSize(innerWidth, innerHeight, false);
     camera.aspect = innerWidth / innerHeight;
     camera.updateProjectionMatrix();
-    uniforms.uSize.value = innerHeight * dpr * (small() ? 0.03 : 0.026);
+    // Fewer particles are drawn larger, so a thinned figure keeps its weight.
+    uniforms.uSize.value = innerHeight * dpr * (compact.matches ? 0.03 : 0.026) * Math.min(1.5, Math.sqrt((touch ? 11000 : 26000) / drawn));
+    geometry.setDrawRange(0, drawn);
   };
 
-  const accent = new THREE.Color(), base = new THREE.Color(), tmp = new THREE.Vector3(), ray = new THREE.Vector3();
+  const accent = new THREE.Color(), base = new THREE.Color(), tmp = new THREE.Vector3();
   const poseOf = (c: Chapter) => {
-    const pose = POSES[c.form] ?? POSES.mark, side = Number(c.el.dataset.side ?? 0);
-    return { pose, side, spin: Number(c.el.dataset.spin ?? pose.spin) };
+    const pose = POSES[formOf(c)] ?? POSES.mark;
+    return { pose, side: Number(c.el.dataset.side ?? 0), spin: Number(c.el.dataset.spin ?? pose.spin), turn: Number(c.el.dataset.turn ?? 0) };
   };
 
-  let lastScroll = scrollY, stir = 0;
+  let lastScroll = scrollY, stir = 0, velocity = 0, turn = 0;
   const shown = new Map<Chapter, string>();
   let swap: { chapter: Chapter; from: string; to: string; t: number } | null = null;
-  let position = target(), raf = 0, last = performance.now(), time = 0, spin = 0, visible = true, slow = 0, lost = false;
-  let start = 0; // set when the loader lifts, so the field condenses in view
+  let position = target(), raf = 0, last = performance.now(), time = 0, visible = !document.hidden, slow = 0, lost = false, intro = 0, leading = -1;
+  let ready = false, captioned = "";
 
   const frame = (now: number) => {
     raf = 0;
     if (lost) return;
-    const dt = Math.min(0.05, (now - last) / 1000);
+    const elapsed = now - last, still = reduced.matches, goal = target();
+    const settled = Math.abs(goal - position) < 0.0015 && !swap && intro >= 1 && !drag.on && Math.abs(drag.vyaw) < 0.0005;
+    // Nothing moved for a while: keep the figure breathing at a slow tick and let the GPU rest.
+    const rate = settled && now - lastInput > 4000 ? Math.min(fps, 24) : fps;
+    if (elapsed < 1000 / rate - 2) { raf = requestAnimationFrame(frame); return; }
+    const dt = Math.min(0.05, elapsed / 1000);
     last = now;
-    const still = reduced.matches;
     time += still ? 0 : dt;
 
-    const goal = target();
     position = still ? goal : position + (goal - position) * (1 - Math.exp(-dt * 7));
     const a = Math.min(chapters.length - 1, Math.floor(position)), b = Math.min(chapters.length - 1, a + 1);
     let mix = position - a;
     if (still) mix = mix < 0.5 ? 0 : 1; // reduced motion: figures swap without travelling
-    // A chapter can change its own figure while it holds the screen (a list choosing an article). That morph runs on
-    // its own clock, between the figure that was showing and the new one.
+    // A chapter can change its own figure while it holds the screen (a pillar being chosen, a list pointing at an
+    // article). That morph runs on its own clock, between the figure that was showing and the new one.
     const holding = mix < 0.02 ? chapters[a] : mix > 0.98 ? chapters[b] : null;
     if (swap && swap.chapter !== holding) { shown.set(swap.chapter, keyOf(swap.chapter)); swap = null; }
     if (holding && !swap) {
@@ -235,10 +323,11 @@ export function createEngine(canvas: HTMLCanvasElement, onLost: () => void): Eng
       if (key !== before) swap = { chapter: holding, from: before, to: key, t: 0 };
       else shown.set(holding, key);
     }
+    let travel = mix; // 0..1 through whichever morph is running, for the camera
     if (swap) {
-      swap.t = still ? 1 : Math.min(1, swap.t + dt / 0.85);
+      swap.t = still ? 1 : Math.min(1, swap.t + dt / 0.9);
       load(swap.from, swap.to);
-      uniforms.uMix.value = swap.t;
+      uniforms.uMix.value = travel = swap.t;
       if (swap.t >= 1) { shown.set(swap.chapter, swap.to); swap = null; }
     } else {
       load(keyOf(chapters[a]), keyOf(chapters[b]));
@@ -246,18 +335,26 @@ export function createEngine(canvas: HTMLCanvasElement, onLost: () => void): Eng
     }
     uniforms.uTime.value = time;
     uniforms.uMotion.value = still ? 0 : 1;
-    if (!start && document.documentElement.dataset.ready) start = now;
-    uniforms.uIntro.value = still ? 1 : start ? Math.min(1, (now - start) / 2600) : 0;
+
+    // Scrolling stirs the field and leaves a streak, so the figure answers the gesture even without a cursor.
+    const moved = (scrollY - lastScroll) / Math.max(dt, 0.001) / innerHeight;
+    lastScroll = scrollY;
+    stir += (Math.min(1, Math.abs(moved) * 0.5) - stir) * (1 - Math.exp(-dt * 5));
+    velocity += (THREE.MathUtils.clamp(moved * 0.35, -1, 1) - velocity) * (1 - Math.exp(-dt * 8));
+    uniforms.uStir.value = still ? 0 : stir;
+    uniforms.uVel.value = still ? 0 : velocity;
+    // The entrance never blocks: the text is already readable, and the first scroll hurries the field into place.
+    intro = still ? 1 : Math.min(1, intro + (dt / 1.8) * (scrollY > 8 ? 3 : 1));
+    uniforms.uIntro.value = intro;
 
     const lead = chapters[mix < 0.5 ? a : b], A = poseOf(chapters[a]), B = poseOf(chapters[b]);
     const e = mix * mix * (3 - 2 * mix), lerp = THREE.MathUtils.lerp;
-    const phone = small();
+    const phone = compact.matches;
     uniforms.uActive.value = lead.el.dataset.active ? Number(lead.el.dataset.active) : -1;
     accent.set(chapters[a].el.dataset.accent || "#ff5b22").lerp(base.set(chapters[b].el.dataset.accent || "#ff5b22"), e);
     uniforms.uAccent.value.copy(accent);
-    // On phones the figure sits behind the text, so it steps back.
-    // Phones: each chapter opens with a clear window for the figure (its top padding). The figure is at full strength
-    // there and steps back to `data-dim` once the text scrolls over it.
+    // Compact layouts: each chapter opens with a clear window for the figure (its top padding). The figure is at full
+    // strength there and steps back to `data-dim` once the text scrolls over it.
     const strength = (c: Chapter) => {
       if (!phone) return Number(c.el.dataset.glow ?? 1);
       const dim = Number(c.el.dataset.dim ?? 0.4), pad = parseFloat(getComputedStyle(c.el).paddingTop);
@@ -265,38 +362,53 @@ export function createEngine(canvas: HTMLCanvasElement, onLost: () => void): Eng
       const contentTop = c.el.getBoundingClientRect().top + pad;
       return lerp(dim, 1, THREE.MathUtils.clamp((contentTop - innerHeight * 0.3) / (innerHeight * 0.2), 0, 1));
     };
-    uniforms.uOpacity.value = lerp(strength(chapters[a]), strength(chapters[b]), e);
+    const opacity = lerp(strength(chapters[a]), strength(chapters[b]), e);
+    uniforms.uOpacity.value = opacity;
 
-    pointerSmooth.lerp(pointerSeen ? pointer : coarse ? tilt : rest, 1 - Math.exp(-dt * 4));
+    pointerSmooth.lerp(pointerSeen && !touch ? pointer : tilting ? tilt : rest, 1 - Math.exp(-dt * 4));
 
-    // Scrolling stirs the field, so the figure answers the gesture even without a cursor.
-    const speed = Math.abs(scrollY - lastScroll) / Math.max(dt, 0.001) / innerHeight;
-    lastScroll = scrollY;
-    stir += (Math.min(1, speed * 0.5) - stir) * (1 - Math.exp(-dt * 5));
-    uniforms.uStir.value = still ? 0 : stir;
-    const halfW = Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) * camera.position.z * camera.aspect;
+    // Drag: the figure follows the finger, keeps a little momentum on release and then eases home.
+    if (!drag.on) {
+      drag.yaw = THREE.MathUtils.clamp(drag.yaw + drag.vyaw, -1.25, 1.25);
+      drag.vyaw *= Math.exp(-dt * 4);
+      if (now - drag.released > 1400) { const home = 1 - Math.exp(-dt * 1.6); drag.yaw -= drag.yaw * home; drag.pitch -= drag.pitch * home; }
+    }
+    turn += (lerp(A.turn, B.turn, e) - turn) * (still ? 1 : 1 - Math.exp(-dt * 6));
+
+    // Camera: it dollies with the chapter, pushes through the cloud while a figure is in transit, backs off a little
+    // under fast scrolling and shifts with the pointer, which is what gives the layers their parallax.
+    const transit = still ? 0 : Math.sin(Math.min(1, Math.max(0, travel)) * Math.PI);
+    const dolly = lerp(A.pose.dolly, B.pose.dolly, e) - transit * 0.85 + stir * 0.5;
+    camera.position.set(still ? 0 : pointerSmooth.x * 0.3, still ? 0 : pointerSmooth.y * 0.18, dolly);
+    camera.lookAt(0, 0, 0);
+    camera.rotation.z = still ? 0 : velocity * 0.025;
+
+    const halfW = Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) * dolly * camera.aspect;
     const shift = phone ? 0 : lerp(A.side, B.side, e) * halfW * 0.46;
     const fit = phone ? Math.min(0.72, camera.aspect * 1.25) : 1; // tablets keep the figure clear of the text
     // `spin` is the amplitude of a slow turn. It always returns to the authored pose, so later chapters start aligned.
-    spin = still ? 0 : Math.sin(time * 0.33) * lerp(A.spin, B.spin, e);
+    const spin = still ? 0 : Math.sin(time * 0.33) * lerp(A.spin, B.spin, e);
     const sway = lerp(A.pose.sway, B.pose.sway, e);
     const lift = phone ? lerp(Number(chapters[a].el.dataset.lift ?? 0.85), Number(chapters[b].el.dataset.lift ?? 0.85), e) : 0;
     rig.position.set(shift, lerp(A.pose.y, B.pose.y, e) + lift, 0);
     rig.scale.setScalar(lerp(A.pose.scale, B.pose.scale, e) * fit);
     rig.rotation.set(
-      lerp(A.pose.rx, B.pose.rx, e) - pointerSmooth.y * sway * 0.5,
-      lerp(A.pose.ry, B.pose.ry, e) + spin + pointerSmooth.x * sway + (still ? 0 : Math.sin(time * 0.21 + 1.3) * 0.06),
+      lerp(A.pose.rx, B.pose.rx, e) - pointerSmooth.y * sway * 0.5 + drag.pitch,
+      lerp(A.pose.ry, B.pose.ry, e) + spin + pointerSmooth.x * sway + drag.yaw + turn + (still ? 0 : Math.sin(time * 0.21 + 1.3) * 0.06),
       0,
     );
     rig.updateMatrixWorld();
+    camera.updateMatrixWorld();
+    if (dust) {
+      dust.position.y = position * 0.3;
+      dust.rotation.y = time * 0.012;
+      (dust.material as THREE.PointsMaterial).opacity = 0.4 * Math.min(1, opacity + 0.2) * intro;
+    }
 
     // Pointer on the z=0 plane, in world space, for the repulsion in the shader.
-    if (pointerSeen && !still) { // mouse or finger
-      ray.set(pointer.x, pointer.y, 0.5).unproject(camera).sub(camera.position).normalize();
-      uniforms.uPointer.value.copy(camera.position).addScaledVector(ray, -camera.position.z / ray.z);
-    } else uniforms.uPointer.value.set(99, 99, 0);
+    if (pointerSeen && !still) onPlane(uniforms.uPointer.value); else uniforms.uPointer.value.set(99, 99, 0);
 
-    const torvya = chapters.findIndex(c => c.form === "torvya");
+    const torvya = chapters.findIndex(c => formOf(c) === "torvya");
     plaques.update(torvya < 0 ? 0 : Math.max(0, 1 - Math.abs(position - torvya) * 2.4), time, lead.el.dataset.plaque ?? "review", still);
     if (badges && orbit) {
       const at = chapters.findIndex(c => c.el === orbit);
@@ -318,55 +430,83 @@ export function createEngine(canvas: HTMLCanvasElement, onLost: () => void): Eng
       }
     }
 
+    const leadIndex = mix < 0.5 ? a : b;
+    const caption = lead.el.dataset.caption ?? "";
+    if (leadIndex !== leading || caption !== captioned) {
+      leading = leadIndex;
+      captioned = caption;
+      dispatchEvent(new CustomEvent("scene:chapter", { detail: { index: leadIndex, total: chapters.length, caption } }));
+    }
+
     renderer.render(scene, camera);
+    if (!ready) { ready = true; performance.mark("scene:first-frame"); }
 
-    // Adaptive resolution: sustained slow frames lower the pixel ratio once or twice.
-    slow = dt > 0.03 ? slow + 1 : Math.max(0, slow - 1);
-    if (slow > 45 && dpr > 1) { dpr = Math.max(1, dpr - 0.25); slow = 0; resize(); }
+    // Measured performance has the last word. Sustained slow frames lower the pixel ratio first, then the number of
+    // particles drawn, then the frame rate. The steps are one-way for the visit, so quality never oscillates.
+    if (rate === fps && elapsed < 250) slow = elapsed > (1000 / fps) * 1.45 ? slow + 1 : Math.max(0, slow - 1);
+    if (slow > 50) {
+      slow = 0;
+      if (dpr > 1) dpr = Math.max(1, dpr - 0.25);
+      else if (drawn > 5000) drawn = Math.max(5000, Math.round(drawn * 0.7));
+      else if (fps > 30) fps = 30;
+      resize();
+      report();
+    }
 
-    const settled = still && Math.abs(goal - position) < 0.001;
-    if (visible && !settled) raf = requestAnimationFrame(frame);
+    if (visible && !(still && settled)) raf = requestAnimationFrame(frame);
   };
-  const wake = () => { if (!raf && visible && !lost) { last = performance.now(); raf = requestAnimationFrame(frame); } };
+  const wake = () => { if (!raf && visible && !lost) { last = performance.now() - 17; raf = requestAnimationFrame(frame); } };
 
-  const onVisibility = () => { visible = !document.hidden; if (visible) wake(); };
-  const onResize = () => { resize(); wake(); };
+  const onVisibility = () => { visible = !document.hidden; if (visible) awake(); else { cancelAnimationFrame(raf); raf = 0; } };
+  const onResize = () => { resize(); awake(); };
   const onContextLost = (e: Event) => { e.preventDefault(); lost = true; cancelAnimationFrame(raf); raf = 0; onLost(); };
-  addEventListener("pointermove", onPointer, { passive: true });
+  addEventListener("pointermove", onPointerMove, { passive: true });
+  addEventListener("pointerdown", onPointerDown, { passive: true });
+  addEventListener("pointerup", onPointerUp, { passive: true });
+  addEventListener("pointercancel", onPointerUp, { passive: true });
   addEventListener("touchstart", onTouch, { passive: true });
   addEventListener("touchmove", onTouch, { passive: true });
   addEventListener("touchend", onLeave, { passive: true });
-  addEventListener("deviceorientation", onTilt);
+  addEventListener("scene:tilt", onTiltSwitch);
   document.documentElement.addEventListener("pointerleave", onLeave);
   addEventListener("resize", onResize);
-  addEventListener("scroll", wake, { passive: true });
+  addEventListener("scroll", awake, { passive: true });
   document.addEventListener("visibilitychange", onVisibility);
-  reduced.addEventListener("change", wake);
+  reduced.addEventListener("change", awake);
+  compact.addEventListener("change", onResize);
   canvas.addEventListener("webglcontextlost", onContextLost);
-  // Chapters change `data-active` while the page is idle under reduced motion; repaint when they do.
-  const observer = new MutationObserver(wake);
-  for (const c of chapters) observer.observe(c.el, { attributes: true, attributeFilter: ["data-active", "data-plaque", "data-seed", "data-badge"] });
+  // Chapters change their attributes while the page is idle; repaint when they do.
+  const observer = new MutationObserver(awake);
+  for (const c of chapters) observer.observe(c.el, { attributes: true, attributeFilter: ["data-active", "data-plaque", "data-seed", "data-badge", "data-form", "data-turn"] });
 
   resize();
+  report();
   wake();
 
   return {
     dispose() {
       cancelAnimationFrame(raf);
+      lost = true;
       observer.disconnect();
-      removeEventListener("pointermove", onPointer);
+      removeEventListener("pointermove", onPointerMove);
+      removeEventListener("pointerdown", onPointerDown);
+      removeEventListener("pointerup", onPointerUp);
+      removeEventListener("pointercancel", onPointerUp);
       removeEventListener("touchstart", onTouch);
       removeEventListener("touchmove", onTouch);
       removeEventListener("touchend", onLeave);
+      removeEventListener("scene:tilt", onTiltSwitch);
       removeEventListener("deviceorientation", onTilt);
       document.documentElement.removeEventListener("pointerleave", onLeave);
       removeEventListener("resize", onResize);
-      removeEventListener("scroll", wake);
+      removeEventListener("scroll", awake);
       document.removeEventListener("visibilitychange", onVisibility);
-      reduced.removeEventListener("change", wake);
+      reduced.removeEventListener("change", awake);
+      compact.removeEventListener("change", onResize);
       canvas.removeEventListener("webglcontextlost", onContextLost);
       geometry.dispose();
       material.dispose();
+      if (dust) { dust.geometry.dispose(); (dust.material as THREE.Material).dispose(); }
       plaques.dispose();
       badges?.dispose();
       renderer.dispose();

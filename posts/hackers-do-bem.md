@@ -3,6 +3,9 @@ title: 'Hackers do Bem: Impulsionando a Cibersegurança no Brasil'
 date: '2025-05-05'
 author: 'Emanuel Araújo'
 lang: 'pt'
+category: 'Carreira'
+tags: ['Formação', 'Cibersegurança']
+summary: 'O que é o programa Hackers do Bem, como a formação é organizada e por que ele importa para o mercado de cibersegurança no Brasil.'
 ---
 
 ## O Que é o Programa Hackers do Bem?

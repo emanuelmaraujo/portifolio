@@ -3,6 +3,9 @@ title: 'Ransomware: The Digital Threat That Hijacks Your Data'
 date: '2024-05-04'
 author: 'Emanuel Araújo'
 lang: 'en'
+category: 'Awareness'
+tags: ['Ransomware', 'Backup']
+summary: 'How ransomware works, how it gets in and which measures reduce the impact of an attack.'
 ---
 
 ## What is Ransomware?

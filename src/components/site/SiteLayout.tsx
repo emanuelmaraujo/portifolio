@@ -1,12 +1,17 @@
 import type { ReactNode } from "react";
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono, Instrument_Serif } from "next/font/google";
 import { copy, siteUrl, type Locale } from "./content";
 import "./site.css";
+import "./experience.css";
+import "./reading.css";
 
 const sans = Geist({ subsets: ["latin"], variable: "--font-sans", display: "swap" });
 const mono = Geist_Mono({ subsets: ["latin"], variable: "--font-mono", display: "swap" });
 const serif = Instrument_Serif({ subsets: ["latin"], weight: "400", style: ["italic"], variable: "--font-serif", display: "swap" });
+
+/** `viewport-fit=cover` lets the layout use the safe-area insets on phones with a notch or a home indicator. */
+export const viewport: Viewport = { width: "device-width", initialScale: 1, viewportFit: "cover", themeColor: "#08090b", colorScheme: "dark" };
 
 export function siteMetadata(locale: Locale): Metadata {
   const english = locale === "en";

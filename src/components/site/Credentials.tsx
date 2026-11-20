@@ -4,10 +4,10 @@ import { useState } from "react";
 import { badges, type Copy } from "./content";
 
 /** Badges ride an orbit in the 3D scene. Choosing a credential turns the orbit until its badge faces the reader. */
-export default function Credentials({ t }: { t: Copy["credentials"] }) {
+export default function Credentials({ t, caption }: { t: Copy["credentials"]; caption: string }) {
   const [selected, setSelected] = useState(-1);
   return (
-    <section id="credentials" className="chapter credentials" data-form="orbit" data-side="1" data-dim="0.5" data-active={selected < 0 ? undefined : 1}
+    <section id="credentials" className="chapter credentials" data-form="orbit" data-caption={caption} data-side="1" data-dim="0.5" data-active={selected < 0 ? undefined : 1}
       data-badge={selected} data-badges={badges.map(([, , file]) => `/badges/${file}.png`).join(",")} aria-labelledby="credentials-title">
       <div className="col">
         <p className="label" data-reveal><span>06</span>{t.label}</p>

@@ -3,6 +3,9 @@ title: 'Hackers do Bem: Boosting Cybersecurity in Brazil'
 date: '2025-05-05'
 author: 'Emanuel Araújo'
 lang: 'en'
+category: 'Career'
+tags: ['Training', 'Cybersecurity']
+summary: 'What the Hackers do Bem programme is, how its training is organised and why it matters for cybersecurity in Brazil.'
 ---
 
 ## What is the Hackers do Bem Program?

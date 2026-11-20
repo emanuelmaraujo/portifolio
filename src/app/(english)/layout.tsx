@@ -1,6 +1,8 @@
 import type { ReactNode } from "react";
 import SiteLayout, { siteMetadata } from "@/components/site/SiteLayout";
 
+export { viewport } from "@/components/site/SiteLayout";
+
 export const metadata = siteMetadata("en");
 
 export default function Layout({ children }: { children: ReactNode }) {

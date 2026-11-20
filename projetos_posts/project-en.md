@@ -7,6 +7,7 @@ tags: ["Next.js", "React", "Tailwind CSS", "APIs", "Full-Stack", "TypeScript"]
 liveUrl: "https://riftscore.com.br"
 repoUrl: "#"
 lang: "en"
+category: "Product"
 ---
 
 ## Overview

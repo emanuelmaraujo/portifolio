@@ -3,6 +3,9 @@ title: 'A Importância de Senhas Fortes e Autenticação Multifator (MFA)'
 date: '2024-05-04'
 author: 'Emanuel Araújo'
 lang: 'pt'
+category: 'Conscientização'
+tags: ['Senhas', 'MFA', 'Identidade']
+summary: 'Por que senhas fracas e reutilizadas são um risco, e como gerenciadores de senhas e MFA resolvem o problema.'
 ---
 
 ## Por Que Senhas Fracas São um Risco?

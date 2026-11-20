@@ -3,6 +3,9 @@ title: 'Social Engineering: The Art of Manipulating People'
 date: '2024-05-04'
 author: 'Emanuel Araújo'
 lang: 'en'
+category: 'Awareness'
+tags: ['Social engineering']
+summary: 'Why social engineering works, the tactics used most and how to build the habit of verifying before trusting.'
 ---
 
 ## What is Social Engineering?

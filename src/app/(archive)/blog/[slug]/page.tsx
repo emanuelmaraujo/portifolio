@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
-import { ArchiveEntry } from "@/components/site/Archive";
-import { entry, slugs } from "@/components/site/entries";
+import { ArchiveEntry, entryMetadata } from "@/components/site/Archive";
+import { slugs } from "@/components/site/entries";
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -8,8 +8,7 @@ export const dynamicParams = false;
 export const generateStaticParams = () => slugs("posts").map(slug => ({ slug }));
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const item = await entry("posts", (await params).slug);
-  return item ? { title: item.title, description: item.summary } : {};
+  return entryMetadata("posts", (await params).slug);
 }
 
 export default async function Page({ params }: Props) {
