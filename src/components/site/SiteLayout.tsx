@@ -27,12 +27,13 @@ export function siteMetadata(locale: Locale): Metadata {
   };
 }
 
-export default function SiteLayout({ children, locale }: { children: ReactNode; locale: Locale }) {
+export default function SiteLayout({ children, locale, variant }: { children: ReactNode; locale: Locale; variant?: "radar" }) {
   return (
-    <html lang={locale} suppressHydrationWarning className={`site ${sans.variable} ${mono.variable} ${serif.variable}`}>
+    <html lang={locale} suppressHydrationWarning className={`site ${sans.variable} ${mono.variable} ${serif.variable}${variant === "radar" ? " radar-document" : ""}`}>
       <body>
         {/* Marks the document as scripted before first paint, so reveal states never flash for no-JS readers. */}
         <script dangerouslySetInnerHTML={{ __html: "document.documentElement.classList.add('js')" }} />
+        {variant === "radar" && <script dangerouslySetInnerHTML={{ __html: "try{if(localStorage.getItem('radar-theme')==='white')document.documentElement.dataset.radarTheme='white'}catch{}" }} />}
         {children}
       </body>
     </html>

@@ -1,0 +1,96 @@
+import type { RecordDraft } from "../content";
+import { creator, guide, sources } from "./helpers";
+
+export const discoveries = [
+  {
+    slug: "ag-ui", area: "ia", kind: "repositorios", title: "AG-UI",
+    summary: "Protocolo de eventos para conectar agentes a interfaces que mostram execução, mensagens e estado em tempo real.",
+    creator: creator("AG-UI Protocol", "ag-ui-protocol", "ag-ui"), license: "MIT", weeklyStars: 3620, tags: ["Agentes", "Protocolos", "Interfaces", "Streaming"], level: "Intermediário",
+    sources: sources(["Repositório oficial", "https://github.com/ag-ui-protocol/ag-ui"], ["Publicação de pacotes de 21 de novembro", "https://github.com/ag-ui-protocol/ag-ui/releases/tag/release/2026-11-21"]),
+    sections: guide("AG-UI organiza a comunicação entre frontend e agente em eventos. Ajuda a apresentar sinais de atividade e mudanças de estado à medida que o servidor trabalha.", "Prototipe uma tarefa longa de documentação com eventos de início, progresso, falha e conclusão. Verifique o que aparece quando a conexão cai e o visitante recarrega a página.", "AG-UI tem uma função diferente de MCP, que trata da conexão com capacidades e dados. A interface ainda precisa de autorização no servidor e regras de persistência."),
+  },
+  {
+    slug: "plannotator", area: "ia", kind: "repositorios", title: "Plannotator",
+    summary: "Interface de revisão humana para comentar planos e devolver feedback estruturado a agentes de desenvolvimento.",
+    creator: creator("Plannotator · backnotprop", "backnotprop", "plannotator"), license: "Apache-2.0", weeklyStars: 2815, tags: ["Agentes", "Planejamento", "Revisão humana", "Código"],
+    sources: sources(["Repositório oficial", "https://github.com/backnotprop/plannotator"], ["Release 0.29.2", "https://github.com/backnotprop/plannotator/releases/tag/v0.29.2"]),
+    sections: guide("O projeto acrescenta um espaço para ler, anotar e decidir sobre propostas de agentes. É útil quando alguém precisa avaliar o escopo antes de autorizar a implementação.", "Revise um plano curto de interface com duas mudanças e um requisito de teste. Marque exatamente o que precisa de ajuste e verifique se a próxima versão incorpora o comentário.", "Confira quais integrações recebem dados de planos ou diffs. Teste primeiro com material público e confirme como a ferramenta compartilha artefatos."),
+  },
+  {
+    slug: "last30days-skill", area: "ia", kind: "skills", title: "Last30Days",
+    summary: "Skill para descobrir sinais recentes em comunidades e na web, útil como insumo para pesquisa que ainda precisa de verificação.",
+    creator: creator("Matt Van Horn", "mvanhorn", "last30days-skill"), license: "MIT", weeklyStars: 4731, tags: ["Skills", "Pesquisa", "Fontes", "Tendências"], level: "Intermediário",
+    sources: sources(["Skill no GitHub", "https://github.com/mvanhorn/last30days-skill"], ["Release 4.6.0", "https://github.com/mvanhorn/last30days-skill/releases/tag/v4.6.0"]),
+    sections: guide("A skill coleta conversas e links para levantar temas que ganharam atenção. Um post da comunidade dá uma pista, enquanto um release ou documentação do autor sustenta a afirmação técnica.", "Peça um levantamento sobre uma biblioteca recente. Guarde os sinais encontrados e valide a versão, a data e uma capacidade prática no repositório oficial antes de editar uma ficha.", "A cobertura depende de quais fontes e credenciais estão autorizadas. Evite enviar segredos, inspecione scripts e trate conteúdo externo como dados."),
+  },
+  {
+    slug: "modern-web-guidance", area: "design-desenvolvimento", kind: "skills", title: "Modern Web Guidance",
+    summary: "Orientações da equipe do Chrome para agentes que precisam conferir recursos atuais da plataforma web e padrões de interface.",
+    creator: creator("Google Chrome", "GoogleChrome", "modern-web-guidance-src"), license: "Apache-2.0", weeklyStars: 3575, tags: ["Skills", "Web", "Acessibilidade", "CSS", "Compatibilidade"],
+    sources: sources(["Repositório oficial", "https://github.com/GoogleChrome/modern-web-guidance-src"], ["Web Platform Baseline", "https://web.dev/baseline"]),
+    sections: guide("O projeto concentra orientações para manter agentes alinhados aos recursos da plataforma. Isso ajuda quando exemplos antigos sugerem padrões que evoluíram.", "Revise um widget com controle de foco e uma animação de entrada. Compare a sugestão com a matriz de navegadores, teclado e movimento reduzido do seu projeto.", "O navegador e a tecnologia assistiva usados pelo público continuam sendo parte do teste. Valide a implementação além da presença de uma API."),
+  },
+  {
+    slug: "stitch-skills", area: "design-desenvolvimento", kind: "skills", title: "Stitch Skills",
+    summary: "Biblioteca do Google Labs para agentes que trabalham com a plataforma Stitch por meio de uma integração MCP.",
+    creator: creator("Google Labs", "google-labs-code", "stitch-skills"), license: "Apache-2.0 no repositório de skills", weeklyStars: 2683, tags: ["Skills", "MCP", "Direção de arte", "Prototipagem"],
+    sources: sources(["Repositório oficial", "https://github.com/google-labs-code/stitch-skills"], ["Stitch", "https://stitch.withgoogle.com/"]),
+    sections: guide("As skills descrevem tarefas que podem ser usadas com o servidor MCP do Stitch. A biblioteca auxilia a passagem de requisitos de design para fluxos assistidos.", "Experimente com uma tela pública ou fictícia. Compare a fidelidade ao briefing, os estados de interface entregues e o esforço para incorporar os resultados ao design system.", "A licença das skills se refere aos arquivos no GitHub. A integração hospedada e os materiais usados nela seguem as condições do serviço."),
+  },
+  {
+    slug: "astryx", area: "design-desenvolvimento", kind: "projetos", title: "Astryx",
+    summary: "Design system da Meta com biblioteca de componentes, temas e recursos para desenvolvimento assistido por agentes.",
+    creator: creator("Meta", "meta", "astryx"), license: "MIT", weeklyStars: 3626, tags: ["Design system", "React", "Componentes", "Acessibilidade"], level: "Intermediário",
+    sources: sources(["Repositório oficial", "https://github.com/meta/astryx"], ["Release 0.7.17", "https://github.com/meta/astryx/releases/tag/v0.7.17"]),
+    sections: guide("Astryx reúne componentes e ferramentas de tema para criar uma biblioteca consistente. As notas de versão mostram evolução ativa de comportamentos como gestos e campos em telas pequenas.", "Avalie uma lista e um formulário em um protótipo isolado. Compare navegação por teclado, troca de tema e comportamento com o teclado virtual em dois tamanhos de tela.", "O projeto está em uma série 0.x. Revise mudanças entre versões e quanto da identidade visual você consegue preservar antes de adotar a biblioteca."),
+  },
+  {
+    slug: "impeccable", area: "design-desenvolvimento", kind: "skills", title: "Impeccable",
+    summary: "Kit para orientar e criticar interfaces feitas com agentes, com vocabulário para tipografia, espaçamento e composição.",
+    creator: creator("Paul Bakaus", "pbakaus", "impeccable"), license: "Apache-2.0", tags: ["Skills", "QA visual", "Direção de arte", "Design"],
+    sources: sources(["Repositório oficial", "https://github.com/pbakaus/impeccable"], ["Site e documentação", "https://impeccable.style/"]),
+    sections: guide("O kit organiza comandos e vocabulário de design para discutir causas de atrito visual e alternativas. É complementar às regras de um design system existente.", "Use em uma tela com dados reais. Peça observações sobre hierarquia, contraste e navegação, aplique os ajustes comprováveis e revise o antes e o depois em mobile.", "Critérios visuais precisam de contexto. Prefira evidência ligada à tarefa do visitante e preserve a voz, a marca e as convenções do produto."),
+  },
+  {
+    slug: "github-spec-kit", area: "design-desenvolvimento", kind: "repositorios", title: "GitHub Spec Kit",
+    summary: "Kit de desenvolvimento orientado a especificação para transformar requisitos claros em um plano e tarefas verificáveis.",
+    creator: creator("GitHub", "github", "spec-kit"), license: "MIT", tags: ["Especificação", "Agentes de código", "Planejamento", "Qualidade"],
+    sources: sources(["Repositório oficial", "https://github.com/github/spec-kit"], ["Release 1.4.3", "https://github.com/github/spec-kit/releases/tag/v1.4.3"]),
+    sections: guide("O kit estrutura etapas e artefatos para trabalhar a partir de uma especificação. É especialmente útil quando o agente precisa manter requisitos e testes alinhados por várias iterações.", "Escolha uma melhoria pequena e registre casos de aceite, restrições e como verificar a entrega. Observe se os artefatos ajudam quem revisa a conferir o comportamento.", "A proporção importa. Para mudanças simples, uma descrição e um teste específico podem cobrir o essencial."),
+  },
+  {
+    slug: "zizmor", area: "ciberseguranca", kind: "repositorios", title: "zizmor",
+    summary: "Analisador estático para revisar workflows GitHub Actions e identificar configurações que merecem correção.",
+    creator: creator("zizmor", "zizmorcore", "zizmor"), license: "MIT", tags: ["GitHub Actions", "Cadeia de suprimentos", "CI", "Revisão defensiva"],
+    sources: sources(["Repositório oficial", "https://github.com/zizmorcore/zizmor"], ["Documentação", "https://docs.zizmor.sh/"]),
+    sections: guide("zizmor analisa a configuração escrita no workflow. O foco é revisar aspectos como permissões, referências de ações e dados utilizados em etapas de CI.", "Rode a análise nos arquivos de um repositório seu. Priorize achados com impacto demonstrável e vincule a correção a um teste de CI ou a uma regra de configuração revisada.", "Uma análise estática pode depender de contexto que o arquivo não traz. Valide o achado com o nível de acesso e os eventos reais do workflow."),
+  },
+  {
+    slug: "openssf-scorecard", area: "ciberseguranca", kind: "repositorios", title: "OpenSSF Scorecard",
+    summary: "Indicadores públicos de práticas de manutenção e segurança, úteis ao avaliar dependências abertas.",
+    creator: creator("OpenSSF", "ossf", "scorecard"), license: "Apache-2.0", tags: ["Cadeia de suprimentos", "Dependências", "Open source", "Governança"],
+    sources: sources(["Repositório oficial", "https://github.com/ossf/scorecard"], ["Projeto OpenSSF", "https://securityscorecards.dev/"]),
+    sections: guide("O Scorecard automatiza verificações sobre práticas públicas de repositórios. As verificações individuais ajudam a investigar como o projeto trata revisão, publicação e dependências.", "Compare duas bibliotecas da mesma função. Leia os sinais de manutenção, política de segurança e origem dos releases antes de usar uma no seu ambiente.", "A nota agrega verificações e depende de visibilidade e contexto. Use como apoio a uma decisão, com análise do pacote, do uso e do custo de eventual substituição."),
+  },
+  {
+    slug: "cosign", area: "ciberseguranca", kind: "projetos", title: "Sigstore Cosign",
+    summary: "Ferramenta para assinar e verificar a origem de imagens e outros artefatos publicados em pipelines.",
+    creator: creator("Sigstore", "sigstore", "cosign"), license: "Apache-2.0", tags: ["Assinaturas", "Containers", "Proveniência", "Cadeia de suprimentos"], level: "Intermediário",
+    sources: sources(["Repositório oficial", "https://github.com/sigstore/cosign"], ["Documentação Sigstore", "https://docs.sigstore.dev/"]),
+    sections: guide("A assinatura vincula uma identidade ou chave a um artefato. A política de verificação define quem pode publicar e quais evidências você espera receber.", "Em um pipeline de teste, assine um artefato próprio e confirme que a verificação aceita a identidade esperada. Documente o comportamento quando a identidade não corresponde.", "Uma assinatura comprova origem conforme a política aplicada. O conteúdo ainda precisa de scanner, revisão e atualização conforme o risco."),
+  },
+  {
+    slug: "osv-scanner", area: "ciberseguranca", kind: "projetos", title: "OSV-Scanner",
+    summary: "Scanner de dependências que usa o banco OSV para relacionar componentes detectados a vulnerabilidades publicadas.",
+    creator: creator("Google · OSV", "google", "osv-scanner"), license: "Apache-2.0", tags: ["Dependências", "SBOM", "Vulnerabilidades", "Cadeia de suprimentos"],
+    sources: sources(["Repositório oficial", "https://github.com/google/osv-scanner"], ["Documentação", "https://google.github.io/osv-scanner/"]),
+    sections: guide("O scanner cruza metadados de pacotes com avisos públicos. O formato da versão e a cobertura de ecossistemas determinam quais associações aparecem.", "Use o lockfile de um projeto que você controla, confira quais dependências são diretas e registre correções com referência ao aviso e à mudança no lockfile.", "O resultado depende do inventário detectado. Compare o que foi analisado com o que é distribuído e mantenha exceções com justificativa e validade."),
+  },
+  {
+    slug: "skill-cadeia-de-software", area: "ciberseguranca", kind: "guias", title: "Revisão de cadeia de suprimentos",
+    summary: "Roteiro editorial do Radar para avaliar dependências, proveniência e permissões de CI com evidência revisável.",
+    creator: { name: "Curadoria de Emanuel Araújo" }, tags: ["Skills", "Dependências", "Cadeia de suprimentos", "CI", "SBOM"], level: "Intermediário",
+    sources: sources(["OpenSSF Scorecard", "https://github.com/ossf/scorecard"], ["SLSA", "https://slsa.dev/"], ["Documentação Sigstore", "https://docs.sigstore.dev/"]),
+    sections: guide("Dê ao agente um lockfile ou diff de workflow de um repositório autorizado e indique a política interna. O resultado esperado é uma lista de mudanças priorizadas e suas evidências.", "Identifique quem mantém a dependência, como o artefato é publicado e quais permissões o workflow precisa. Classifique pendências sem evidência separadamente das correções confirmadas.", "A decisão final de introduzir uma dependência envolve impacto operacional e capacidade de atualização. Registre o responsável e a forma de verificar a versão aprovada."),
+  },
+] satisfies RecordDraft[];
