@@ -10,8 +10,9 @@ export const dynamic = "force-static";
 const routes: [Collection, string][] = [["posts", "/blog"], ["projetos_posts", "/projetos"]];
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const home = { en: siteUrl + "/", "pt-BR": siteUrl + "/pt" };
-  const pages: MetadataRoute.Sitemap = Object.values(home).map(url => ({ url, alternates: { languages: home } }));
+  // The front door is the scrolled take, in Portuguese at / and in English at /en; the earlier site keeps both of its languages under /portifolio.
+  const door = { "pt-BR": siteUrl + "/", en: siteUrl + "/en" }, home = { en: siteUrl + "/portifolio", "pt-BR": siteUrl + "/portifolio/pt" };
+  const pages: MetadataRoute.Sitemap = [door, home].flatMap(set => Object.values(set).map(url => ({ url, alternates: { languages: set } })));
   for (const [collection, route] of routes) {
     const list = entries(collection);
     pages.push({ url: siteUrl + route, lastModified: list[0]?.updated ?? list[0]?.date });

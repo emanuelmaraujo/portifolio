@@ -15,13 +15,13 @@ export const viewport: Viewport = { width: "device-width", initialScale: 1, view
 
 export function siteMetadata(locale: Locale): Metadata {
   const english = locale === "en";
-  const url = english ? `${siteUrl}/` : `${siteUrl}/pt`;
+  const url = english ? `${siteUrl}/portifolio` : `${siteUrl}/portifolio/pt`;
   const { title, description } = copy[locale].meta;
   const image = { url: `${siteUrl}/og.png`, width: 1200, height: 630, alt: "Emanuel Araújo" };
   return {
     title, description,
     icons: { icon: `${siteUrl}/identity/favicon.svg`, apple: `${siteUrl}/apple-icon.png` },
-    alternates: { canonical: url, languages: { en: `${siteUrl}/`, "pt-BR": `${siteUrl}/pt`, "x-default": `${siteUrl}/` } },
+    alternates: { canonical: url, languages: { en: `${siteUrl}/portifolio`, "pt-BR": `${siteUrl}/portifolio/pt`, "x-default": `${siteUrl}/portifolio` } },
     openGraph: { title, description, url, locale: english ? "en_US" : "pt_BR", alternateLocale: english ? "pt_BR" : "en_US", type: "website", images: [image] },
     twitter: { card: "summary_large_image", title, description, images: [image] },
   };

@@ -49,13 +49,13 @@ function Header({ lang, reading = false }: { lang: "en" | "pt"; reading?: boolea
   const t = copy[lang === "en" ? "en" : "pt-BR"].writing;
   return (
     <header className={"header header--archive" + (reading ? " header--reading" : "")}>
-      <a className="identity" href={lang === "en" ? "/" : "/pt"} aria-label={t.back}><Mark /><span>Emanuel Araújo</span></a>
+      <a className="identity" href={lang === "en" ? "/portifolio" : "/portifolio/pt"} aria-label={t.back}><Mark /><span>Emanuel Araújo</span></a>
       <nav aria-label={t.label}>
         <a href={routes.posts}>{t.articles}</a>
         <a href={routes.projetos_posts}>{t.projects}</a>
         <Link href="/radar" hrefLang="pt-BR">Radar</Link>
       </nav>
-      <a className="language" href={lang === "en" ? "/" : "/pt"}>{t.back}</a>
+      <a className="language" href={lang === "en" ? "/portifolio" : "/portifolio/pt"}>{t.back}</a>
     </header>
   );
 }

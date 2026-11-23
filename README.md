@@ -1,6 +1,6 @@
 # Emanuel Araújo · portfólio
 
-Identidade digital de Emanuel Araújo: engenharia de IA, cibersegurança, liderança de TI e produtos próprios. Inglês em `/`, português em `/pt`. Artigos em `/blog` e notas de projeto em `/projetos`.
+Identidade digital de Emanuel Araújo: engenharia de IA, cibersegurança, liderança de TI e produtos próprios. A porta de entrada é o percurso sobre a mesa de desenho: `/` em português e `/en` em inglês. O site anterior continua em `/portifolio` (inglês) e `/portifolio/pt` (português). Artigos em `/blog` e notas de projeto em `/projetos`.
 
 ## Conceito
 
