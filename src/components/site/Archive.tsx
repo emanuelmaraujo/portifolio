@@ -53,7 +53,7 @@ function Header({ lang, reading = false }: { lang: "en" | "pt"; reading?: boolea
       <nav aria-label={t.label}>
         <a href={routes.posts}>{t.articles}</a>
         <a href={routes.projetos_posts}>{t.projects}</a>
-        <Link href="/radar" hrefLang="pt-BR">Radar</Link>
+        <Link href="/radar" hrefLang="pt-BR">Radar{lang === "en" && <abbr className="lang-tag" title="in Portuguese">PT</abbr>}</Link>
       </nav>
       <a className="language" href={lang === "en" ? "/portifolio" : "/portifolio/pt"}>{t.back}</a>
     </header>

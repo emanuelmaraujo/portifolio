@@ -4,7 +4,7 @@ import Mark from "@/components/site/Mark";
 import { copy, links } from "@/components/site/content";
 import Scroll from "./Scroll";
 import Table from "./Table";
-import { FRAMES, GO, MARKS, NOTION } from "./take";
+import { FRAMES, GO, MARKS, NOTION, RADAR } from "./take";
 import { words, type Lang } from "./words";
 
 /**
@@ -70,7 +70,7 @@ export default function Percurso({ portrait = false, lang = "pt" }: { portrait?:
         {w.verbs.map((verb, i) => (
           <p className={"p-panel p-word p-word--" + (i + 1)} data-from={MARKS[i + 1]} data-to={MARKS[i + 2]} key={verb}><Letters text={verb} /></p>
         ))}
-        <Table lang={lang} links={[links.email, links.linkedin, links.github, links.blog, NOTION.skills, NOTION.updates]} projects={cases.map(item => item.name)} />
+        <Table lang={lang} links={[links.email, links.linkedin, links.github, links.blog, NOTION.skills, RADAR]} projects={cases.map(item => item.name)} />
 
         <nav className="p-dock" aria-label={w.stops}>
           {([["1", GO.projeto, w.verbs[0]], ["2", GO.protejo, w.verbs[1]], ["3", GO.orquestro, w.verbs[2]], ["4,5,6", GO.systems, w.systems], ["7", GO.paper, t.contact.label]] as const).map(([acts, to, name]) => (
@@ -91,7 +91,7 @@ export default function Percurso({ portrait = false, lang = "pt" }: { portrait?:
           ))}
           <h2>{t.contact.title}</h2>
           <p>{t.contact.text}</p>
-          <a href={links.email}>{t.contact.email}</a> <a href={links.linkedin}>LinkedIn</a> <a href={links.github}>GitHub</a> <a href={links.blog}>{w.articles}</a>
+          <a href={links.email}>{t.contact.email}</a> <a href={links.linkedin}>LinkedIn</a> <a href={links.github}>GitHub</a> <a href={links.blog}>{w.articles}</a> <Link href={RADAR} hrefLang="pt-BR">{w.radar}</Link>
         </section>
       </div>
     </div>

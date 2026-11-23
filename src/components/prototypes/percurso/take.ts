@@ -79,4 +79,6 @@ export const HOT_P: Record<number, Record<string, Box>> = {
 };
 
 /** Links that do not exist yet. Fill them in and the keys of the last view come alive. */
-export const NOTION = { skills: "", updates: "" };
+export const NOTION = { skills: "" };
+/** The tag the table draws as "Atualizações" opens the Radar, where the updates are published. */
+export const RADAR = "/radar";

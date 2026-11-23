@@ -51,7 +51,8 @@ export const words = {
         "Marcos Krep's: entregue, e o caixa fecha a conta.",
       ] },
     ],
-    links: ["E-mail", "LinkedIn", "GitHub", "Artigos", "Notion · skills", "Atualizações"],
+    links: ["E-mail", "LinkedIn", "GitHub", "Artigos", "Notion · skills", "Radar · atualizações"],
+    radar: "Radar",
     soon: "em breve",
     end: {
       paper: "Saiu do papel. Toque em um item da mesa. Continue rolando, ou toque na maquete, para ligar a mesa.",
@@ -105,7 +106,8 @@ export const words = {
         "Marcos Krep's: delivered, and the till closes the bill.",
       ] },
     ],
-    links: ["Email", "LinkedIn", "GitHub", "Articles", "Notion · skills", "Updates"],
+    links: ["Email", "LinkedIn", "GitHub", "Articles", "Notion · skills", "Radar · updates, in Portuguese"],
+    radar: "Radar (in Portuguese)",
     soon: "coming soon",
     end: {
       paper: "Off the paper. Tap an item on the table. Keep scrolling, or tap the model, to switch the table on.",
