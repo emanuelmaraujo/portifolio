@@ -49,7 +49,7 @@ export function RadarHeader() {
 export function RadarFooter() {
   return <footer className="r-footer"><div className="r-wrap r-footer-inner">
     <div className="r-identity"><Mark /><span>Emanuel Araújo<small>{radarTitle}</small></span></div>
-    <div><Link href="/pt">Portfólio <ArrowUpRight size={14} aria-hidden /></Link><Link href="/blog">Blog <ArrowUpRight size={14} aria-hidden /></Link><a href="/radar/rss.xml"><Rss size={15} aria-hidden /> RSS</a></div>
+    <div><Link href="/portifolio/pt">Portfólio <ArrowUpRight size={14} aria-hidden /></Link><Link href="/blog">Blog <ArrowUpRight size={14} aria-hidden /></Link><a href="/radar/rss.xml"><Rss size={15} aria-hidden /> RSS</a></div>
   </div></footer>;
 }
 
