@@ -1,0 +1,51 @@
+"use client";
+
+import { useEffect, useRef, useState } from "react";
+
+type Agent = { name: string; role: string; log: string };
+
+/**
+ * The six stages of the agent workflow, as buttons. Choosing one explains it and turns the colours of the scene
+ * (Scroll reads the choice from the root). Left alone, the stages take turns while the card is on screen.
+ */
+export default function Stages({ agents, label, hint }: { agents: Agent[]; label: string; hint: string }) {
+  const [stage, setStage] = useState(0);
+  const box = useRef<HTMLDivElement>(null);
+  const held = useRef(0);
+
+  useEffect(() => {
+    const root = document.querySelector<HTMLElement>(".px-p");
+    if (!root) return;
+    root.dataset.stage = String(stage);
+    root.querySelectorAll<HTMLElement>("[data-stage]").forEach(el => el.setAttribute("aria-pressed", el.dataset.stage === String(stage) ? "true" : "false"));
+  }, [stage]);
+
+  useEffect(() => {
+    const root = document.querySelector<HTMLElement>(".px-p");
+    if (!root) return;
+    const pick = (event: Event) => {
+      const el = (event.target as Element).closest<HTMLElement>("[data-stage]");
+      if (el) { held.current = performance.now() + 9000; setStage(Number(el.dataset.stage)); }
+    };
+    root.addEventListener("click", pick);
+    const still = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const turn = setInterval(() => {
+      const on = box.current?.closest("[data-from]")?.getAttribute("data-on") === "1";
+      if (!still && on && performance.now() > held.current && !box.current?.matches(":hover, :focus-within")) setStage(now => (now + 1) % agents.length);
+    }, 2600);
+    return () => { root.removeEventListener("click", pick); clearInterval(turn); };
+  }, [agents.length]);
+
+  const agent = agents[stage];
+  return (
+    <div className="p-stages" ref={box}>
+      <ol className="p-agents" aria-label={label}>
+        {agents.map((item, i) => (
+          <li key={item.name}><button type="button" data-stage={i} aria-pressed={i === stage}><i>{"0" + (i + 1)}</i>{item.name}</button></li>
+        ))}
+      </ol>
+      <p className="p-stage-note" aria-live="polite" key={stage}><b>{agent.role}.</b> {agent.log}</p>
+      <p className="p-sr">{hint}</p>
+    </div>
+  );
+}

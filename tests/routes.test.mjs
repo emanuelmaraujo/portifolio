@@ -43,13 +43,13 @@ async function read(route) {
   return response.text();
 }
 
-for (const [route, locale, ogLocale] of [["/", "en", "en_US"], ["/pt", "pt-BR", "pt_BR"]]) {
+for (const [route, locale, ogLocale] of [["/portifolio", "en", "en_US"], ["/portifolio/pt", "pt-BR", "pt_BR"]]) {
   test(`${locale} renders complete content from the server with localized SEO`, async () => {
     const html = await read(route);
     assert.ok(html.includes(`lang="${locale}"`));
     assert.ok(html.includes(`rel="canonical" href="${siteUrl + route}"`));
-    assert.ok(html.includes(`hrefLang="en" href="${siteUrl}/"`));
-    assert.ok(html.includes(`hrefLang="pt-BR" href="${siteUrl}/pt"`));
+    assert.ok(html.includes(`hrefLang="en" href="${siteUrl}/portifolio"`));
+    assert.ok(html.includes(`hrefLang="pt-BR" href="${siteUrl}/portifolio/pt"`));
     assert.ok(html.includes(`property="og:locale" content="${ogLocale}"`));
     assert.ok(html.includes(`property="og:image" content="${siteUrl}/og.png"`));
     // The page must be readable without WebGL: every chapter and project is in the HTML.
@@ -61,10 +61,25 @@ for (const [route, locale, ogLocale] of [["/", "en", "en_US"], ["/pt", "pt-BR", 
     assert.ok(!html.includes('class="loader"'));
     assert.equal((html.match(/role="tabpanel"/g) ?? []).length, 9);
     assert.ok(html.includes('"@type":"Person"'));
-    assert.ok(html.includes(route === "/" ? 'href="/blog/hackers-do-bem-en"' : 'href="/blog/hackers-do-bem"'));
-    assert.ok(html.includes(route === "/" ? 'href="/pt"' : 'href="/"'));
+    assert.ok(html.includes(route === "/portifolio" ? 'href="/blog/hackers-do-bem-en"' : 'href="/blog/hackers-do-bem"'));
+    assert.ok(html.includes(route === "/portifolio" ? 'href="/portifolio/pt"' : 'href="/portifolio"'));
   });
 }
+
+test("the front door is the scrolled take, and the earlier site is one link away", async () => {
+  const html = await read("/");
+  assert.ok(html.includes('lang="pt-BR"'));
+  assert.ok(html.includes(`rel="canonical" href="${siteUrl}/"`));
+  assert.ok(html.includes('class="px-p"'));
+  assert.ok(html.includes('href="/portifolio/pt"'));
+  for (const name of ["Prumo", "Torvya"]) assert.ok(html.includes(name), name);
+  assert.ok(html.includes('href="/en"'));
+  const english = await read("/en");
+  assert.ok(english.includes('lang="en"') && english.includes(`rel="canonical" href="${siteUrl}/en"`) && english.includes('class="px-p"'));
+  assert.ok(english.includes("orchestrate") && english.includes('href="/portifolio"') && english.includes('hrefLang="pt-BR"'));
+  const moved = await fetch(local + "/pt", { redirect: "manual" });
+  assert.ok([307, 308].includes(moved.status) && moved.headers.get("location").endsWith("/portifolio/pt"));
+});
 
 test("archive routes, brand SVGs, project assets and sitemap stay reachable", async () => {
   for (const route of ["/blog", "/projetos"]) assert.ok((await read(route)).includes('class="mark"'), route);
@@ -84,7 +99,7 @@ test("archive routes, brand SVGs, project assets and sitemap stay reachable", as
   }
   for (const file of ["/work/prumo/logo-negativo.svg", "/work/torvya/torvya-logo-dark.svg"]) assert.match(await read(file), /<svg\b/);
   const sitemap = await read("/sitemap.xml");
-  for (const route of ["/pt", "/blog", "/blog/priorizar-vulnerabilidades-alem-do-cvss", "/projetos/servidor-de-aplicacoes-interno-en"]) assert.ok(sitemap.includes(`<loc>${siteUrl}${route}</loc>`), route);
+  for (const route of ["/", "/portifolio", "/portifolio/pt", "/blog", "/blog/priorizar-vulnerabilidades-alem-do-cvss", "/projetos/servidor-de-aplicacoes-interno-en"]) assert.ok(sitemap.includes(`<loc>${siteUrl}${route}</loc>`), route);
   assert.ok((await read("/robots.txt")).includes(`Sitemap: ${siteUrl}/sitemap.xml`));
   assert.ok(readFileSync(new URL("../vercel.json", import.meta.url), "utf8").includes('"framework": "nextjs"'));
 });

@@ -46,3 +46,9 @@ lerna-debug.log*
 *.sln
 *.sw?
 
+
+# Percurso: rendered frames and test evidence stay on disk (regenerable, large)
+/docs/portfolio-next/assets-src/renders/
+/docs/portfolio-next/evidence/
+*.bak.py
+*.tsbuildinfo
