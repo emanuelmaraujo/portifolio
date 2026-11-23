@@ -28,7 +28,7 @@ const en = {
     more: "Horizon · what is still being built", credentials: "Orbit · credentials around a core", contact: "The mark, reassembled",
   },
   nav: [["trajectory", "Trajectory"], ["pillars", "Pillars"], ["orchestration", "Agents"], ["work", "Work"], ["contact", "Contact"]],
-  switchLabel: "Português", switchHref: "/pt",
+  switchLabel: "Português", switchHref: "/portifolio/pt",
   hero: {
     eyebrow: "Emanuel Araújo · Brasília, Brazil",
     title: [["I design, "], ["secure", true], [" and "], ["orchestrate", true], [" intelligent systems."]] as [string, boolean?][],
@@ -232,7 +232,7 @@ const pt: typeof en = {
     more: "Horizonte · o que ainda está em construção", credentials: "Órbita · credenciais em torno de um núcleo", contact: "A marca, recomposta",
   },
   nav: [["trajectory", "Trajetória"], ["pillars", "Pilares"], ["orchestration", "Agentes"], ["work", "Projetos"], ["contact", "Contato"]],
-  switchLabel: "English", switchHref: "/",
+  switchLabel: "English", switchHref: "/portifolio",
   hero: {
     eyebrow: "Emanuel Araújo · Brasília, Brasil",
     title: [["Eu projeto, "], ["protejo", true], [" e "], ["orquestro", true], [" sistemas inteligentes."]],

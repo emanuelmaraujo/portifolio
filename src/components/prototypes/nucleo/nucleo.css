@@ -1,0 +1,134 @@
+/* "Núcleo" · the cyberpunk cut. The picture carries the light; the interface is a thin instrument layer over it. */
+html:has(.px-n) { background: #05060a; color-scheme: dark; overscroll-behavior: none; -webkit-text-size-adjust: 100%; }
+html:has(.px-n) body { margin: 0; }
+.px-n {
+  --bone: #eef2f4; --soft: #b9c6cc; --muted: #7f8f97; --ink: #05060a; --cyan: #5ad9ff; --accent: #ff5b22; --line: rgba(90, 217, 255, 0.28); --tone: var(--cyan);
+  --pad: clamp(18px, 3.6vw, 56px); --ease: cubic-bezier(0.2, 0.7, 0.1, 1);
+  --sans: var(--font-sans), system-ui, sans-serif; --mono: var(--font-mono), ui-monospace, monospace; --serif: var(--font-serif), Georgia, serif;
+  color: var(--bone); font: 400 1rem/1.55 var(--sans); -webkit-font-smoothing: antialiased;
+}
+.px-n *, .px-n *::before, .px-n *::after { box-sizing: border-box; }
+:where(.px-n) :is(h1, h2, p, ol, dl, dd) { margin: 0; padding: 0; list-style: none; }
+:where(.px-n) a { color: inherit; text-decoration: none; }
+:where(.px-n) button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
+.px-n :focus-visible { outline: 2px solid var(--cyan); outline-offset: 4px; }
+.n-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.n-skip { position: fixed; top: 10px; left: 10px; z-index: 9; padding: 10px 16px; background: var(--bone); color: var(--ink) !important; font-weight: 600; transform: translateY(-300%); }
+.n-skip:focus { transform: none; }
+
+.n-stage { position: relative; height: 100vh; height: 100svh; min-height: 560px; overflow: hidden; background: var(--ink); touch-action: none; user-select: none; -webkit-user-select: none; cursor: ns-resize; }
+.n-poster, .n-view { position: absolute; inset: 0; width: 100%; height: 100%; }
+.n-poster { object-fit: cover; }
+.n-view { opacity: 0; transition: opacity 0.6s linear; }
+.px-n[data-gl="on"] .n-view { opacity: 1; }
+.n-stage::after { content: ""; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(rgba(5, 6, 10, 0.55), transparent 18%), linear-gradient(0deg, rgba(5, 6, 10, 0.7), transparent 26%); }
+.n-stage > :not(img, canvas), .n-stage > div > * { position: absolute; z-index: 2; }
+#n-projects { inset: 0; pointer-events: none; }
+
+/* Instrument layer --------------------------------------------------------- */
+.n-header { inset: 0 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 16px var(--pad); }
+.n-identity { display: inline-flex; align-items: center; gap: 10px; min-height: 44px; font-weight: 600; letter-spacing: -0.01em; }
+.n-identity .mark { width: 26px; height: 26px; }
+.px-n .mark-beam { fill: var(--bone); }
+.px-n .mark-stratum { fill: var(--accent); }
+.n-hud { display: flex; gap: 22px; font: 500 0.6875rem/1.4 var(--mono); letter-spacing: 0.14em; text-transform: uppercase; color: var(--soft); font-variant-numeric: tabular-nums; }
+.n-hud b { font-weight: 500; color: var(--cyan); }
+.n-label { font: 500 0.6875rem/1.5 var(--mono); letter-spacing: 0.14em; text-transform: uppercase; color: var(--soft); }
+.n-label i { font-style: normal; color: var(--tone); margin-right: 14px; }
+.n-label b { font-weight: 500; color: var(--tone); margin-left: 14px; }
+
+/* Panels: each one belongs to a stop and is only there while the camera is ----- */
+.n-panel { opacity: 0; transform: translateY(16px); pointer-events: none; transition: opacity 0.45s linear, transform 0.7s var(--ease); }
+.n-panel[data-on="1"] { opacity: 1; transform: none; pointer-events: auto; }
+.n-panel :is(h1, h2) { text-shadow: 0 0 40px rgba(5, 6, 10, 0.9), 0 2px 12px rgba(5, 6, 10, 0.8); }
+
+.n-intro { left: var(--pad); bottom: clamp(104px, 16vh, 150px); width: min(46rem, calc(100% - 2 * var(--pad))); }
+.n-intro h1 { font: 600 clamp(2.2rem, 5.2vw, 5rem)/0.98 var(--sans); letter-spacing: -0.04em; margin-top: 14px; text-wrap: balance; }
+.n-intro em { font: italic 400 1.08em/0.9 var(--serif); letter-spacing: -0.01em; color: var(--accent); }
+.n-lead { margin-top: 18px; max-width: 34em; color: var(--soft); font-size: clamp(1rem, 1.25vw, 1.125rem); }
+.n-hint { display: inline-flex; align-items: center; gap: 12px; margin-top: 22px; font: 500 0.75rem/1 var(--mono); letter-spacing: 0.16em; text-transform: uppercase; color: var(--cyan); }
+.n-hint i { width: 1px; height: 34px; background: linear-gradient(var(--cyan), transparent); animation: n-drop 1.8s var(--ease) infinite; transform-origin: 50% 0; }
+@keyframes n-drop { 0% { transform: scaleY(0); } 60% { transform: scaleY(1); opacity: 1; } 100% { transform: scaleY(1); opacity: 0; } }
+.px-n[data-moved="1"] .n-hint { opacity: 0.45; }
+
+.n-passing { left: 50%; top: 50%; translate: -50% -50%; display: grid; justify-items: center; gap: 10px; text-align: center; font: italic 400 clamp(1.5rem, 3.4vw, 3rem)/1.05 var(--serif); text-shadow: 0 0 30px rgba(5, 6, 10, 0.95); }
+.n-passing span { font: 500 0.6875rem/1 var(--mono); font-style: normal; letter-spacing: 0.2em; text-transform: uppercase; color: var(--cyan); }
+
+.n-project { top: 50%; translate: 0 -50%; width: min(27rem, calc(100% - 2 * var(--pad))); padding: 0 0 0 22px; border-left: 1px solid var(--tone); }
+.n-project[data-side="right"] { right: var(--pad); }
+.n-project[data-side="left"] { left: var(--pad); }
+.n-project h2 { font: 600 clamp(2.5rem, 5.4vw, 5rem)/0.95 var(--sans); letter-spacing: -0.045em; margin-top: 10px; }
+.n-title { font: italic 400 clamp(1.25rem, 2vw, 1.75rem)/1.15 var(--serif); margin-top: 8px; color: var(--tone); }
+.n-text { margin-top: 12px; color: var(--soft); text-shadow: 0 0 18px rgba(5, 6, 10, 0.95); }
+.n-links { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
+.n-button { display: inline-flex; align-items: center; gap: 8px; min-height: 46px; padding: 0 18px; font-weight: 600; background: var(--tone); color: var(--ink) !important; clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px); transition: filter 0.16s; }
+.n-button:hover { filter: brightness(1.15); }
+.n-button--line { background: rgba(5, 6, 10, 0.6); color: var(--bone) !important; box-shadow: inset 0 0 0 1px var(--line); clip-path: none; backdrop-filter: blur(8px); }
+.n-button:focus-visible { outline-offset: -4px; outline-color: var(--ink); }
+.n-button--line:focus-visible { outline-color: var(--cyan); outline-offset: 3px; }
+.n-dots { display: flex; gap: 4px; margin-top: 16px; }
+.n-dots button { min-width: 44px; min-height: 44px; font: 500 0.6875rem/1 var(--mono); letter-spacing: 0.12em; color: var(--muted); border-bottom: 1px solid rgba(238, 242, 244, 0.2); }
+.n-dots button[aria-pressed="true"] { color: var(--bone); border-color: var(--tone); }
+.n-dots button:hover { color: var(--bone); }
+
+.n-core { left: var(--pad); bottom: clamp(104px, 16vh, 150px); width: min(36rem, calc(100% - 2 * var(--pad))); --tone: var(--accent); }
+.n-core h2, .n-contact h2 { font: 600 clamp(1.9rem, 3.8vw, 3.5rem)/1 var(--sans); letter-spacing: -0.04em; margin-top: 12px; text-wrap: balance; }
+.n-agents { display: flex; flex-wrap: wrap; gap: 6px 0; margin-top: 16px; font: 500 0.75rem/1.5 var(--mono); letter-spacing: 0.1em; text-transform: uppercase; color: var(--bone); counter-reset: agent; }
+.n-agents li { counter-increment: agent; }
+.n-agents li::before { content: counter(agent, decimal-leading-zero); color: var(--accent); margin-right: 8px; }
+.n-agents li:not(:last-child)::after { content: "→"; margin-inline: 12px; color: var(--muted); }
+.n-stats { display: flex; flex-wrap: wrap; gap: 10px 34px; margin-top: 18px; }
+.n-stats div { display: flex; flex-direction: column-reverse; gap: 2px; max-width: 13em; }
+.n-stats dd { font: 600 clamp(1.75rem, 3vw, 2.5rem)/0.95 var(--sans); letter-spacing: -0.04em; }
+.n-stats dt { font: 500 0.625rem/1.4 var(--mono); letter-spacing: 0.1em; text-transform: uppercase; color: var(--soft); }
+
+.n-contact { left: 50%; top: 50%; translate: -50% -50%; width: min(40rem, calc(100% - 2 * var(--pad))); text-align: center; display: grid; justify-items: center; }
+.n-contact .n-links { justify-content: center; }
+.n-loop { margin-top: 20px; font: 500 0.6875rem/1.5 var(--mono); letter-spacing: 0.14em; text-transform: uppercase; color: var(--soft); }
+
+/* The dock: every stop one press away -------------------------------------- */
+.n-dock { left: 50%; bottom: clamp(16px, 3.2vh, 30px); translate: -50% 0; display: flex; gap: 2px; padding: 5px; background: rgba(5, 6, 10, 0.78); backdrop-filter: blur(14px); box-shadow: inset 0 0 0 1px var(--line); max-width: calc(100% - 2 * var(--pad)); }
+.n-dock button { display: inline-flex; align-items: center; gap: 9px; min-height: 46px; padding: 0 16px; font: 500 0.75rem/1 var(--mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--soft); white-space: nowrap; transition: color 0.16s, background 0.16s; }
+.n-dock button i { font-style: normal; color: var(--muted); }
+.n-dock button:hover { color: var(--bone); background: rgba(90, 217, 255, 0.08); }
+.n-dock button[aria-current="true"] { color: var(--ink); background: var(--cyan); }
+.n-dock button[aria-current="true"] i { color: rgba(5, 6, 10, 0.6); }
+.n-bar { left: 0; right: 0; bottom: 0; height: 2px; background: rgba(238, 242, 244, 0.08); }
+.n-bar i { display: block; height: 100%; background: var(--cyan); transform-origin: 0 50%; transform: scaleX(0); }
+.n-load { right: var(--pad); bottom: clamp(20px, 3.6vh, 34px); display: grid; justify-items: end; gap: 2px; font: 500 0.625rem/1.3 var(--mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); transition: opacity 0.5s linear; pointer-events: none; }
+.n-load b { font: 600 1.5rem/0.9 var(--sans); letter-spacing: -0.04em; color: var(--bone); font-variant-numeric: tabular-nums; }
+.px-n[data-loaded="1"] .n-load, .px-n[data-gl="off"] .n-load { opacity: 0; }
+
+/* Without scripts, or without WebGL, the stops become a plain page under the first frame. */
+@media (scripting: none) {
+  .n-stage { height: auto; overflow: visible; touch-action: auto; cursor: auto; padding: 100px var(--pad) 60px; display: grid; gap: 48px; }
+  .n-stage > :not(img, .n-header), .n-stage > div > * { position: static; translate: none; opacity: 1; transform: none; pointer-events: auto; width: auto; text-align: left; justify-items: start; }
+  .n-poster { opacity: 0.35; }
+  .n-dock, .n-bar, .n-load, .n-hint, .n-passing, .n-dots, .n-hud { display: none !important; }
+}
+
+@media (max-width: 760px) {
+  .n-hud span:first-child { display: none; }
+  .n-intro { bottom: 96px; }
+  .n-intro h1 { font-size: clamp(2rem, 9.4vw, 2.75rem); }
+  .n-lead { font-size: 0.9375rem; margin-top: 12px; }
+  .n-project { top: auto; bottom: 96px; translate: none; left: var(--pad) !important; right: auto !important; padding-left: 16px; }
+  .n-project h2 { font-size: 2.75rem; }
+  .n-text { font-size: 0.9375rem; }
+  .n-core { bottom: 96px; }
+  .n-agents li:not(:last-child)::after { margin-inline: 8px; }
+  .n-dock { width: calc(100% - 2 * var(--pad)); justify-content: space-between; }
+  .n-dock button { padding: 0 8px; gap: 5px; letter-spacing: 0.06em; font-size: 0.6875rem; }
+  .n-dock button i { display: none; }
+  .n-load { bottom: 84px; }
+}
+@media (prefers-reduced-motion: reduce) { .px-n *, .px-n *::before { transition: none !important; animation: none !important; } }
+
+/* Readability over a lit scene: each stop's text sits on a dark, slightly frosted plate with bracketed corners. */
+.n-project, .n-core, .n-contact { padding: 22px 24px 20px; background: linear-gradient(135deg, rgba(5, 6, 10, 0.86), rgba(5, 6, 10, 0.66)); backdrop-filter: blur(10px); border: 0; box-shadow: inset 2px 0 0 var(--tone); }
+.n-project::after, .n-core::after, .n-contact::after { content: ""; position: absolute; inset: 0; pointer-events: none; background:
+  linear-gradient(var(--line), var(--line)) 100% 0 / 18px 1px no-repeat, linear-gradient(var(--line), var(--line)) 100% 0 / 1px 18px no-repeat,
+  linear-gradient(var(--line), var(--line)) 100% 100% / 18px 1px no-repeat, linear-gradient(var(--line), var(--line)) 100% 100% / 1px 18px no-repeat; }
+.n-contact { box-shadow: inset 0 2px 0 var(--cyan); }
+.n-intro::before { content: ""; position: absolute; inset: -40px -80px -40px calc(var(--pad) * -1); z-index: -1; background: radial-gradient(closest-side, rgba(5, 6, 10, 0.72), transparent); pointer-events: none; }
+@media (max-width: 760px) { .n-project, .n-core, .n-contact { padding: 16px 16px 14px; } }

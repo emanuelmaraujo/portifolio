@@ -1,0 +1,30 @@
+/**
+ * The second act as a simulated attack. Eight layers of defence round the model, from the outside in; five of them
+ * answer a threat when the visitor turns them on, three come up on their own. Concepts only, no product names.
+ * `since` is how many threats must have been stopped for the layer to be on; `angle` is where its badge sits.
+ */
+export type Layer = { id: string; name: string; role: string; angle: number; since: number; live: boolean; note: string };
+export const LAYERS: Layer[] = [
+  { id: "firewall", name: "Firewall", role: "barreira", angle: 234, since: 1, live: true, note: "É a barreira que envolve tudo: só atravessa o tráfego que tem regra para atravessar. O resto para na borda." },
+  { id: "waf", name: "WAF", role: "borda web", angle: 198, since: 1, live: false, note: "O portão dos serviços publicados: filtra o que chega pela web antes de tocar na aplicação." },
+  { id: "identidade", name: "Identidade", role: "MFA", angle: 162, since: 2, live: true, note: "A senha sozinha não abre a porta. MFA e acesso condicional decidem quem entra, de onde e com qual dispositivo." },
+  { id: "uem", name: "UEM", role: "frota", angle: 126, since: 3, live: true, note: "Mantém a frota em conformidade: configuração, atualização e criptografia antes de o dispositivo tocar na rede." },
+  { id: "edr", name: "EDR", role: "resposta", angle: 90, since: 4, live: true, note: "Enxerga o comportamento, isola a máquina e interrompe o ataque antes que ele chegue aos servidores." },
+  { id: "servidores", name: "Servidores", role: "núcleo", angle: 54, since: 4, live: false, note: "Windows Server, diretório e virtualização endurecidos: o núcleo que todas as outras camadas protegem." },
+  { id: "backup", name: "Backup", role: "restauração", angle: 18, since: 5, live: true, note: "O que foi perdido volta de uma cópia que o atacante não alcança. Continuidade é restaurar, e testar a restauração." },
+  { id: "monitor", name: "Monitoramento", role: "governança", angle: -18, since: 0, live: false, note: "O radar está sempre ligado: métricas, alertas e evidências para auditoria. Ver antes de alguém avisar." },
+];
+
+/** The attack, in order. Each threat travels along `angle` from radius `from` to `to` (mm on the sheet) and is answered by one layer. */
+export type Threat = { title: string; text: string; layer: string; angle: number; from: number; to: number };
+export const THREATS: Threat[] = [
+  { title: "Varredura vinda da internet", text: "Alguém testa todas as portas à procura de uma aberta.", layer: "firewall", angle: 216, from: 640, to: 446 },
+  { title: "Senha vazada tenta entrar", text: "Uma credencial verdadeira, usada por quem não é o dono.", layer: "identidade", angle: 180, from: 640, to: 372 },
+  { title: "Notebook desatualizado pede acesso", text: "Um dispositivo fora do padrão quer entrar na rede.", layer: "uem", angle: 108, from: 640, to: 304 },
+  { title: "Malware executa em uma estação", text: "Um arquivo malicioso roda e tenta se espalhar.", layer: "edr", angle: 72, from: 286, to: 150 },
+  { title: "Ransomware cifra um servidor", text: "O pior dia: dados do núcleo ficam ilegíveis.", layer: "backup", angle: 36, from: 250, to: 40 },
+];
+
+/** The fleet round the model: where each device sits, and which ones the third and fourth threats use. */
+export const FLEET = { radius: 286, angles: [252, 216, 180, 144, 108, 72, 36, 0, -36], late: 4, infected: 5 };
+export const RINGS = { progress: 236, door: 372, wall: 446, badge: 330 };

@@ -11,5 +11,9 @@ const moved = [
 export default {
   env: { NEXT_PUBLIC_PORTFOLIO_SITE_URL: siteUrl },
   reactStrictMode: true,
-  redirects: async () => moved.map(([source, destination]) => ({ source, destination, permanent: true })),
+  redirects: async () => [
+    ...moved.map(([source, destination]) => ({ source, destination, permanent: true })),
+    // The earlier site moved under /portifolio when the scrolled take became the front door.
+    { source: "/pt", destination: "/portifolio/pt", permanent: false },
+  ],
 };

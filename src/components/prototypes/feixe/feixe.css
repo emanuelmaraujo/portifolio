@@ -1,0 +1,229 @@
+/* Prototype C · Feixe. One scene behind the whole page; the DOM is the legible layer on top of it. */
+html:has(.px-f) { background: #08090b; color-scheme: dark; scroll-padding-top: 12px; -webkit-text-size-adjust: 100%; }
+html:has(.px-f) body { margin: 0; }
+.px-f {
+  --ink: #08090b; --bone: #ede8df; --soft: #d6d1c7; --muted: #958f85; --line: rgba(237, 232, 223, 0.16); --accent: #ff5b22; --lime: #c8f24b;
+  --pad: clamp(20px, 5vw, 76px); --ease: cubic-bezier(0.2, 0.7, 0.1, 1);
+  /* The lit hall is the default world: ink on bone. The veil before the first beam and the room of the case are dark. */
+  --fg: #111214; --fg-soft: #3f3d39; --fg-muted: #66625b; --rule: rgba(17, 18, 20, 0.28); --accent-text: #bf370b; --pass: #bf370b; --halo: rgba(237, 232, 223, 0.92);
+  --sans: var(--font-sans), system-ui, sans-serif; --mono: var(--font-mono), ui-monospace, monospace; --serif: var(--font-serif), Georgia, serif;
+  position: relative; isolation: isolate; min-height: 100vh; overflow-x: clip; background: #ede8df; color: var(--fg); font: 400 1rem/1.6 var(--sans); -webkit-font-smoothing: antialiased; transition: color 0.5s linear;
+}
+.px-f[data-phase="void"], .px-f[data-scene="case"], .fx-case, .fx-contact { --fg: #ede8df; --fg-soft: #d6d1c7; --fg-muted: #958f85; --rule: rgba(237, 232, 223, 0.3); --accent-text: #ff5b22; --pass: #c8f24b; --halo: rgba(8, 9, 11, 0.9); }
+.fx-case, .fx-contact { color: var(--fg); }
+/* The page background follows the world, so contrast is computed against what is really behind the text. */
+.px-f[data-phase="void"], .px-f[data-scene="case"] { background: #08090b; }
+.px-f *, .px-f *::before, .px-f *::after { box-sizing: border-box; }
+:where(.px-f) :is(h1, h2, h3, p, ul, ol, dl, dd, figure) { margin: 0; }
+:where(.px-f) a { color: inherit; text-decoration: none; }
+:where(.px-f) img { display: block; max-width: 100%; height: auto; }
+:where(.px-f) button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
+.px-f :focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
+.px-f ::selection { background: var(--accent); color: var(--ink); }
+.fx-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.fx-skip { position: fixed; top: 10px; left: 10px; z-index: 9; padding: 10px 16px; background: var(--bone); color: var(--ink) !important; font-weight: 600; transform: translateY(-300%); }
+.fx-skip:focus { transform: none; }
+
+/* The hall and the scene ---------------------------------------------------- */
+.fx-hall { position: fixed; inset: -5%; z-index: 0; background: radial-gradient(110% 85% at 60% 38%, #f7f3ec, #e3dccf); }
+/* The dark room fades in over the lit hall as the page reaches the case. */
+.fx-hall::before { content: ""; position: absolute; inset: 0; background: var(--ink) url("/prototypes/feixe/hall.jpg") center / cover no-repeat; opacity: var(--dark, 0); }
+.fx-hall::after { content: ""; position: absolute; inset: 0; background: radial-gradient(90% 70% at 55% 40%, transparent 30%, rgba(8, 9, 11, 0.78)); opacity: var(--dark, 0); }
+@keyframes fx-dawn { from { opacity: 0; } }
+.fx-haze { position: absolute; inset: 0; z-index: 1; width: 100%; height: 100%; object-fit: cover; mix-blend-mode: screen; opacity: calc(var(--dark, 0) * 0.75); }
+@media (prefers-reduced-motion: reduce) { .fx-haze { display: none; } }
+.fx-stage { position: fixed; inset: 0; z-index: 1; pointer-events: none; }
+.fx-stage canvas { display: block; width: 100%; height: 100%; opacity: 0; transition: opacity 1.4s linear; }
+.px-f[data-gl="on"] .fx-stage canvas:first-child { opacity: 1; }
+/* The veil: the dark the visitor cuts through. Painted in 2D above the scene, gone after the first beam. */
+.fx-stage .fx-veil { position: absolute; inset: 0; opacity: 1; transition: none; }
+.fx-flash { position: fixed; inset: 0; z-index: 3; background: #fff8ee; opacity: 0; pointer-events: none; }
+.px-f[data-flash="1"] .fx-flash { animation: fx-flash 1s ease-out both; }
+@keyframes fx-flash { 0% { opacity: 0; } 22% { opacity: 0.92; } 100% { opacity: 0; } }
+.fx-stage .mark { position: absolute; left: 60%; top: 43%; width: min(44vw, 58vh); translate: -50% -50%; opacity: 0; transition: opacity 0.8s linear; }
+.px-f[data-gl="off"] .fx-stage .mark { opacity: calc(0.9 - var(--p, 0) * 3); }
+.px-f .mark-beam { fill: var(--fg); transition: fill 0.5s linear; }
+.px-f .mark-stratum { fill: var(--accent); }
+.fx-header, .px-f main { position: relative; z-index: 2; }
+
+/* Header ------------------------------------------------------------------- */
+.fx-header { position: absolute; inset: 0 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 18px var(--pad); animation: fx-rise 1s 0.25s var(--ease) both; }
+.fx-identity { display: inline-flex; align-items: center; gap: 10px; min-height: 44px; font-weight: 600; letter-spacing: -0.01em; }
+.fx-identity .mark { width: 28px; height: 28px; }
+.fx-header nav { display: flex; gap: clamp(14px, 2.4vw, 34px); font: 500 0.75rem/1 var(--mono); letter-spacing: 0.09em; text-transform: uppercase; color: var(--fg-soft); }
+.fx-header nav a { padding: 16px 0; transition: color 0.16s; }
+.fx-header nav a:hover { color: var(--fg); }
+@keyframes fx-rise { from { opacity: 0; transform: translateY(10px); } }
+
+/* Hero: the whole first screen is the surface the beam is drawn on ----------- */
+.fx-hero { position: relative; min-height: 100vh; min-height: 100svh; display: flex; flex-direction: column; justify-content: flex-end; padding: 96px var(--pad) clamp(22px, 4.5vh, 48px); cursor: crosshair; touch-action: pan-y; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; opacity: calc(1 - var(--p, 0) * 2.8); }
+.fx-hero::before { content: ""; position: absolute; inset: 40% 0 0; z-index: -1; background: linear-gradient(transparent, rgba(8, 9, 11, 0.93) 62%); pointer-events: none; opacity: 0; transition: opacity 0.4s linear; }
+.px-f[data-phase="void"] .fx-hero::before { opacity: 1; }
+.fx-eyebrow, .fx-mini { font: 500 0.75rem/1.5 var(--mono); letter-spacing: 0.1em; text-transform: uppercase; color: var(--fg-muted); }
+.fx-eyebrow { position: absolute; top: 92px; left: var(--pad); animation: fx-rise 1s 0.45s var(--ease) both; }
+/* The headline sits in the scene: it turns with the camera as the page starts to move. */
+.fx-hero-foot { transform: perspective(1500px) rotateY(calc(var(--yaw, 0) * -26deg)) translateZ(calc(var(--yaw, 0) * -140px)); transform-origin: 62% 50%; }
+.fx-hero-foot { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr); gap: clamp(20px, 5vw, 80px); align-items: end; }
+.fx-hero h1 { font: 600 clamp(2.3rem, 5.6vw, 5.7rem)/0.98 var(--sans); letter-spacing: -0.04em; }
+.fx-w { display: inline-block; white-space: nowrap; }
+.fx-w--strong { font: italic 400 1.08em/0.9 var(--serif); letter-spacing: -0.01em; color: var(--accent-text); }
+.fx-l { display: inline-block; transition: transform 0.95s var(--ease) var(--d, 0s), opacity 0.7s linear var(--d, 0s), filter 0.7s linear var(--d, 0s); }
+/* Before the beam, and for an instant when a new one is cast, the headline is part of the noise. */
+.px-f[data-phase="void"] .fx-l { transform: translate(calc(var(--nx) * 1em), calc(var(--ny) * 1em)) rotate(calc(var(--nr) * 1deg)); opacity: 0.17; filter: blur(2px); transition: none; }
+.px-f[data-phase="recast"] .fx-l { transform: translate(calc(var(--nx) * 0.3em), calc(var(--ny) * 0.3em)) rotate(calc(var(--nr) * 0.25deg)); opacity: 0.45; transition-duration: 0.24s; transition-delay: 0s; }
+.fx-hero-side { transition: opacity 0.9s linear 0.3s; }
+.px-f[data-phase="void"] .fx-hero-side { opacity: 0.55; transition: none; }
+.fx-lead { max-width: 34em; font-size: clamp(1rem, 1.25vw, 1.1875rem); line-height: 1.55; color: var(--fg-soft); }
+.fx-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 22px; }
+.fx-button { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 52px; padding: 0 24px; font-weight: 600; border: 1px solid var(--rule); background: color-mix(in srgb, var(--fg) 5%, transparent); transition: background 0.16s, border-color 0.16s, color 0.16s; cursor: pointer; }
+.fx-button:hover { border-color: var(--fg); }
+.fx-button:active { background: color-mix(in srgb, var(--fg) 14%, transparent); }
+.fx-button--accent, .fx-button--lime { --c: 16px; border: 0; padding: 0 30px; background: var(--accent); color: var(--ink) !important; clip-path: polygon(calc(var(--c) * 0.519) 0, 100% 0, 100% calc(100% - var(--c)), calc(100% - var(--c) * 0.519) 100%, 0 100%, 0 var(--c)); }
+.fx-button--accent:hover { background: #ff7443; }
+.fx-button--lime { background: var(--lime); }
+.fx-button--lime:hover { background: #d8fb6a; }
+.fx-button--accent:focus-visible, .fx-button--lime:focus-visible { outline-color: var(--ink); outline-offset: -5px; }
+
+/* The invitation. It is a real button: Enter casts a beam, the arrows turn it. */
+.fx-prompt { position: absolute; left: 50%; top: 45%; translate: -50% -50%; display: grid; justify-items: center; gap: 18px; padding: 14px 18px; font: 500 0.8125rem/1 var(--mono); letter-spacing: 0.16em; text-transform: uppercase; color: var(--fg); transition: top 0.9s var(--ease), opacity 0.5s linear, color 0.3s; animation: fx-rise 1.1s 1s var(--ease) both; }
+.fx-prompt i { display: block; width: 2px; height: 108px; rotate: -24deg; background: linear-gradient(transparent, var(--bone) 45%, #fff 50%, var(--bone) 55%, transparent) 0 0 / 100% 300% no-repeat; animation: fx-trace 2.2s cubic-bezier(0.6, 0, 0.3, 1) infinite; box-shadow: 0 0 18px rgba(255, 150, 90, 0.7); }
+@keyframes fx-trace { from { background-position: 0 100%; } to { background-position: 0 0; } }
+.fx-prompt-touch, .fx-prompt-again { display: none; }
+@media (pointer: coarse) { .fx-prompt-draw { display: none; } .fx-prompt-touch { display: inline; } }
+.px-f:not([data-phase="void"]) .fx-prompt { top: 104px; color: var(--fg-muted); letter-spacing: 0.12em; font-size: 0.6875rem; }
+.px-f:not([data-phase="void"]) .fx-prompt:hover { color: var(--fg); }
+.px-f:not([data-phase="void"]) .fx-prompt i { height: 0; margin-bottom: -18px; animation: none; box-shadow: none; }
+.px-f:not([data-phase="void"]) .fx-prompt :is(.fx-prompt-draw, .fx-prompt-touch) { display: none; }
+.px-f:not([data-phase="void"]) .fx-prompt-again { display: inline; border-bottom: 1px solid currentColor; padding-bottom: 5px; }
+.px-f[data-drawing="1"] .fx-prompt { opacity: 0; }
+.fx-direct { position: absolute; left: 50%; top: calc(45% + 100px); translate: -50% 0; padding: 17px 14px; font: 500 0.6875rem/1 var(--mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--fg-muted); animation: fx-rise 1.1s 1.5s var(--ease) both; transition: opacity 0.3s; }
+.fx-direct:hover { color: var(--fg); }
+/* The instrument reading: how much of the mark is standing. */
+.fx-meter { position: absolute; right: var(--pad); top: 92px; display: grid; justify-items: end; gap: 2px; pointer-events: none; animation: fx-rise 1s 0.6s var(--ease) both; }
+.fx-meter b { font: 600 clamp(2.5rem, 6.2vw, 6rem)/0.85 var(--sans); letter-spacing: -0.05em; font-variant-numeric: tabular-nums; }
+.fx-meter span { font: 500 0.6875rem/1.4 var(--mono); letter-spacing: 0.16em; text-transform: uppercase; color: var(--fg-muted); }
+/* What the visitor just did, said once. */
+.fx-act { position: absolute; left: 50%; top: 38%; translate: -50% -50%; display: grid; justify-items: center; gap: 14px; text-align: center; opacity: 0; pointer-events: none; }
+.fx-act span { font: italic 400 clamp(3.25rem, 10vw, 10rem)/0.92 var(--serif); letter-spacing: -0.02em; white-space: nowrap; }
+.fx-act small { font: 500 0.75rem/1.4 var(--mono); letter-spacing: 0.14em; text-transform: uppercase; color: var(--fg-soft); }
+.px-f[data-act="1"] .fx-act { animation: fx-act 2.9s var(--ease) both; }
+@keyframes fx-act { 0% { opacity: 0; transform: scale(0.94); filter: blur(10px); } 16%, 68% { opacity: 1; transform: none; filter: none; } 100% { opacity: 0; transform: translateY(-0.4em); } }
+.px-f:not([data-phase="void"]) .fx-direct { opacity: 0; pointer-events: none; }
+
+/* Passage: the rule that turns the beam into a plumb line -------------------- */
+.fx-passage { min-height: 68vh; display: grid; align-content: center; gap: 26px; padding: 12vh var(--pad); pointer-events: none; }
+.fx-rule { font: italic 400 clamp(2.5rem, 7.4vw, 7.25rem)/0.98 var(--serif); letter-spacing: -0.015em; text-shadow: 0 0 28px var(--halo), 0 0 8px var(--halo); }
+.fx-rule span { display: block; }
+.fx-rule span:nth-child(2) { color: var(--pass); padding-left: 0.6em; transition: color 0.5s linear; }
+.fx-rule span:nth-child(3) { padding-left: 1.2em; }
+.fx-rule-note { max-width: 28em; font: 500 0.75rem/1.7 var(--mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--fg-soft); }
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .fx-rule span, .fx-rule-note { animation: fx-line linear both; animation-timeline: view(); animation-range: entry 10% cover 42%; }
+    @keyframes fx-line { from { opacity: 0; transform: translateY(0.5em); } }
+  }
+}
+
+/* Case: the plumb line weighs a price --------------------------------------- */
+.fx-case { min-height: 100vh; min-height: 100svh; display: grid; grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr); grid-template-areas: "head plot" "verdict plot" "controls controls" "foot foot"; grid-template-rows: auto 1fr auto auto; gap: 26px clamp(24px, 5vw, 80px); padding: clamp(40px, 8vh, 90px) var(--pad) clamp(48px, 8vh, 96px); }
+/* A scrim behind the text column only: the wall of bricks on the other side has to stay lit. */
+.fx-case::before { content: ""; position: absolute; left: 0; right: 0; height: 100%; z-index: -1; background: linear-gradient(90deg, rgba(8, 9, 11, 0.8) 0 28%, transparent 46%), linear-gradient(transparent 62%, rgba(8, 9, 11, 0.85) 78%); -webkit-mask-image: linear-gradient(transparent, #000 16%); mask-image: linear-gradient(transparent, #000 16%); pointer-events: none; }
+.fx-case { position: relative; }
+.fx-case-head { grid-area: head; }
+.fx-mini i { font-style: normal; color: var(--lime); margin-right: 14px; }
+.fx-mini b { font-weight: 500; color: var(--lime); margin-left: 14px; }
+.fx-brand { width: 128px; margin-top: 24px; }
+.fx-case h2, .fx-contact h2 { font: 600 clamp(2.25rem, 4.8vw, 4.75rem)/0.98 var(--sans); letter-spacing: -0.04em; margin-top: 16px; text-wrap: balance; }
+.fx-case-head .fx-lead { margin-top: 18px; }
+
+.fx-plot { grid-area: plot; padding: clamp(60px, 9vh, 96px) clamp(40px, 7vw, 110px) 34px 0; align-self: center; }
+.fx-chart { position: relative; height: clamp(280px, 50vh, 540px); border-left: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.fx-chart svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.fx-step { fill: none; stroke: var(--bone); stroke-width: 1.5; vector-effect: non-scaling-stroke; opacity: 0.85; }
+.fx-lowline { stroke: var(--lime); stroke-width: 1; stroke-dasharray: 3 5; vector-effect: non-scaling-stroke; }
+.fx-unseen { fill: rgba(8, 9, 11, 0.5); stroke: var(--line); stroke-dasharray: 2 6; vector-effect: non-scaling-stroke; }
+.fx-tag { position: absolute; font: 500 0.6875rem/1.3 var(--mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--soft); white-space: nowrap; pointer-events: none; }
+.fx-tag--low { translate: 8px 6px; color: var(--lime); }
+.fx-tag--window { left: 0; top: calc(100% + 10px); }
+.fx-tag--today { right: 0; top: calc(100% + 10px); color: var(--bone); }
+.fx-tag--unseen { left: 0; top: 10px; text-align: center; overflow: hidden; color: var(--muted); }
+.fx-bob { position: absolute; left: 0; top: 0; width: 72px; height: 72px; margin: -78px 0 0 -36px; border: 1px dashed rgba(237, 232, 223, 0.42); border-radius: 50%; cursor: grab; touch-action: none; transition: border-color 0.2s, background 0.2s; }
+.fx-bob:hover { border-color: var(--bone); background: rgba(237, 232, 223, 0.06); }
+.fx-bob:active { cursor: grabbing; border-color: var(--lime); }
+.fx-bob::after { content: ""; position: absolute; left: 50%; top: calc(100% + 2px); width: 8px; height: 8px; margin-left: -4px; border-radius: 50%; background: var(--lime); box-shadow: 0 0 14px var(--lime); }
+.fx-bob span { position: absolute; right: calc(100% + 12px); top: 50%; translate: 0 -50%; font: 500 0.6875rem/1 var(--mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--soft); white-space: nowrap; }
+
+.fx-verdict { grid-area: verdict; align-self: end; --tone: var(--bone); }
+.fx-verdict[data-claim="lowest"], .fx-verdict[data-claim="near"] { --tone: var(--lime); }
+.fx-verdict[data-claim="above"] { --tone: #ffb547; }
+.fx-verdict[data-claim="inflated"] { --tone: #ff7a4a; }
+.fx-verdict[data-claim="started"] { --tone: #b9b4aa; }
+.fx-claim { margin-top: 10px; font: italic 400 clamp(2.4rem, 4.9vw, 4.75rem)/0.98 var(--serif); color: var(--tone); min-height: 1.96em; display: flex; align-items: flex-end; text-wrap: balance; transition: color 0.3s; }
+.fx-reason { margin-top: 14px; max-width: 30em; min-height: 4.8em; color: var(--bone); transition: opacity 0.25s; }
+.fx-verdict[data-weighing="true"] .fx-claim { color: var(--muted); animation: fx-weigh 0.9s ease-in-out infinite alternate; }
+.fx-verdict[data-weighing="true"] .fx-reason { opacity: 0.25; }
+@keyframes fx-weigh { to { opacity: 0.45; } }
+
+.fx-controls { grid-area: controls; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px clamp(20px, 4vw, 56px); align-items: end; padding-top: 22px; border-top: 1px solid var(--line); }
+.fx-range { display: grid; gap: 4px; }
+.fx-range span, .fx-check span { display: flex; justify-content: space-between; gap: 12px; font: 500 0.75rem/1.4 var(--mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--soft); }
+.fx-range b { font-weight: 500; color: var(--bone); }
+.fx-range input { width: 100%; height: 44px; margin: 0; accent-color: var(--lime); cursor: pointer; }
+.fx-check { display: flex; align-items: center; gap: 12px; min-height: 44px; cursor: pointer; }
+.fx-check input { width: 22px; height: 22px; margin: 0; accent-color: var(--lime); flex: none; }
+.fx-note { grid-column: 1 / -1; font-size: 0.8125rem; color: var(--muted); max-width: 70em; }
+
+.fx-case-foot { grid-area: foot; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 24px; align-items: end; margin-top: clamp(20px, 5vh, 56px); }
+.fx-facts { display: flex; flex-wrap: wrap; gap: 14px clamp(24px, 5vw, 72px); }
+.fx-facts div { display: flex; flex-direction: column-reverse; gap: 6px; }
+.fx-facts dd { font: 600 clamp(2rem, 4.4vw, 3.75rem)/0.9 var(--sans); letter-spacing: -0.05em; }
+.fx-facts dt { font: 500 0.6875rem/1.4 var(--mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--soft); max-width: 18em; }
+.fx-case-foot .fx-actions { margin: 0; justify-content: flex-end; }
+
+/* Contact ------------------------------------------------------------------ */
+.fx-contact { position: relative; padding: clamp(72px, 14vh, 150px) var(--pad) 40px; background: linear-gradient(rgba(8, 9, 11, 0.6), var(--ink) 40%); }
+.fx-case .fx-button, .fx-contact .fx-button { border-color: rgba(237, 232, 223, 0.34); }
+.fx-contact h2 { max-width: 14ch; }
+.fx-contact .fx-lead { margin-top: 18px; }
+.fx-foot { display: flex; flex-wrap: wrap; gap: 6px 30px; margin-top: clamp(56px, 10vh, 110px); padding-top: 18px; border-top: 1px solid var(--line); font: 500 0.6875rem/1.6 var(--mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.fx-foot a { margin-left: auto; color: var(--soft); padding-block: 14px; margin-block: -14px; }
+
+/* Phone -------------------------------------------------------------------- */
+@media (max-width: 760px) {
+  .fx-header nav a:nth-child(2) { display: none; }
+  .fx-stage .mark { left: 50%; top: 30%; width: 62vw; }
+  .fx-hero { padding-bottom: 20px; }
+  .fx-hero::before { inset: 30% 0 0; }
+  .fx-eyebrow { top: 76px; }
+  .fx-hero-foot { grid-template-columns: minmax(0, 1fr); gap: 16px; }
+  .fx-hero h1 { font-size: clamp(2.25rem, 10.4vw, 3rem); }
+  .fx-lead { font-size: 1rem; }
+  .fx-actions { margin-top: 16px; }
+  .fx-hero .fx-button { flex: 1 1 auto; }
+  .fx-meter { top: 104px; }
+  .fx-meter b { font-size: 2.75rem; }
+  .fx-act { top: 30%; }
+  .fx-act span { font-size: 15vw; }
+  .fx-prompt { top: 31%; width: max-content; max-width: 90vw; letter-spacing: 0.12em; }
+  .fx-prompt i { height: 84px; }
+  .px-f:not([data-phase="void"]) .fx-prompt { top: 112px; }
+  .fx-direct { top: calc(31% + 92px); }
+  .fx-passage { min-height: 58vh; }
+  .fx-case::before { background: linear-gradient(rgba(8, 9, 11, 0.5) 0 12%, transparent 22% 52%, rgba(8, 9, 11, 0.86) 62%); }
+  .fx-case { grid-template-columns: minmax(0, 1fr); grid-template-areas: "head" "plot" "verdict" "controls" "foot"; grid-template-rows: none; gap: 18px; }
+  .fx-case-head .fx-lead { display: none; }
+  .fx-plot { padding: 64px 54px 30px 0; }
+  .fx-chart { height: min(300px, 40vh); }
+  .fx-bob span, .fx-tag--window { display: none; }
+  .fx-claim { min-height: 0; margin-top: 6px; }
+  .fx-reason { min-height: 6.4em; }
+  .fx-controls { grid-template-columns: minmax(0, 1fr); gap: 8px; }
+  .fx-case-foot { grid-template-columns: minmax(0, 1fr); }
+  .fx-case-foot .fx-actions { justify-content: flex-start; }
+  .fx-case-foot .fx-button { flex: 1 1 auto; }
+  .fx-foot a { margin-left: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .px-f *, .px-f *::before, .px-f *::after { animation: none !important; transition: none !important; }
+  .fx-prompt i { display: none; }
+}
