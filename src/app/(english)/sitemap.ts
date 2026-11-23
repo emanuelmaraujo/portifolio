@@ -1,6 +1,9 @@
 import type { MetadataRoute } from "next";
 import { siteUrl } from "@/components/site/content";
 import { entries, type Collection } from "@/components/site/entries";
+import { records } from "@/components/radar/content";
+import { areaIds, entryPath } from "@/components/radar/taxonomy";
+import { subareas } from "@/components/radar/subareas";
 
 export const dynamic = "force-static";
 
@@ -19,5 +22,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
       pages.push({ url, lastModified: item.updated ?? item.date, ...(languages ? { alternates: { languages } } : {}) });
     }
   }
+  const radarSections = new Set(["/radar", "/radar/acervo", "/radar/novidades", "/radar/em-alta", "/radar/laboratorios", "/radar/projetos", ...areaIds.flatMap(area => [`/radar/${area}`, ...subareas[area].map(group => `/radar/${area}/${group.id}`)]), ...records.map(item => `/radar/${item.area}/${item.kind}`)]);
+  pages.push(...[...radarSections].map(path => ({ url: siteUrl + path })));
+  pages.push(...records.map(item => ({ url: siteUrl + entryPath(item.slug), lastModified: item.catalogOrigin ? undefined : item.reviewedAt })));
   return pages;
 }

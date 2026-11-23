@@ -1,0 +1,45 @@
+name: Radar editorial
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '37 12 * * *'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: radar-editorial
+  cancel-in-progress: false
+
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - name: Coletar candidatos de fontes oficiais
+        run: node scripts/radar-collect.mjs out/radar-candidates.json
+        env:
+          GH_TOKEN: ${{ github.token }}
+          OPENAI_API_KEY: ${{ secrets.RADAR_OPENAI_API_KEY }}
+          RADAR_OPENAI_MODEL: ${{ vars.RADAR_OPENAI_MODEL }}
+      - name: Coletar estrelas adicionadas na última semana completa
+        if: always()
+        run: node scripts/radar-stars.mjs
+        env:
+          GH_TOKEN: ${{ github.token }}
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: radar-candidates
+          path: |
+            out/radar-candidates.json
+            out/radar-weekly-stars.json
+          if-no-files-found: warn
+          retention-days: 14

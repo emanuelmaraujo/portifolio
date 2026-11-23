@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { copy, links, siteUrl } from "./content";
 import { entries, entry, formatDate, related, type Collection, type Entry } from "./entries";
@@ -52,6 +53,7 @@ function Header({ lang, reading = false }: { lang: "en" | "pt"; reading?: boolea
       <nav aria-label={t.label}>
         <a href={routes.posts}>{t.articles}</a>
         <a href={routes.projetos_posts}>{t.projects}</a>
+        <Link href="/radar" hrefLang="pt-BR">Radar</Link>
       </nav>
       <a className="language" href={lang === "en" ? "/portifolio" : "/portifolio/pt"}>{t.back}</a>
     </header>

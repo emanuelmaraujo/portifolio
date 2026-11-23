@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { copy, links, siteUrl, type Locale } from "./content";
 import { Legend, MotionControl, Spotlight, TiltToggle, Wayfinder } from "./Controls";
 import Credentials from "./Credentials";
@@ -61,6 +62,7 @@ export default function Site({ locale }: { locale: Locale }) {
             <p className="actions">
               <a className="button button--accent" href="#work">{t.hero.primary}</a>
               <a className="button" href="#orchestration">{t.hero.secondary}</a>
+              <Link className="button" href="/radar" hrefLang="pt-BR">Radar <Arrow /></Link>
               <TiltToggle on={t.hero.tiltOn} off={t.hero.tiltOff} />
             </p>
           </div>
@@ -96,6 +98,7 @@ export default function Site({ locale }: { locale: Locale }) {
               <p className="actions" data-reveal>
                 <a className="button" href={links.blog}>{t.writing.all}<span aria-hidden="true">→</span></a>
                 <a className="link" href={links.notes}>{t.writing.notes}<span aria-hidden="true">→</span></a>
+                <Link className="link" href="/radar" hrefLang="pt-BR">Radar<span aria-hidden="true">→</span></Link>
               </p>
             </div>
             <ol className="posts">
