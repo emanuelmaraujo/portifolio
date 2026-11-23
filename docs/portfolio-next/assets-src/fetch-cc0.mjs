@@ -17,7 +17,7 @@ const files = async id => (await get("https://api.polyhaven.com/files/" + id)).j
 const hdri = "artist_workshop";
 await save((await files(hdri)).hdri["2k"].hdr.url, join(out, "hdri", hdri + "_2k.hdr"));
 
-for (const id of ["wood_table_worn", "white_plaster_02", "painted_plaster_wall"]) {
+for (const id of ["wood_table_worn", "painted_plaster_wall"]) {
   const f = await files(id);
   for (const [map, short] of [["Diffuse", "diff"], ["nor_gl", "nor"], ["Rough", "rough"]]) {
     const pick = f[map]?.["2k"]?.jpg;
@@ -26,7 +26,7 @@ for (const id of ["wood_table_worn", "white_plaster_02", "painted_plaster_wall"]
   }
 }
 
-for (const id of ["magnifying_glass_01", "seadogs_compass"]) {
+for (const id of ["magnifying_glass_01"]) {
   const g = (await files(id)).gltf["2k"].gltf;
   await save(g.url, join(out, "models", id, id + ".gltf"));
   for (const [path, item] of Object.entries(g.include || {})) await save(item.url, join(out, "models", id, path));

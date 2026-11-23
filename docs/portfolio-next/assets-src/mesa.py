@@ -331,7 +331,7 @@ BOBX = SX + 0.128
 rod("PlumbLine", (BOBX, SY, 0.118), (BOBX, SY, 0.31), 0.0005, STRING)
 try:
     before = set(bpy.data.objects)
-    bpy.ops.import_scene.gltf(filepath=os.path.join(HERE, "..", "..", "..", "public", "prototypes", "feixe", "prumo.glb"))
+    bpy.ops.import_scene.gltf(filepath=os.path.join(HERE, "prumo.glb"))
     for o in set(bpy.data.objects) - before:
         if o.type == "MESH":
             o.data.materials.clear(); o.data.materials.append(BRASS)
