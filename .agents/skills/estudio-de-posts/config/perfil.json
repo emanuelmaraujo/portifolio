@@ -1,0 +1,118 @@
+{
+  "_sobre": "Identidade, canais e foco do estúdio. O motor de animação lê a marca daqui.",
+  "autor": {
+    "nome": "Emanuel Araújo",
+    "cargo": "Coordenador de TI",
+    "assinatura": "IA e segurança da informação sem complicação.",
+    "site": "https://emanuelaraujo.com.br",
+    "chamada_final": "Siga para mais"
+  },
+  "foco": "Conhecimento técnico de verdade, sem foco em gestão: o que está acontecendo agora em IA, segurança, infraestrutura e desenvolvimento, explicado com profundidade ou de forma leve, alternando.",
+  "pilares": [
+    {
+      "id": "ia",
+      "nome": "Inteligência Artificial",
+      "inclui": "modelos, agentes, RAG, MCP, avaliação, segurança de IA, ferramentas novas"
+    },
+    {
+      "id": "ciber",
+      "nome": "Cibersegurança",
+      "inclui": "ameaças, golpes, vulnerabilidades, identidade, ataques, defesa"
+    },
+    {
+      "id": "infra",
+      "nome": "Infraestrutura, cloud e redes",
+      "inclui": "cloud, containers, redes, observabilidade, sistemas"
+    },
+    {
+      "id": "dev",
+      "nome": "Desenvolvimento, design e motion",
+      "inclui": "código, ferramentas, interfaces, acessibilidade, motion"
+    },
+    {
+      "id": "projetos",
+      "nome": "Projetos próprios",
+      "inclui": "Radar, portfólio, bastidores"
+    }
+  ],
+  "ritmo": {
+    "frequencia": "2 posts por dia, todos os dias",
+    "horarios": {
+      "09:30": "leve",
+      "14:30": "aprofundado"
+    },
+    "canais": [
+      "linkedin",
+      "instagram"
+    ]
+  },
+  "tom": {
+    "voz": "primeira pessoa, direto e profissional, com exemplos concretos",
+    "evitar": [
+      "frases de efeito em sequência",
+      "tom de palestra ou de quem ensina de cima para baixo",
+      "jargão sem explicação nos níveis N1 e N2",
+      "promessas absolutas ('nunca mais', 'resolve tudo')"
+    ],
+    "legenda_linhas_max": 7,
+    "hashtags_max": 4
+  },
+  "marca": {
+    "cores": {
+      "fundo": "#0e0e0e",
+      "texto": "#f3eee6",
+      "destaque": "#ff5a1f",
+      "claro": "#ece6dc",
+      "card": "#1a1a1a",
+      "borda": "#3a3a3a",
+      "apoio": "#a8a29a",
+      "apoio-escuro": "#6f6a63",
+      "sobre-destaque": "#121212"
+    },
+    "fontes": {
+      "embed_html": "<link rel=\"stylesheet\" href=\"https://use.typekit.net/gvu5ytv.css\">",
+      "titulo": "\"instrument-serif\", serif",
+      "estilo_titulo": "italic",
+      "peso_titulo": "400",
+      "texto": "\"inter-24pt\", sans-serif",
+      "nomes_para_checagem": [
+        "instrument-serif",
+        "inter-24pt"
+      ]
+    },
+    "logo": {
+      "viewbox": "0 0 100 95",
+      "proporcao": 0.95,
+      "svg": "<polygon points=\"48.5,10 88.5,87.5 67.5,87.5 38.5,29\" fill=\"{principal}\"/><polygon points=\"35,36 42.5,51 27.5,51\" fill=\"{destaque}\"/><polygon points=\"23.3,56.7 45.8,56.7 51.7,69 18,69\" fill=\"{destaque}\"/><polygon points=\"14.2,75 35.8,75 29.2,87.5 8.3,87.5\" fill=\"{destaque}\"/>"
+    }
+  },
+  "canais": {
+    "buffer_organizacao": "6afbe8aee45082112c0655a1",
+    "fuso": "America/Sao_Paulo",
+    "linkedin": {
+      "id": "6afbe8cdece6dfde5ff258ee",
+      "nome": "Emanuel Araújo"
+    },
+    "instagram": {
+      "id": "6afd3a44ece6dfde5f05d2b0",
+      "nome": "@emanuelmaraujo_ia",
+      "tipo": "business"
+    },
+    "plano_buffer": "gratuito",
+    "horarios_preferidos": [
+      "09:30",
+      "14:30"
+    ]
+  },
+  "hospedagem": {
+    "modo": "vercel-projeto",
+    "observacao": "Hoje cada post usa um projeto Vercel. Recomendado migrar para pasta de mídia do site (repositório emanuelmaraujo/portifolio, public/midia/)."
+  },
+  "projetos_proprios": [
+    {
+      "nome": "Radar do Emanuel",
+      "url": "https://emanuelaraujo.com.br/radar",
+      "uso": "novidades com fonte oficial, repositórios e skills em alta, acervo por área"
+    }
+  ]
+}

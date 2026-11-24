@@ -1,0 +1,51 @@
+<script>
+(function(){
+  const ease = x => 1 - Math.pow(1 - x, 3);
+  const scenes = [...document.querySelectorAll('.scene')].map(el => ({el, s: +el.dataset.s, e: +el.dataset.e}));
+  const TOTAL = Math.max(...scenes.map(x => x.e));
+  const items = [...document.querySelectorAll('.kf')].map(el => {
+    const kf = JSON.parse(el.dataset.kf); let acc = {};
+    kf.forEach(k => { acc = Object.assign({}, acc, k[1]); k[1] = acc; });
+    // back-fill so first key has every prop
+    const all = kf[kf.length-1][1]; kf.forEach(k => { for (const p in all) if (!(p in k[1])) k[1][p] = kf.find(q => p in q[1])[1][p]; });
+    return {el, kf};
+  });
+  const types = [...document.querySelectorAll('.type')].map(el => { const [t0, d] = el.dataset.type.split(',').map(Number); return {el, t0, d, full: el.textContent}; });
+  function val(kf, t) {
+    if (t <= kf[0][0]) return kf[0][1];
+    for (let i = 1; i < kf.length; i++) if (t <= kf[i][0]) {
+      const a = kf[i-1], b = kf[i], p = ease((t - a[0]) / ((b[0] - a[0]) || 1)), r = {};
+      for (const k in b[1]) r[k] = a[1][k] + (b[1][k] - a[1][k]) * p; return r;
+    }
+    return kf[kf.length-1][1];
+  }
+  function apply(el, v) {
+    const st = el.style;
+    if ('o' in v) st.opacity = v.o;
+    if ('x' in v || 'y' in v || 's' in v) st.transform = `translate(${v.x||0}px,${v.y||0}px) scale(${'s' in v ? v.s : 1})`;
+    if ('w' in v) st.width = v.w + 'px';
+    if ('h' in v) st.height = v.h + 'px';
+    if ('top' in v) st.top = v.top + 'px';
+    if ('left' in v) st.left = v.left + 'px';
+    if ('dash' in v) el.setAttribute('stroke-dashoffset', v.dash);
+  }
+  function sceneOf(el) { return scenes.find(sc => sc.el.contains(el)); }
+  items.forEach(it => it.sc = sceneOf(it.el)); types.forEach(it => it.sc = sceneOf(it.el));
+  window.renderAt = function (T) {
+    scenes.forEach(sc => {
+      const vis = T >= sc.s && T < sc.e; sc.el.style.display = vis ? 'block' : 'none';
+      if (vis) { const fi = Math.min(1, (T - sc.s) / 0.35), fo = Math.min(1, (sc.e - T) / 0.35); sc.el.style.opacity = Math.min(fi, fo); }
+    });
+    items.forEach(it => { const t = T - it.sc.s; apply(it.el, val(it.kf, t)); });
+    types.forEach(it => { const t = T - it.sc.s; const p = Math.max(0, Math.min(1, (t - it.t0) / it.d)); it.el.textContent = it.full.slice(0, Math.round(p * it.full.length)); });
+  };
+  const counts = [...document.querySelectorAll('[data-count]')].map(el => { const [t0, d, a, b] = el.dataset.count.split(',').map(Number); return {el, t0, d, a, b, sc: sceneOf(el)}; });
+  const _r = window.renderAt; window.renderAt = function (T) { _r(T); counts.forEach(c => { const t = T - c.sc.s; const p = ease(Math.max(0, Math.min(1, (t - c.t0) / c.d))); c.el.textContent = Math.round(c.a + (c.b - c.a) * p); }); };
+  window.TOTAL = TOTAL;
+  if (location.hash !== '#capture') {
+    const t0 = performance.now();
+    const loop = () => { renderAt(((performance.now() - t0) / 1000) % TOTAL); requestAnimationFrame(loop); };
+    requestAnimationFrame(loop);
+  } else { renderAt(0); }
+})();
+</script>
