@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="hz:slide-selector" content=".scene">
+<meta name="hz:canvas-width" content="1080">
+<meta name="hz:canvas-height" content="1350">
+<title>{{TITULO}}</title>
+{{FONT_EMBED}}
+<style>
+  :root {
+{{CSS_VARS}}
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: var(--fundo); }
+  .stage { position: relative; width: 1080px; height: 1350px; overflow: hidden; background: var(--fundo); }
+  .scene { position: absolute; left: 0; top: 0; width: 1080px; height: 1350px; overflow: hidden; background: var(--fundo); color: var(--texto); font-family: var(--fonte-texto); font-weight: 400; }
+  .serif { font-family: var(--fonte-titulo); font-style: var(--estilo-titulo); font-weight: var(--peso-titulo); }
+  .accent { color: var(--destaque); }
+  .mono { font-family: var(--fonte-texto); font-weight: 600; letter-spacing: 0.5px; }
+  .bold { font-family: var(--fonte-texto); font-weight: 700; }
+  .semi { font-family: var(--fonte-texto); font-weight: 600; }
+  .small-caps { font-family: var(--fonte-texto); font-weight: 700; font-size: 20px; letter-spacing: 3px; text-transform: uppercase; }
+  .kicker { position: absolute; left: 160px; top: 92px; font-weight: 700; font-size: 22px; letter-spacing: 4px; text-transform: uppercase; color: var(--destaque); }
+  .title { position: absolute; left: 80px; top: 160px; width: 920px; font-family: var(--fonte-titulo); font-style: var(--estilo-titulo); font-weight: var(--peso-titulo); font-size: 84px; line-height: 1.0; letter-spacing: -1px; color: var(--texto); }
+  .caption { position: absolute; left: 80px; width: 920px; font-size: 26px; line-height: 1.45; color: var(--apoio); }
+  .caption b { color: var(--texto); font-weight: 700; }
+  .fname, .fpage { position: absolute; top: 1260px; font-weight: 500; font-size: 20px; color: var(--apoio-escuro); }
+  .fname { left: 80px; width: 400px; }
+  .fpage { left: 700px; width: 300px; text-align: right; }
+  .plabel { position: absolute; left: 32px; top: 24px; font-weight: 700; font-size: 18px; letter-spacing: 3px; text-transform: uppercase; color: var(--apoio); }
+</style>
+</head>
