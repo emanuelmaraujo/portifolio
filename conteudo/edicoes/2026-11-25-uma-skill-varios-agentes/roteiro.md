@@ -1,8 +1,8 @@
-# Drupal: corrigida num dia, explorada no outro
+# Uma skill, vários agentes
 
 - Data: 2026-11-25
 - Peso: aprofundado
-- Formato: caso
+- Formato: explicador
 
 | # | Kicker | Título | Visual | Apoio |
 |---|---|---|---|---|
