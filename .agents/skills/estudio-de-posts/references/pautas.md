@@ -11,8 +11,8 @@ Um bom assunto do momento: aconteceu há pouco, afeta muita gente da área e dá
 
 Transforme a notícia em post respondendo: **o que aconteceu → por que importa → como funciona → o que fazer**. No peso leve, foque em "o que muda para mim"; no aprofundado, em "como funciona por dentro e onde falha".
 
-## 1b. Experiência própria (preferida no aprofundado)
-O melhor post aprofundado é sobre algo que o Emanuel fez ou usa de verdade: projetos, skills, agentes, automações, o Radar, ferramentas do dia a dia dele. Olhe o que ele construiu recentemente (commits no portfólio, conversas da semana) e conte como relato: o que fez, como fez, o que aprendeu e o que não funcionou.
+## 1b. O que torna o assunto interessante
+O tema precisa despertar curiosidade em quem é da área: algo novo, surpreendente ou que muda como as coisas funcionam. Experiência própria do Emanuel vale quando o assunto em si é interessante para o público, não só para ele.
 
 ## 2. Tema livre
 Se o Emanuel indicar um tema, ele tem prioridade. Defina o peso do dia, procure um gancho atual que conecte o tema ao momento (se houver) e siga.
@@ -55,6 +55,7 @@ Conhecimentos que continuam importantes e rendem tanto um post leve quanto um ap
 - Git por dentro: commits, branches e rebase sem medo.
 
 ## 4. Evite
+- Posts sobre a própria ferramenta de produção (skills, o estúdio, como os posts são feitos): ele recusou esse tipo de tema.
 - Temas de gestão (orçamento, contratos, indicadores de equipe, comitês).
 - Repetir o tema de um post recente (veja `historico.md`) sem um ângulo novo.
 - Notícia que não dá para confirmar numa fonte confiável.
