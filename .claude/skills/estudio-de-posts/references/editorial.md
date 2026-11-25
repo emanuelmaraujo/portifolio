@@ -25,6 +25,8 @@ Soar como um profissional experiente conversando com um colega: direto, concreto
 - Final carregado. O começo pode ter gancho forte; o final deve ser leve.
 - Promessa absoluta ("nunca mais", "100% seguro").
 
+**Sem pose de especialista**: em notícia, relate o fato e quem disse ("segundo o aviso do Drupal", "o relatório da Serasa mostra"), sem instruções em tom de autoridade. Em tema de experiência própria, conte como relato ("fiz assim, funcionou aqui", "não é guia definitivo"). O Emanuel prefere ser visto como quem compartilha, não como dono do assunto.
+
 **Teste rápido**: leia a frase em voz alta. Se parece slogan ou slide de palestra motivacional, reescreva como você diria numa conversa de corredor.
 
 **Ajuste pelo peso**: no leve, todo termo técnico é explicado na mesma frase. No aprofundado, use o vocabulário técnico sem explicar o básico — a profundidade é o valor do post.
