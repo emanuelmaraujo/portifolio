@@ -102,5 +102,5 @@ Para o aprofundado, mantenha o mesmo esqueleto e troque a situação do dia a di
 - [ ] Peso declarado e coerente (vocabulário e profundidade batem com leve/aprofundado).
 - [ ] Fatos e números conferidos em fontes confiáveis e relevantes, com link em `apuracao.md`; nada inventado; exemplos ilustrativos parecem exemplos.
 - [ ] Termina em algo útil: uma ação, um critério técnico ou um entendimento claro.
-- [ ] Folha de revisão sem texto sobreposto, cortado ou vão vazio; capa legível em miniatura; sem avisos do `capture.js`.
+- [ ] Folha de revisão sem texto sobreposto, cortado ou vão vazio; capa legível em miniatura; sem avisos do `capture.cjs`.
 - [ ] `checar_legenda.py` sem erros e legenda lida em voz alta sem frase de pôster.

@@ -53,7 +53,7 @@ bash $SK/scripts/render.sh post.html . <slug>             # MP4 + GIF
 ```
 - Abre sempre com `capa_reel` (estática, ~2,2 s): vira a capa do Reel e a miniatura do LinkedIn.
 - Componentes em `scripts/estudio.py`: `capa_reel`, `capa`, `topo`, `titulo`, `legenda`, `numero`, `card`, `pilula`, `lista_check`, `navegador`, `fechamento` + `fade`, `pop`, `kf`, `tipo`, `conta`. Cores pelas constantes (`DESTAQUE`, `CARD`, `TEXTO`…).
-- Revise a folha (texto sobreposto, cortado, vão vazio) e os avisos do `capture.js` antes de mostrar. Layout: `references/identidade.md`.
+- Revise a folha (texto sobreposto, cortado, vão vazio) e os avisos do `capture.cjs` antes de mostrar. Layout: `references/identidade.md`.
 
 ### 4. Aprovação
 Mande o GIF (anexo), a legenda, o peso, as fontes e a data/hora sugerida. Ele aprova, pede ajuste ou descarta.

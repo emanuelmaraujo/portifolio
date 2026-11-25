@@ -39,4 +39,4 @@ A marca (cores, fontes, logo, assinatura) vem de `config/perfil.json` → `marca
 - O LinkedIn recusa GIF grande (limite de ~250 quadros e ~36 milhões de pixels somados). `scripts/gif_linkedin.py` gera um GIF otimizado, mas vídeo é a escolha segura.
 
 ## 6. Ajustar a marca
-Troque cores, fontes ou logo em `config/perfil.json` → `marca` (o logo é SVG com `{principal}` e `{destaque}` no lugar das cores). O `capture.js` avisa se alguma fonte listada em `nomes_para_checagem` não carregar.
+Troque cores, fontes ou logo em `config/perfil.json` → `marca` (o logo é SVG com `{principal}` e `{destaque}` no lugar das cores). O `capture.cjs` avisa se alguma fonte listada em `nomes_para_checagem` não carregar.
