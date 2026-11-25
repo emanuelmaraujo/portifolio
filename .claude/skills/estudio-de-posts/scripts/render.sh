@@ -22,7 +22,7 @@ print(json.dumps([round(e-0.6,2) for s,e in c]))
 PY
 )
 mkdir -p "$TMP/rev"
-node "$DIR/capture.js" "$HTML" "$TMP/rev" keys 0 1 "$TIMES" >/dev/null
+node "$DIR/capture.cjs" "$HTML" "$TMP/rev" keys 0 1 "$TIMES" >/dev/null
 python3 -I - "$TMP/rev" "$OUT/${NOME}-revisao.jpg" <<'PY'
 import glob,sys
 from PIL import Image
@@ -36,7 +36,7 @@ if [ "$REVISAO" = 1 ]; then rm -rf "$TMP"; exit 0; fi
 
 # 2) todos os frames
 mkdir -p "$TMP/f"
-node "$DIR/capture.js" "$HTML" "$TMP/f" all "$FPS" 1
+node "$DIR/capture.cjs" "$HTML" "$TMP/f" all "$FPS" 1
 
 # 3) MP4 (vai para LinkedIn e Instagram)
 ffmpeg -y -loglevel error -framerate "$FPS" -i "$TMP/f/f%04d.png" -c:v libx264 -pix_fmt yuv420p -crf 18 -movflags +faststart "$OUT/${NOME}.mp4"

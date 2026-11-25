@@ -11,6 +11,9 @@ Um bom assunto do momento: aconteceu há pouco, afeta muita gente da área e dá
 
 Transforme a notícia em post respondendo: **o que aconteceu → por que importa → como funciona → o que fazer**. No peso leve, foque em "o que muda para mim"; no aprofundado, em "como funciona por dentro e onde falha".
 
+## 1b. Experiência própria (preferida no aprofundado)
+O melhor post aprofundado é sobre algo que o Emanuel fez ou usa de verdade: projetos, skills, agentes, automações, o Radar, ferramentas do dia a dia dele. Olhe o que ele construiu recentemente (commits no portfólio, conversas da semana) e conte como relato: o que fez, como fez, o que aprendeu e o que não funcionou.
+
 ## 2. Tema livre
 Se o Emanuel indicar um tema, ele tem prioridade. Defina o peso do dia, procure um gancho atual que conecte o tema ao momento (se houver) e siga.
 

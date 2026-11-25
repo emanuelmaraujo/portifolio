@@ -1,6 +1,6 @@
 // Captura frames do post animado com Playwright.
-// node capture.js <post.html> <pasta> all <fps> [escala]
-// node capture.js <post.html> <pasta> keys 0 [escala] '[t1,t2,...]'
+// node capture.cjs <post.html> <pasta> all <fps> [escala]
+// node capture.cjs <post.html> <pasta> keys 0 [escala] '[t1,t2,...]'
 const { chromium } = require('playwright');
 (async () => {
   const [html, out, mode, fps, scale] = process.argv.slice(2);

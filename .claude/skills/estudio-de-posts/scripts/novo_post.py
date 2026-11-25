@@ -47,7 +47,8 @@ def main():
         with open(os.path.join(destino, nome), "w", encoding="utf-8") as f:
             f.write(txt)
     with open(os.path.join(MODELOS, a.formato + ".py"), encoding="utf-8") as f:
-        modelo = f.read().replace("{{SKILL}}", RAIZ).replace('"[[Título do post]]"', repr(a.titulo))
+        rel = os.path.relpath(RAIZ, os.path.abspath(destino))
+        modelo = f.read().replace('"{{SKILL}}"', f'os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), {rel!r}))').replace('"[[Título do post]]"', repr(a.titulo))
     with open(os.path.join(destino, "cenas.py"), "w", encoding="utf-8") as f:
         f.write(modelo)
     print(destino)

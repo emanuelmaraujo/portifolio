@@ -11,10 +11,11 @@ Posts diários para o perfil do Emanuel: **conhecimento técnico de verdade sobr
 
 1. **Nunca publicar sem aprovação explícita.**
 2. **Dois posts por dia, intercalando o peso**: **09:30 leve** e **14:30 aprofundado** (horários e pesos em `ritmo` no perfil), nos dois canais. Post avulso fora da rotina: peso oposto ao último do `historico.md`. Se ele pedir um peso, vale o pedido.
-3. **Atualidade primeiro**: o tema vem do que está em discussão agora. Sem assunto forte no momento, use um princípio ou fundamento importante (`references/pautas.md`).
-4. **Tema livre é bem-vindo**: se ele indicar um assunto, use-o — só defina o peso e o ângulo.
-5. **Fontes confiáveis e relevantes**: busque a origem da informação (quem publicou o dado, o anúncio, a pesquisa), confira números e guarde os links. Não invente dados nem citações.
-6. **Voz humana**: situação concreta, sem slogan, sem tom de palestra (`references/editorial.md`).
+3. **Aprofundado de preferência sobre o que ele conhece por experiência própria**; se for notícia, relatada sem pose de especialista (`references/editorial.md` §1).
+4. **Atualidade primeiro**: o tema vem do que está em discussão agora. Sem assunto forte no momento, use um princípio ou fundamento importante (`references/pautas.md`).
+5. **Tema livre é bem-vindo**: se ele indicar um assunto, use-o — só defina o peso e o ângulo.
+6. **Fontes confiáveis e relevantes**: busque a origem da informação (quem publicou o dado, o anúncio, a pesquisa), confira números e guarde os links. Não invente dados nem citações.
+7. **Voz humana**: situação concreta, sem slogan, sem tom de palestra (`references/editorial.md`).
 
 ## Os dois pesos
 
@@ -53,7 +54,7 @@ bash $SK/scripts/render.sh post.html . <slug>             # MP4 + GIF
 ```
 - Abre sempre com `capa_reel` (estática, ~2,2 s): vira a capa do Reel e a miniatura do LinkedIn.
 - Componentes em `scripts/estudio.py`: `capa_reel`, `capa`, `topo`, `titulo`, `legenda`, `numero`, `card`, `pilula`, `lista_check`, `navegador`, `fechamento` + `fade`, `pop`, `kf`, `tipo`, `conta`. Cores pelas constantes (`DESTAQUE`, `CARD`, `TEXTO`…).
-- Revise a folha (texto sobreposto, cortado, vão vazio) e os avisos do `capture.js` antes de mostrar. Layout: `references/identidade.md`.
+- Revise a folha (texto sobreposto, cortado, vão vazio) e os avisos do `capture.cjs` antes de mostrar. Layout: `references/identidade.md`.
 
 ### 4. Aprovação
 Mande o GIF (anexo), a legenda, o peso, as fontes e a data/hora sugerida. Ele aprova, pede ajuste ou descarta.

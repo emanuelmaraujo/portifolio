@@ -59,3 +59,4 @@ conteudo/edicoes/**/*.gif
 conteudo/edicoes/**/*.jpg
 conteudo/edicoes/**/*.png
 conteudo/edicoes/**/post.html
+__pycache__/
